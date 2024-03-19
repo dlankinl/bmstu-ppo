@@ -7,7 +7,7 @@ Web MPA
 ## Технологический стек
 
 - Backend: Golang
-- Frontend: Svelte
+- Frontend: HTML, CSS
 - DB: PostgreSQL
 
 ## Верхнеуровневое разбиение на компоненты
