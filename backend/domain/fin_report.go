@@ -20,7 +20,7 @@ type Period struct {
 type IFinancialReportRepository interface {
 	Create(finRep FinancialReport) error
 	GetById(id uuid.UUID) (FinancialReport, error)
-	GetByPeriod(period Period) (FinancialReport, error) // FIXME: бред
+	GetByPeriod(companyId uuid.UUID, period Period) (FinancialReport, error) // FIXME: бред
 	Update(finRep FinancialReport) error
 	DeleteById(id uuid.UUID) error
 }
@@ -28,7 +28,7 @@ type IFinancialReportRepository interface {
 type IFinancialReportService interface {
 	Create(finRep FinancialReport) error
 	GetById(id uuid.UUID) (FinancialReport, error)
-	GetByPeriod(period Period) (FinancialReport, error) // FIXME: бред
+	GetByPeriod(companyId uuid.UUID, period Period) (FinancialReport, error) // FIXME: бред
 	Update(finRep FinancialReport) error
 	DeleteById(id uuid.UUID) error
 }
