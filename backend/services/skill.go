@@ -9,19 +9,19 @@ type SkillService struct {
 	skillRepo domain.ISkillRepository
 }
 
-func (s SkillService) Create(skill domain.Skill) (err error) {
+func (s SkillService) Create(skill *domain.Skill) (err error) {
 	return nil
 }
 
-func (s SkillService) GetById(id uuid.UUID) (skill domain.Skill, err error) {
+func (s SkillService) GetById(id uuid.UUID) (skill *domain.Skill, err error) {
 	return skill, nil
 }
 
-func (s SkillService) GetAll() (skills []domain.Skill, err error) {
+func (s SkillService) GetAll() (skills []*domain.Skill, err error) {
 	return skills, nil
 }
 
-func (s SkillService) Update(skill domain.Skill) (err error) {
+func (s SkillService) Update(skill *domain.Skill) (err error) {
 	return nil
 }
 

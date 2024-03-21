@@ -9,17 +9,17 @@ type Contact struct {
 }
 
 type IContactsRepository interface {
-	Create(contact Contact) error
-	GetById(id uuid.UUID) (Contact, error)
-	GetAllByUserId(id uuid.UUID) ([]Contact, error)
-	Update(contact Contact) error
+	Create(contact *Contact) error
+	GetById(id uuid.UUID) (*Contact, error)
+	GetAllByUserId(id uuid.UUID) ([]*Contact, error)
+	Update(contact *Contact) error
 	DeleteById(id uuid.UUID) error
 }
 
 type IContactsService interface {
-	Create(contact Contact) error
-	GetById(id uuid.UUID) (Contact, error)
-	GetAllByUserId(id uuid.UUID) ([]Contact, error)
-	Update(contact Contact) error
+	Create(contact *Contact) error
+	GetById(id uuid.UUID) (*Contact, error)
+	GetAllByUserId(id uuid.UUID) ([]*Contact, error)
+	Update(contact *Contact) error
 	DeleteById(id uuid.UUID) error
 }

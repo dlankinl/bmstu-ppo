@@ -9,17 +9,17 @@ type Skill struct {
 }
 
 type ISkillRepository interface {
-	Create(skill Skill) error
-	GetById(id uuid.UUID) (Skill, error)
-	GetAll() ([]Skill, error)
-	Update(skill Skill) error
+	Create(skill *Skill) error
+	GetById(id uuid.UUID) (*Skill, error)
+	GetAll() ([]*Skill, error)
+	Update(skill *Skill) error
 	DeleteById(id uuid.UUID) error
 }
 
 type ISkillService interface {
-	Create(skill Skill) error
-	GetById(id uuid.UUID) (Skill, error)
-	GetAll() ([]Skill, error)
-	Update(skill Skill) error
+	Create(skill *Skill) error
+	GetById(id uuid.UUID) (*Skill, error)
+	GetAll() ([]*Skill, error)
+	Update(skill *Skill) error
 	DeleteById(id uuid.UUID) error
 }
