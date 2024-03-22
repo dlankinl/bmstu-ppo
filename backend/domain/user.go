@@ -9,7 +9,7 @@ type User struct {
 	ID       uuid.UUID
 	Username string
 	FullName string
-	Gender   int
+	Gender   string
 	Birthday time.Time
 	City     string
 }
@@ -28,7 +28,6 @@ type IUserService interface {
 	GetAll() ([]*User, error)
 	Update(user *User) error
 	DeleteById(id uuid.UUID) error
-	GetUserCompanies(id uuid.UUID) ([]*Company, error)
-	GetFinancialReport(period Period) (*FinancialReport, error)
+	GetFinancialReport(id uuid.UUID, period Period) (*FinancialReport, error)
 	CalculateRating(id uuid.UUID) (float32, error)
 }
