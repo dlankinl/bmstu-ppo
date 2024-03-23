@@ -7,15 +7,15 @@ type FinancialReport struct {
 	CompanyID uuid.UUID
 	Revenue   float32
 	Costs     float32
-	Taxes     float32
-	TaxLoad   float32
 	Year      int
 	Quarter   int
 }
 
 type FinancialReportByPeriod struct {
-	Period  Period
 	Reports []FinancialReport
+	Period  Period
+	Taxes   float32
+	TaxLoad float32
 }
 
 type Period struct {
@@ -23,6 +23,30 @@ type Period struct {
 	StartQuarter int
 	EndYear      int
 	EndQuarter   int
+}
+
+func (r *FinancialReportByPeriod) Revenue() (sum float32) {
+	for _, rep := range r.Reports {
+		sum += rep.Revenue
+	}
+
+	return sum
+}
+
+func (r *FinancialReportByPeriod) Costs() (sum float32) {
+	for _, rep := range r.Reports {
+		sum += rep.Costs
+	}
+
+	return sum
+}
+
+func (r *FinancialReportByPeriod) Profit() (sum float32) {
+	for _, rep := range r.Reports {
+		sum += rep.Revenue - rep.Costs
+	}
+
+	return sum
 }
 
 type IFinancialReportRepository interface {

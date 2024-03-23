@@ -85,8 +85,9 @@ func (s UserService) DeleteById(id uuid.UUID) (err error) {
 	return nil
 }
 
-func (s UserService) GetFinancialReport(id uuid.UUID, period domain.Period) (finReport *domain.ExtFinancialReport, err error) {
-	if period.StartYear > period.EndYear || (period.StartYear == period.EndYear && period.StartQuarter > period.EndQuarter) {
+func (s UserService) GetFinancialReport(id uuid.UUID, period domain.Period) (finReports []*domain.FinancialReportByPeriod, err error) {
+	if period.StartYear > period.EndYear ||
+		(period.StartYear == period.EndYear && period.StartQuarter > period.EndQuarter) {
 		return nil, fmt.Errorf("дата конца периода должна быть позже даты начала")
 	}
 
@@ -95,71 +96,71 @@ func (s UserService) GetFinancialReport(id uuid.UUID, period domain.Period) (fin
 		return nil, fmt.Errorf("получение списка компаний предпринимателя с id=%d: %w", id, err)
 	}
 
-	finReports := make([]domain.FinancialReport, 0)
+	finReports = make([]*domain.FinancialReportByPeriod, 0)
 	for _, company := range companies {
-		report, err := s.finRepo.GetByPeriod(company.ID, period)
+		report, err := s.finRepo.GetByCompany(company.ID, period)
 		if err != nil {
 			return nil, fmt.Errorf("получение финансовой отчетности компании с id=%d: %w", company.ID, err)
 		}
 
-		finReports = append(finReports, *report)
+		yearReports := make(map[int]domain.FinancialReportByPeriod)
+
+		var i int
+		for year := period.StartYear; year <= period.EndYear; year++ {
+			startQtr := 1
+			endQtr := 4
+
+			if year == period.StartYear {
+				startQtr = period.StartQuarter
+			}
+			if year == period.EndYear {
+				endQtr = period.EndQuarter
+			}
+
+			var totalFinReport domain.FinancialReportByPeriod
+			for quarter := startQtr; quarter <= endQtr; quarter++ {
+				totalFinReport.Reports = append(totalFinReport.Reports, report.Reports[i])
+				i++
+			}
+
+			per := domain.Period{
+				StartYear:    year,
+				EndYear:      year,
+				StartQuarter: startQtr,
+				EndQuarter:   endQtr,
+			}
+			totalFinReport.Period = per
+			yearReports[year] = totalFinReport
+		}
+
+		for _, v := range yearReports {
+			if len(v.Reports) == 4 {
+				totalProfit := v.Profit()
+				var taxFare int
+				switch true {
+				case totalProfit < 10000000:
+					taxFare = 4
+				case totalProfit < 50000000:
+					taxFare = 7
+				case totalProfit < 150000000:
+					taxFare = 13
+				case totalProfit < 500000000:
+					taxFare = 20
+				default:
+					taxFare = 30
+				}
+
+				v.Taxes = totalProfit * (float32(taxFare) / 100)
+
+				report.Taxes += v.Taxes
+				report.TaxLoad += v.Taxes / v.Revenue() * 100
+			}
+		}
+
+		finReports = append(finReports, report)
 	}
 
-	yearReports := make(map[int]domain.ExtFinancialReport)
-
-	var i int
-	for year := period.StartYear; year <= period.EndYear; year++ {
-		startQtr := 1
-		endQtr := 4
-
-		if year == period.StartYear {
-			startQtr = period.StartQuarter
-		}
-		if year == period.EndYear {
-			endQtr = period.EndQuarter
-		}
-
-		var totalFinReport domain.FinancialReport
-		for quarter := startQtr; quarter <= endQtr; quarter++ {
-			totalFinReport.Revenue += finReports[i].Revenue
-			totalFinReport.Costs += finReports[i].Costs
-			i++
-		}
-
-		per := domain.Period{
-			StartYear:    year,
-			EndYear:      year,
-			StartQuarter: startQtr,
-			EndQuarter:   endQtr,
-		}
-		totalFinReport.Period = per
-		yearReports[year] = domain.FinReportToExt(totalFinReport)
-	}
-
-	for _, v := range yearReports {
-		totalProfit := v.FinReport.Revenue - v.FinReport.Costs
-		var taxFare int
-		switch true {
-		case totalProfit < 10000000:
-			taxFare = 4
-		case totalProfit < 50000000:
-			taxFare = 7
-		case totalProfit < 150000000:
-			taxFare = 13
-		case totalProfit < 500000000:
-			taxFare = 20
-		default:
-			taxFare = 30
-		}
-
-		v.Taxes = totalProfit * (float32(taxFare) / 100)
-
-		finReport.FinReport.Revenue += v.FinReport.Revenue
-		finReport.FinReport.Costs += v.FinReport.Costs
-		finReport.Taxes += v.Taxes
-	}
-
-	return finReport, nil
+	return finReports, nil
 }
 
 func (s UserService) CalculateRating(id uuid.UUID) (rating float32, err error) {
@@ -178,7 +179,7 @@ func (s UserService) CalculateRating(id uuid.UUID) (rating float32, err error) {
 		return 0, fmt.Errorf("получение финансового отчета за прошлый год: %w", err)
 	}
 
-	rating = 1.2*mainFieldWeight*mainFieldWeight + 0.35*report.FinReport.Revenue + 0.9*float32(math.Pow(float64(report.FinReport.Revenue-report.FinReport.Costs), 1.5))
+	rating = 1.2*mainFieldWeight*mainFieldWeight + 0.35*report.Revenue + 0.9*float32(math.Pow(float64(report.Revenue-report.Costs), 1.5))
 
 	return rating, nil
 }

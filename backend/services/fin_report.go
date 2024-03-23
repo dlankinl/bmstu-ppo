@@ -79,6 +79,60 @@ func (s FinReportService) GetByCompany(companyId uuid.UUID, period domain.Period
 		return nil, fmt.Errorf("получение финансового отчета по id компании: %w", err)
 	}
 
+	yearReports := make(map[int]domain.FinancialReportByPeriod)
+
+	var i int
+	for year := period.StartYear; year <= period.EndYear; year++ {
+		startQtr := 1
+		endQtr := 4
+
+		if year == period.StartYear {
+			startQtr = period.StartQuarter
+		}
+		if year == period.EndYear {
+			endQtr = period.EndQuarter
+		}
+
+		var totalFinReport domain.FinancialReportByPeriod
+		for quarter := startQtr; quarter <= endQtr; quarter++ {
+			totalFinReport.Reports = append(totalFinReport.Reports, finReport.Reports[i])
+			i++
+		}
+
+		per := domain.Period{
+			StartYear:    year,
+			EndYear:      year,
+			StartQuarter: startQtr,
+			EndQuarter:   endQtr,
+		}
+		totalFinReport.Period = per
+		yearReports[year] = totalFinReport
+	}
+
+	for _, v := range yearReports {
+		if len(v.Reports) == 4 {
+			totalProfit := v.Profit()
+			var taxFare int
+			switch true {
+			case totalProfit < 10000000:
+				taxFare = 4
+			case totalProfit < 50000000:
+				taxFare = 7
+			case totalProfit < 150000000:
+				taxFare = 13
+			case totalProfit < 500000000:
+				taxFare = 20
+			default:
+				taxFare = 30
+			}
+
+			v.Taxes = totalProfit * (float32(taxFare) / 100)
+
+			finReport.Taxes += v.Taxes
+			finReport.TaxLoad += v.Taxes / v.Revenue() * 100
+		}
+	}
+
 	return finReport, nil
 }
 
