@@ -11,7 +11,26 @@ type CompanyService struct {
 	finRepo     domain.IFinancialReportRepository
 }
 
+func NewCompanyService(companyRepo domain.ICompanyRepository, finRepo domain.IFinancialReportRepository) *CompanyService {
+	return &CompanyService{
+		companyRepo: companyRepo,
+		finRepo:     finRepo,
+	}
+}
+
 func (s CompanyService) Create(company *domain.Company) (err error) {
+	if company.Name == "" {
+		return fmt.Errorf("должно быть указано название компании")
+	}
+
+	if company.City == "" {
+		return fmt.Errorf("должно быть указано название города")
+	}
+
+	if company.FieldOfActivity == "" {
+		return fmt.Errorf("должно быть указано название сферы деятельности")
+	}
+
 	err = s.companyRepo.Create(company)
 	if err != nil {
 		return fmt.Errorf("добавление компании: %w", err)
@@ -38,6 +57,7 @@ func (s CompanyService) GetByOwnerId(id uuid.UUID) (companies []*domain.Company,
 	return companies, nil
 }
 
+// TODO: фильтрация
 func (s CompanyService) GetAll() (companies []*domain.Company, err error) {
 	companies, err = s.companyRepo.GetAll()
 	if err != nil {
@@ -66,6 +86,10 @@ func (s CompanyService) DeleteById(id uuid.UUID) (err error) {
 }
 
 func (s CompanyService) GetFinancialReport(id uuid.UUID, period domain.Period) (finReport *domain.FinancialReport, err error) {
+	if period.StartYear > period.EndYear || (period.StartYear == period.EndYear && period.StartQuarter > period.EndQuarter) {
+		return nil, fmt.Errorf("дата конца периода должна быть позже даты начала")
+	}
+
 	finReport, err = s.finRepo.GetByPeriod(id, period)
 	if err != nil {
 		return nil, fmt.Errorf("получение финансового отчета по id компании: %w", err)

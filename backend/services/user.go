@@ -16,28 +16,28 @@ type UserService struct {
 }
 
 func (s UserService) Create(user *domain.User) (err error) {
-	if user.Gender != "m" || user.Gender != "w" {
-		return fmt.Errorf("неизвестный пол: %w", err)
+	if user.Gender != "m" && user.Gender != "w" {
+		return fmt.Errorf("неизвестный пол")
 	}
 
 	if user.Username == "" {
-		return fmt.Errorf("должно быть указано имя пользователя: %w", err)
+		return fmt.Errorf("должно быть указано имя пользователя")
 	}
 
 	if user.City == "" {
-		return fmt.Errorf("должно быть указано название города: %w", err)
+		return fmt.Errorf("должно быть указано название города")
 	}
 
 	if user.Birthday.IsZero() {
-		return fmt.Errorf("должна быть указана дата рождения: %w", err)
+		return fmt.Errorf("должна быть указана дата рождения")
 	}
 
 	if user.FullName == "" {
-		return fmt.Errorf("должны быть указаны ФИО: %w", err)
+		return fmt.Errorf("должны быть указаны ФИО")
 	}
 
 	if len(strings.Split(user.FullName, " ")) != 3 {
-		return fmt.Errorf("некорректное количество слов (должны быть фамилия, имя и отчество): %w", err)
+		return fmt.Errorf("некорректное количество слов (должны быть фамилия, имя и отчество)")
 	}
 
 	err = s.userRepo.Create(user)
@@ -86,6 +86,10 @@ func (s UserService) DeleteById(id uuid.UUID) (err error) {
 }
 
 func (s UserService) GetFinancialReport(id uuid.UUID, period domain.Period) (finReport *domain.ExtFinancialReport, err error) {
+	if period.StartYear > period.EndYear || (period.StartYear == period.EndYear && period.StartQuarter > period.EndQuarter) {
+		return nil, fmt.Errorf("дата конца периода должна быть позже даты начала")
+	}
+
 	companies, err := s.companyRepo.GetByOwnerId(id)
 	if err != nil {
 		return nil, fmt.Errorf("получение списка компаний предпринимателя с id=%d: %w", id, err)

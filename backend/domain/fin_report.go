@@ -6,7 +6,13 @@ type FinancialReport struct {
 	ID      uuid.UUID
 	Revenue float32
 	Costs   float32
-	period  Period
+	Period  Period
+}
+
+type ExtFinancialReport struct {
+	FinReport FinancialReport
+	Taxes     float32
+	TaxLoad   float32
 }
 
 type Period struct {
@@ -14,6 +20,12 @@ type Period struct {
 	StartQuarter int
 	EndYear      int
 	EndQuarter   int
+}
+
+func FinReportToExt(src FinancialReport) (dest ExtFinancialReport) {
+	return ExtFinancialReport{
+		FinReport: src,
+	}
 }
 
 type IFinancialReportRepository interface {

@@ -28,6 +28,7 @@ func (s ContactService) GetById(id uuid.UUID) (contact *domain.Contact, err erro
 	return contact, nil
 }
 
+// TODO: фильтрация
 func (s ContactService) GetAllByUserId(id uuid.UUID) (contacts []*domain.Contact, err error) {
 	contacts, err = s.contactRepo.GetAllByUserId(id)
 	if err != nil {
