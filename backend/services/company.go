@@ -11,7 +11,7 @@ type CompanyService struct {
 	finRepo     domain.IFinancialReportRepository
 }
 
-func NewCompanyService(companyRepo domain.ICompanyRepository, finRepo domain.IFinancialReportRepository) *CompanyService {
+func NewCompanyService(companyRepo domain.ICompanyRepository, finRepo domain.IFinancialReportRepository) domain.ICompanyService {
 	return &CompanyService{
 		companyRepo: companyRepo,
 		finRepo:     finRepo,

@@ -15,7 +15,6 @@ type User struct {
 }
 
 type IUserRepository interface {
-	Create(user *User) error
 	GetById(id uuid.UUID) (*User, error)
 	GetAll() ([]*User, error)
 	Update(user *User) error
@@ -23,7 +22,6 @@ type IUserRepository interface {
 }
 
 type IUserService interface {
-	Create(user *User) error
 	GetById(id uuid.UUID) (*User, error)
 	GetAll() ([]*User, error)
 	Update(user *User) error

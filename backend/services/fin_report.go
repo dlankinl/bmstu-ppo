@@ -11,7 +11,7 @@ type FinReportService struct {
 	finRepo domain.IFinancialReportRepository
 }
 
-func NewFinReportService(finRepo domain.IFinancialReportRepository) *FinReportService {
+func NewFinReportService(finRepo domain.IFinancialReportRepository) domain.IFinancialReportService {
 	return &FinReportService{
 		finRepo: finRepo,
 	}
