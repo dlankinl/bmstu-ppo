@@ -11,6 +11,14 @@ type ContactService struct {
 }
 
 func (s ContactService) Create(contact *domain.Contact) (err error) {
+	if contact.Name == "" {
+		return fmt.Errorf("должно быть указано название средства связи")
+	}
+
+	if contact.Value == "" {
+		return fmt.Errorf("должно быть указано значение средства связи")
+	}
+
 	err = s.contactRepo.Create(contact)
 	if err != nil {
 		return fmt.Errorf("добавление контакта для связи: %w", err)

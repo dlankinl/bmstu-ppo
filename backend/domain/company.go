@@ -25,5 +25,4 @@ type ICompanyService interface {
 	GetAll() ([]*Company, error)
 	Update(company *Company) error
 	DeleteById(id uuid.UUID) error
-	GetFinancialReport(id uuid.UUID, period Period) (*FinancialReport, error)
 }

@@ -84,16 +84,3 @@ func (s CompanyService) DeleteById(id uuid.UUID) (err error) {
 
 	return nil
 }
-
-func (s CompanyService) GetFinancialReport(id uuid.UUID, period domain.Period) (finReport *domain.FinancialReport, err error) {
-	if period.StartYear > period.EndYear || (period.StartYear == period.EndYear && period.StartQuarter > period.EndQuarter) {
-		return nil, fmt.Errorf("дата конца периода должна быть позже даты начала")
-	}
-
-	finReport, err = s.finRepo.GetByPeriod(id, period)
-	if err != nil {
-		return nil, fmt.Errorf("получение финансового отчета по id компании: %w", err)
-	}
-
-	return finReport, nil
-}
