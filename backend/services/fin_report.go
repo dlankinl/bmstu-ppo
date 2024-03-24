@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"fmt"
 	"github.com/google/uuid"
 	"ppo/domain"
@@ -17,7 +18,7 @@ func NewFinReportService(finRepo domain.IFinancialReportRepository) domain.IFina
 	}
 }
 
-func (s FinReportService) Create(finReport *domain.FinancialReport) (err error) {
+func (s FinReportService) Create(ctx context.Context, finReport *domain.FinancialReport) (err error) {
 	if finReport.Revenue < 0 {
 		return fmt.Errorf("выручка не может быть отрицательной")
 	}
@@ -39,7 +40,7 @@ func (s FinReportService) Create(finReport *domain.FinancialReport) (err error) 
 		return fmt.Errorf("нельзя добавить отчет за квартал, который еще не закончился")
 	}
 
-	err = s.finRepo.Create(finReport)
+	err = s.finRepo.Create(ctx, finReport)
 	if err != nil {
 		return fmt.Errorf("добавление финансового отчета: %w", err)
 	}
@@ -47,9 +48,9 @@ func (s FinReportService) Create(finReport *domain.FinancialReport) (err error) 
 	return nil
 }
 
-func (s FinReportService) CreateByPeriod(finReportByPeriod *domain.FinancialReportByPeriod) (err error) {
+func (s FinReportService) CreateByPeriod(ctx context.Context, finReportByPeriod *domain.FinancialReportByPeriod) (err error) {
 	for _, report := range finReportByPeriod.Reports {
-		err = s.Create(&report)
+		err = s.Create(ctx, &report)
 		if err != nil {
 			return fmt.Errorf("добавление отчетов за период: %w", err)
 		}
@@ -58,8 +59,8 @@ func (s FinReportService) CreateByPeriod(finReportByPeriod *domain.FinancialRepo
 	return nil
 }
 
-func (s FinReportService) GetById(id uuid.UUID) (finReport *domain.FinancialReport, err error) {
-	finReport, err = s.finRepo.GetById(id)
+func (s FinReportService) GetById(ctx context.Context, id uuid.UUID) (finReport *domain.FinancialReport, err error) {
+	finReport, err = s.finRepo.GetById(ctx, id)
 	if err != nil {
 		return nil, fmt.Errorf("получение финансового отчета по id: %w", err)
 	}
@@ -67,14 +68,14 @@ func (s FinReportService) GetById(id uuid.UUID) (finReport *domain.FinancialRepo
 	return finReport, nil
 }
 
-func (s FinReportService) GetByCompany(companyId uuid.UUID, period domain.Period) (
+func (s FinReportService) GetByCompany(ctx context.Context, companyId uuid.UUID, period domain.Period) (
 	finReport *domain.FinancialReportByPeriod, err error) {
 	if period.StartYear > period.EndYear ||
 		(period.StartYear == period.EndYear && period.StartQuarter > period.EndQuarter) {
 		return nil, fmt.Errorf("дата конца периода должна быть позже даты начала")
 	}
 
-	finReport, err = s.finRepo.GetByCompany(companyId, period)
+	finReport, err = s.finRepo.GetByCompany(ctx, companyId, period)
 	if err != nil {
 		return nil, fmt.Errorf("получение финансового отчета по id компании: %w", err)
 	}
@@ -136,8 +137,8 @@ func (s FinReportService) GetByCompany(companyId uuid.UUID, period domain.Period
 	return finReport, nil
 }
 
-func (s FinReportService) Update(finReport *domain.FinancialReport) (err error) {
-	err = s.finRepo.Update(finReport)
+func (s FinReportService) Update(ctx context.Context, finReport *domain.FinancialReport) (err error) {
+	err = s.finRepo.Update(ctx, finReport)
 	if err != nil {
 		return fmt.Errorf("обновление отчета с id=%d: %w", finReport.ID, err)
 	}
@@ -145,8 +146,8 @@ func (s FinReportService) Update(finReport *domain.FinancialReport) (err error) 
 	return nil
 }
 
-func (s FinReportService) DeleteById(id uuid.UUID) (err error) {
-	err = s.finRepo.DeleteById(id)
+func (s FinReportService) DeleteById(ctx context.Context, id uuid.UUID) (err error) {
+	err = s.finRepo.DeleteById(ctx, id)
 	if err != nil {
 		return fmt.Errorf("удаление отчета: %w", err)
 	}

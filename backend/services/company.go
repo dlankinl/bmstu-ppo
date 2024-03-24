@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"fmt"
 	"github.com/google/uuid"
 	"ppo/domain"
@@ -18,7 +19,7 @@ func NewCompanyService(companyRepo domain.ICompanyRepository, finRepo domain.IFi
 	}
 }
 
-func (s CompanyService) Create(company *domain.Company) (err error) {
+func (s CompanyService) Create(ctx context.Context, company *domain.Company) (err error) {
 	if company.Name == "" {
 		return fmt.Errorf("должно быть указано название компании")
 	}
@@ -31,7 +32,7 @@ func (s CompanyService) Create(company *domain.Company) (err error) {
 		return fmt.Errorf("должно быть указано название сферы деятельности")
 	}
 
-	err = s.companyRepo.Create(company)
+	err = s.companyRepo.Create(ctx, company)
 	if err != nil {
 		return fmt.Errorf("добавление компании: %w", err)
 	}
@@ -39,8 +40,8 @@ func (s CompanyService) Create(company *domain.Company) (err error) {
 	return nil
 }
 
-func (s CompanyService) GetById(id uuid.UUID) (company *domain.Company, err error) {
-	company, err = s.companyRepo.GetById(id)
+func (s CompanyService) GetById(ctx context.Context, id uuid.UUID) (company *domain.Company, err error) {
+	company, err = s.companyRepo.GetById(ctx, id)
 	if err != nil {
 		return nil, fmt.Errorf("получение компании по id: %w", err)
 	}
@@ -48,8 +49,8 @@ func (s CompanyService) GetById(id uuid.UUID) (company *domain.Company, err erro
 	return company, nil
 }
 
-func (s CompanyService) GetByOwnerId(id uuid.UUID) (companies []*domain.Company, err error) {
-	companies, err = s.companyRepo.GetByOwnerId(id)
+func (s CompanyService) GetByOwnerId(ctx context.Context, id uuid.UUID) (companies []*domain.Company, err error) {
+	companies, err = s.companyRepo.GetByOwnerId(ctx, id)
 	if err != nil {
 		return nil, fmt.Errorf("получение списка компаний по id владельца: %w", err)
 	}
@@ -58,8 +59,8 @@ func (s CompanyService) GetByOwnerId(id uuid.UUID) (companies []*domain.Company,
 }
 
 // TODO: фильтрация
-func (s CompanyService) GetAll() (companies []*domain.Company, err error) {
-	companies, err = s.companyRepo.GetAll()
+func (s CompanyService) GetAll(ctx context.Context) (companies []*domain.Company, err error) {
+	companies, err = s.companyRepo.GetAll(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("получение списка всех компаний: %w", err)
 	}
@@ -67,8 +68,8 @@ func (s CompanyService) GetAll() (companies []*domain.Company, err error) {
 	return companies, nil
 }
 
-func (s CompanyService) Update(company *domain.Company) (err error) {
-	err = s.companyRepo.Update(company)
+func (s CompanyService) Update(ctx context.Context, company *domain.Company) (err error) {
+	err = s.companyRepo.Update(ctx, company)
 	if err != nil {
 		return fmt.Errorf("обновление компании с id=%d: %w", company.ID, err)
 	}
@@ -76,8 +77,8 @@ func (s CompanyService) Update(company *domain.Company) (err error) {
 	return nil
 }
 
-func (s CompanyService) DeleteById(id uuid.UUID) (err error) {
-	err = s.companyRepo.DeleteById(id)
+func (s CompanyService) DeleteById(ctx context.Context, id uuid.UUID) (err error) {
+	err = s.companyRepo.DeleteById(ctx, id)
 	if err != nil {
 		return fmt.Errorf("удаление компании по id: %w", err)
 	}

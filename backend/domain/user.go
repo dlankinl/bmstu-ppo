@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"context"
 	"github.com/google/uuid"
 	"time"
 )
@@ -15,17 +16,17 @@ type User struct {
 }
 
 type IUserRepository interface {
-	GetById(id uuid.UUID) (*User, error)
-	GetAll() ([]*User, error)
-	Update(user *User) error
-	DeleteById(id uuid.UUID) error
+	GetById(ctx context.Context, id uuid.UUID) (*User, error)
+	GetAll(ctx context.Context) ([]*User, error)
+	Update(ctx context.Context, user *User) error
+	DeleteById(ctx context.Context, id uuid.UUID) error
 }
 
 type IUserService interface {
-	GetById(id uuid.UUID) (*User, error)
-	GetAll() ([]*User, error)
-	Update(user *User) error
-	DeleteById(id uuid.UUID) error
-	GetFinancialReport(id uuid.UUID, period Period) (*FinancialReport, error)
-	CalculateRating(id uuid.UUID) (float32, error)
+	GetById(ctx context.Context, id uuid.UUID) (*User, error)
+	GetAll(ctx context.Context) ([]*User, error)
+	Update(ctx context.Context, user *User) error
+	DeleteById(ctx context.Context, id uuid.UUID) error
+	GetFinancialReport(ctx context.Context, id uuid.UUID, period Period) (*FinancialReport, error)
+	CalculateRating(ctx context.Context, id uuid.UUID) (float32, error)
 }

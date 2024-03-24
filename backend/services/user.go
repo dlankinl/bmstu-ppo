@@ -1,11 +1,11 @@
 package services
 
 import (
+	"context"
 	"fmt"
 	"github.com/google/uuid"
 	"math"
 	"ppo/domain"
-	"strings"
 	"time"
 )
 
@@ -15,41 +15,41 @@ type UserService struct {
 	finRepo     domain.IFinancialReportRepository
 }
 
-func (s UserService) Create(user *domain.User) (err error) {
-	if user.Gender != "m" && user.Gender != "w" {
-		return fmt.Errorf("неизвестный пол")
-	}
+//func (s UserService) Create(user *domain.User) (err error) {
+//	if user.Gender != "m" && user.Gender != "w" {
+//		return fmt.Errorf("неизвестный пол")
+//	}
+//
+//	if user.Username == "" {
+//		return fmt.Errorf("должно быть указано имя пользователя")
+//	}
+//
+//	if user.City == "" {
+//		return fmt.Errorf("должно быть указано название города")
+//	}
+//
+//	if user.Birthday.IsZero() {
+//		return fmt.Errorf("должна быть указана дата рождения")
+//	}
+//
+//	if user.FullName == "" {
+//		return fmt.Errorf("должны быть указаны ФИО")
+//	}
+//
+//	if len(strings.Split(user.FullName, " ")) != 3 {
+//		return fmt.Errorf("некорректное количество слов (должны быть фамилия, имя и отчество)")
+//	}
+//
+//	err = s.userRepo.Create(user)
+//	if err != nil {
+//		return fmt.Errorf("создание пользователя: %w", err)
+//	}
+//
+//	return nil
+//}
 
-	if user.Username == "" {
-		return fmt.Errorf("должно быть указано имя пользователя")
-	}
-
-	if user.City == "" {
-		return fmt.Errorf("должно быть указано название города")
-	}
-
-	if user.Birthday.IsZero() {
-		return fmt.Errorf("должна быть указана дата рождения")
-	}
-
-	if user.FullName == "" {
-		return fmt.Errorf("должны быть указаны ФИО")
-	}
-
-	if len(strings.Split(user.FullName, " ")) != 3 {
-		return fmt.Errorf("некорректное количество слов (должны быть фамилия, имя и отчество)")
-	}
-
-	err = s.userRepo.Create(user)
-	if err != nil {
-		return fmt.Errorf("создание пользователя: %w", err)
-	}
-
-	return nil
-}
-
-func (s UserService) GetById(id uuid.UUID) (user *domain.User, err error) {
-	user, err = s.userRepo.GetById(id)
+func (s UserService) GetById(ctx context.Context, id uuid.UUID) (user *domain.User, err error) {
+	user, err = s.userRepo.GetById(ctx, id)
 	if err != nil {
 		return nil, fmt.Errorf("получение пользователя по id: %w", err)
 	}
@@ -58,8 +58,8 @@ func (s UserService) GetById(id uuid.UUID) (user *domain.User, err error) {
 }
 
 // TODO: фильтрация
-func (s UserService) GetAll() (users []*domain.User, err error) {
-	users, err = s.userRepo.GetAll()
+func (s UserService) GetAll(ctx context.Context) (users []*domain.User, err error) {
+	users, err = s.userRepo.GetAll(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("получение списка всех пользователей: %w", err)
 	}
@@ -67,8 +67,8 @@ func (s UserService) GetAll() (users []*domain.User, err error) {
 	return users, nil
 }
 
-func (s UserService) Update(user *domain.User) (err error) {
-	err = s.userRepo.Update(user)
+func (s UserService) Update(ctx context.Context, user *domain.User) (err error) {
+	err = s.userRepo.Update(ctx, user)
 	if err != nil {
 		return fmt.Errorf("обновление информации о пользователе: %w", err)
 	}
@@ -76,8 +76,8 @@ func (s UserService) Update(user *domain.User) (err error) {
 	return nil
 }
 
-func (s UserService) DeleteById(id uuid.UUID) (err error) {
-	err = s.userRepo.DeleteById(id)
+func (s UserService) DeleteById(ctx context.Context, id uuid.UUID) (err error) {
+	err = s.userRepo.DeleteById(ctx, id)
 	if err != nil {
 		return fmt.Errorf("удаление пользователя по id: %w", err)
 	}
@@ -85,20 +85,20 @@ func (s UserService) DeleteById(id uuid.UUID) (err error) {
 	return nil
 }
 
-func (s UserService) GetFinancialReport(id uuid.UUID, period domain.Period) (finReports []*domain.FinancialReportByPeriod, err error) {
+func (s UserService) GetFinancialReport(ctx context.Context, id uuid.UUID, period domain.Period) (finReports []*domain.FinancialReportByPeriod, err error) {
 	if period.StartYear > period.EndYear ||
 		(period.StartYear == period.EndYear && period.StartQuarter > period.EndQuarter) {
 		return nil, fmt.Errorf("дата конца периода должна быть позже даты начала")
 	}
 
-	companies, err := s.companyRepo.GetByOwnerId(id)
+	companies, err := s.companyRepo.GetByOwnerId(ctx, id)
 	if err != nil {
 		return nil, fmt.Errorf("получение списка компаний предпринимателя с id=%d: %w", id, err)
 	}
 
 	finReports = make([]*domain.FinancialReportByPeriod, 0)
 	for _, company := range companies {
-		report, err := s.finRepo.GetByCompany(company.ID, period)
+		report, err := s.finRepo.GetByCompany(ctx, company.ID, period)
 		if err != nil {
 			return nil, fmt.Errorf("получение финансовой отчетности компании с id=%d: %w", company.ID, err)
 		}
@@ -163,7 +163,7 @@ func (s UserService) GetFinancialReport(id uuid.UUID, period domain.Period) (fin
 	return finReports, nil
 }
 
-func (s UserService) CalculateRating(id uuid.UUID) (rating float32, err error) {
+func (s UserService) CalculateRating(ctx context.Context, id uuid.UUID) (rating float32, err error) {
 	var mainFieldWeight float32 // TODO: mainFieldWeight
 
 	prevYear := time.Now().AddDate(-1, 0, 0).Year()
@@ -174,12 +174,18 @@ func (s UserService) CalculateRating(id uuid.UUID) (rating float32, err error) {
 		EndQuarter:   4,
 	}
 
-	report, err := s.GetFinancialReport(id, period)
+	reports, err := s.GetFinancialReport(ctx, id, period)
 	if err != nil {
 		return 0, fmt.Errorf("получение финансового отчета за прошлый год: %w", err)
 	}
 
-	rating = 1.2*mainFieldWeight*mainFieldWeight + 0.35*report.Revenue + 0.9*float32(math.Pow(float64(report.Revenue-report.Costs), 1.5))
+	var totalRevenue, totalProfit float32
+	for _, rep := range reports {
+		totalRevenue += rep.Revenue()
+		totalProfit += rep.Profit()
+	}
+
+	rating = 1.2*mainFieldWeight*mainFieldWeight + 0.35*totalRevenue + 0.9*float32(math.Pow(float64(totalProfit), 1.5))
 
 	return rating, nil
 }

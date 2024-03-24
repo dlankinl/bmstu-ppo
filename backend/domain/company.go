@@ -1,6 +1,9 @@
 package domain
 
-import "github.com/google/uuid"
+import (
+	"context"
+	"github.com/google/uuid"
+)
 
 type Company struct {
 	ID              uuid.UUID
@@ -10,19 +13,19 @@ type Company struct {
 }
 
 type ICompanyRepository interface { // FIXME: разобраться с сущностями
-	Create(company *Company) error
-	GetById(id uuid.UUID) (*Company, error)
-	GetByOwnerId(id uuid.UUID) ([]*Company, error)
-	GetAll() ([]*Company, error)
-	Update(company *Company) error
-	DeleteById(id uuid.UUID) error
+	Create(ctx context.Context, company *Company) error
+	GetById(ctx context.Context, id uuid.UUID) (*Company, error)
+	GetByOwnerId(ctx context.Context, id uuid.UUID) ([]*Company, error)
+	GetAll(ctx context.Context) ([]*Company, error)
+	Update(ctx context.Context, company *Company) error
+	DeleteById(ctx context.Context, id uuid.UUID) error
 }
 
 type ICompanyService interface {
-	Create(company *Company) error
-	GetById(id uuid.UUID) (*Company, error)
-	GetByOwnerId(id uuid.UUID) ([]*Company, error)
-	GetAll() ([]*Company, error)
-	Update(company *Company) error
-	DeleteById(id uuid.UUID) error
+	Create(ctx context.Context, company *Company) error
+	GetById(ctx context.Context, id uuid.UUID) (*Company, error)
+	GetByOwnerId(ctx context.Context, id uuid.UUID) ([]*Company, error)
+	GetAll(ctx context.Context) ([]*Company, error)
+	Update(ctx context.Context, company *Company) error
+	DeleteById(ctx context.Context, id uuid.UUID) error
 }

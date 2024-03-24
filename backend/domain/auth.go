@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"context"
 	"github.com/google/uuid"
 )
 
@@ -11,12 +12,11 @@ type UserAuth struct {
 }
 
 type IAuthRepository interface {
-	Login()
-	Register(*UserAuth) error
-	GetByUsername(username string) (*UserAuth, error)
+	Register(ctx context.Context, username, password string) (err error)
+	GetByUsername(ctx context.Context, username string) (*UserAuth, error)
 }
 
 type IAuthService interface {
-	Login()
-	Register(user *UserAuth) error
+	Login(ctx context.Context, username, password string) (string, error)
+	Register(ctx context.Context, username, password string) (err error)
 }

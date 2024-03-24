@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"fmt"
 	"github.com/google/uuid"
 	"ppo/domain"
@@ -10,7 +11,7 @@ type ContactService struct {
 	contactRepo domain.IContactsRepository
 }
 
-func (s ContactService) Create(contact *domain.Contact) (err error) {
+func (s ContactService) Create(ctx context.Context, contact *domain.Contact) (err error) {
 	if contact.Name == "" {
 		return fmt.Errorf("должно быть указано название средства связи")
 	}
@@ -19,7 +20,7 @@ func (s ContactService) Create(contact *domain.Contact) (err error) {
 		return fmt.Errorf("должно быть указано значение средства связи")
 	}
 
-	err = s.contactRepo.Create(contact)
+	err = s.contactRepo.Create(ctx, contact)
 	if err != nil {
 		return fmt.Errorf("добавление контакта для связи: %w", err)
 	}
@@ -27,8 +28,8 @@ func (s ContactService) Create(contact *domain.Contact) (err error) {
 	return nil
 }
 
-func (s ContactService) GetById(id uuid.UUID) (contact *domain.Contact, err error) {
-	contact, err = s.contactRepo.GetById(id)
+func (s ContactService) GetById(ctx context.Context, id uuid.UUID) (contact *domain.Contact, err error) {
+	contact, err = s.contactRepo.GetById(ctx, id)
 	if err != nil {
 		return nil, fmt.Errorf("получение контакта для связи по id: %w", err)
 	}
@@ -37,8 +38,8 @@ func (s ContactService) GetById(id uuid.UUID) (contact *domain.Contact, err erro
 }
 
 // TODO: фильтрация
-func (s ContactService) GetAllByUserId(id uuid.UUID) (contacts []*domain.Contact, err error) {
-	contacts, err = s.contactRepo.GetAllByUserId(id)
+func (s ContactService) GetAllByUserId(ctx context.Context, id uuid.UUID) (contacts []*domain.Contact, err error) {
+	contacts, err = s.contactRepo.GetAllByUserId(ctx, id)
 	if err != nil {
 		return nil, fmt.Errorf("получение всех средств связи по id владельца: %w", err)
 	}
@@ -46,8 +47,8 @@ func (s ContactService) GetAllByUserId(id uuid.UUID) (contacts []*domain.Contact
 	return contacts, nil
 }
 
-func (s ContactService) Update(contact *domain.Contact) (err error) {
-	err = s.contactRepo.Update(contact)
+func (s ContactService) Update(ctx context.Context, contact *domain.Contact) (err error) {
+	err = s.contactRepo.Update(ctx, contact)
 	if err != nil {
 		return fmt.Errorf("обновление контакта связи: %w", err)
 	}
@@ -55,8 +56,8 @@ func (s ContactService) Update(contact *domain.Contact) (err error) {
 	return nil
 }
 
-func (s ContactService) DeleteById(id uuid.UUID) (err error) {
-	err = s.DeleteById(id)
+func (s ContactService) DeleteById(ctx context.Context, id uuid.UUID) (err error) {
+	err = s.DeleteById(ctx, id)
 	if err != nil {
 		return fmt.Errorf("удаление средства связи по id: %w", err)
 	}

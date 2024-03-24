@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"fmt"
 	"ppo/domain"
 	"ppo/pkg/base"
@@ -11,7 +12,14 @@ type AuthService struct {
 	jwtKey   string
 }
 
-func (s AuthService) Register(username, password string) (err error) {
+func NewAuthService(repo domain.IAuthRepository, jwtKey string) domain.IAuthService {
+	return &AuthService{
+		authRepo: repo,
+		jwtKey:   jwtKey,
+	}
+}
+
+func (s AuthService) Register(ctx context.Context, username, password string) (err error) {
 	if username == "" {
 		return fmt.Errorf("должно быть указано имя пользователя")
 	}
@@ -25,12 +33,12 @@ func (s AuthService) Register(username, password string) (err error) {
 		return fmt.Errorf("генерация хэша: %w", err)
 	}
 
-	userAuth := &domain.UserAuth{
-		Username:     username,
-		PasswordHash: hashedPass,
-	}
+	//userAuth := &domain.UserAuth{
+	//	Username:     username,
+	//	PasswordHash: hashedPass,
+	//}
 
-	err = s.authRepo.Register(userAuth)
+	err = s.authRepo.Register(ctx, username, hashedPass)
 	if err != nil {
 		return fmt.Errorf("регистрация пользователя: %w", err)
 	}
@@ -38,7 +46,7 @@ func (s AuthService) Register(username, password string) (err error) {
 	return nil
 }
 
-func (s AuthService) Login(username, password string) (token string, err error) {
+func (s AuthService) Login(ctx context.Context, username, password string) (token string, err error) {
 	if username == "" {
 		return "", fmt.Errorf("должно быть указано имя пользователя")
 	}
@@ -47,7 +55,7 @@ func (s AuthService) Login(username, password string) (token string, err error) 
 		return "", fmt.Errorf("должен быть указан пароль")
 	}
 
-	userAuth, err := s.authRepo.GetByUsername(username)
+	userAuth, err := s.authRepo.GetByUsername(ctx, username)
 	if err != nil {
 		return "", fmt.Errorf("получение пользователя по username: %w", err) // FIXME: invalid_username
 	}

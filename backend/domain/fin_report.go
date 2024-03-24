@@ -1,6 +1,9 @@
 package domain
 
-import "github.com/google/uuid"
+import (
+	"context"
+	"github.com/google/uuid"
+)
 
 type FinancialReport struct {
 	ID        uuid.UUID
@@ -50,18 +53,18 @@ func (r *FinancialReportByPeriod) Profit() (sum float32) {
 }
 
 type IFinancialReportRepository interface {
-	Create(finRep *FinancialReport) error
-	GetById(id uuid.UUID) (*FinancialReport, error)
-	GetByCompany(companyId uuid.UUID, period Period) (*FinancialReportByPeriod, error)
-	Update(finRep *FinancialReport) error
-	DeleteById(id uuid.UUID) error
+	Create(ctx context.Context, finRep *FinancialReport) error
+	GetById(ctx context.Context, id uuid.UUID) (*FinancialReport, error)
+	GetByCompany(ctx context.Context, companyId uuid.UUID, period Period) (*FinancialReportByPeriod, error)
+	Update(ctx context.Context, finRep *FinancialReport) error
+	DeleteById(ctx context.Context, id uuid.UUID) error
 }
 
 type IFinancialReportService interface {
-	Create(finRep *FinancialReport) error
-	CreateByPeriod(finReportByPeriod *FinancialReportByPeriod) error
-	GetById(id uuid.UUID) (*FinancialReport, error)
-	GetByCompany(companyId uuid.UUID, period Period) (*FinancialReportByPeriod, error)
-	Update(finRep *FinancialReport) error
-	DeleteById(id uuid.UUID) error
+	Create(ctx context.Context, finRep *FinancialReport) error
+	CreateByPeriod(ctx context.Context, finReportByPeriod *FinancialReportByPeriod) error
+	GetById(ctx context.Context, id uuid.UUID) (*FinancialReport, error)
+	GetByCompany(ctx context.Context, companyId uuid.UUID, period Period) (*FinancialReportByPeriod, error)
+	Update(ctx context.Context, finRep *FinancialReport) error
+	DeleteById(ctx context.Context, id uuid.UUID) error
 }
