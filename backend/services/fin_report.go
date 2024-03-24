@@ -140,7 +140,7 @@ func (s FinReportService) GetByCompany(ctx context.Context, companyId uuid.UUID,
 func (s FinReportService) Update(ctx context.Context, finReport *domain.FinancialReport) (err error) {
 	err = s.finRepo.Update(ctx, finReport)
 	if err != nil {
-		return fmt.Errorf("обновление отчета с id=%d: %w", finReport.ID, err)
+		return fmt.Errorf("обновление отчета: %w", err)
 	}
 
 	return nil
@@ -149,7 +149,7 @@ func (s FinReportService) Update(ctx context.Context, finReport *domain.Financia
 func (s FinReportService) DeleteById(ctx context.Context, id uuid.UUID) (err error) {
 	err = s.finRepo.DeleteById(ctx, id)
 	if err != nil {
-		return fmt.Errorf("удаление отчета: %w", err)
+		return fmt.Errorf("удаление отчета по id: %w", err)
 	}
 
 	return nil
