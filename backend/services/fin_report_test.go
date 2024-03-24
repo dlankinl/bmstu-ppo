@@ -230,34 +230,6 @@ func TestFinReportService_Create(t *testing.T) {
 	}
 }
 
-func TestFinReportService_CreateByPeriod(t *testing.T) {
-	type fields struct {
-		finRepo domain.IFinancialReportRepository
-	}
-	type args struct {
-		ctx               context.Context
-		finReportByPeriod *domain.FinancialReportByPeriod
-	}
-	tests := []struct {
-		name    string
-		fields  fields
-		args    args
-		wantErr bool
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			s := FinReportService{
-				finRepo: tt.fields.finRepo,
-			}
-			if err := s.CreateByPeriod(tt.args.ctx, tt.args.finReportByPeriod); (err != nil) != tt.wantErr {
-				t.Errorf("CreateByPeriod() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
-	}
-} // TODO
-
 func TestFinReportService_DeleteById(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()

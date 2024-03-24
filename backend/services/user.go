@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 	"math"
 	"ppo/domain"
+	"strings"
 	"time"
 )
 
@@ -15,38 +16,45 @@ type UserService struct {
 	finRepo     domain.IFinancialReportRepository
 }
 
-//func (s UserService) Create(user *domain.User) (err error) {
-//	if user.Gender != "m" && user.Gender != "w" {
-//		return fmt.Errorf("неизвестный пол")
-//	}
-//
-//	if user.Username == "" {
-//		return fmt.Errorf("должно быть указано имя пользователя")
-//	}
-//
-//	if user.City == "" {
-//		return fmt.Errorf("должно быть указано название города")
-//	}
-//
-//	if user.Birthday.IsZero() {
-//		return fmt.Errorf("должна быть указана дата рождения")
-//	}
-//
-//	if user.FullName == "" {
-//		return fmt.Errorf("должны быть указаны ФИО")
-//	}
-//
-//	if len(strings.Split(user.FullName, " ")) != 3 {
-//		return fmt.Errorf("некорректное количество слов (должны быть фамилия, имя и отчество)")
-//	}
-//
-//	err = s.userRepo.Create(user)
-//	if err != nil {
-//		return fmt.Errorf("создание пользователя: %w", err)
-//	}
-//
-//	return nil
-//}
+func NewUserService(
+	userRepo domain.IUserRepository,
+	companyRepo domain.ICompanyRepository,
+	finRepo domain.IFinancialReportRepository) domain.IUserService {
+	return &UserService{
+		userRepo:    userRepo,
+		companyRepo: companyRepo,
+		finRepo:     finRepo,
+	}
+}
+
+func (s UserService) Create(ctx context.Context, user *domain.User) (err error) {
+	if user.Gender != "m" && user.Gender != "w" {
+		return fmt.Errorf("неизвестный пол")
+	}
+
+	if user.City == "" {
+		return fmt.Errorf("должно быть указано название города")
+	}
+
+	if user.Birthday.IsZero() {
+		return fmt.Errorf("должна быть указана дата рождения")
+	}
+
+	if user.FullName == "" {
+		return fmt.Errorf("должны быть указаны ФИО")
+	}
+
+	if len(strings.Split(user.FullName, " ")) != 3 {
+		return fmt.Errorf("некорректное количество слов (должны быть фамилия, имя и отчество)")
+	}
+
+	err = s.userRepo.Create(ctx, user)
+	if err != nil {
+		return fmt.Errorf("создание пользователя: %w", err)
+	}
+
+	return nil
+}
 
 func (s UserService) GetById(ctx context.Context, id uuid.UUID) (user *domain.User, err error) {
 	user, err = s.userRepo.GetById(ctx, id)
@@ -93,14 +101,15 @@ func (s UserService) GetFinancialReport(ctx context.Context, id uuid.UUID, perio
 
 	companies, err := s.companyRepo.GetByOwnerId(ctx, id)
 	if err != nil {
-		return nil, fmt.Errorf("получение списка компаний предпринимателя с id=%d: %w", id, err)
+		fmt.Println("HEREEEEEEEE")
+		return nil, fmt.Errorf("получение списка компаний предпринимателя по id: %w", err)
 	}
 
 	finReports = make([]*domain.FinancialReportByPeriod, 0)
 	for _, company := range companies {
 		report, err := s.finRepo.GetByCompany(ctx, company.ID, period)
 		if err != nil {
-			return nil, fmt.Errorf("получение финансовой отчетности компании с id=%d: %w", company.ID, err)
+			return nil, fmt.Errorf("получение финансовой отчетности компании по id: %w", err)
 		}
 
 		yearReports := make(map[int]domain.FinancialReportByPeriod)

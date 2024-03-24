@@ -16,6 +16,7 @@ type User struct {
 }
 
 type IUserRepository interface {
+	Create(ctx context.Context, user *User) error
 	GetById(ctx context.Context, id uuid.UUID) (*User, error)
 	GetAll(ctx context.Context) ([]*User, error)
 	Update(ctx context.Context, user *User) error
@@ -23,10 +24,11 @@ type IUserRepository interface {
 }
 
 type IUserService interface {
+	Create(ctx context.Context, user *User) error
 	GetById(ctx context.Context, id uuid.UUID) (*User, error)
 	GetAll(ctx context.Context) ([]*User, error)
 	Update(ctx context.Context, user *User) error
 	DeleteById(ctx context.Context, id uuid.UUID) error
-	GetFinancialReport(ctx context.Context, id uuid.UUID, period Period) (*FinancialReport, error)
+	GetFinancialReport(ctx context.Context, id uuid.UUID, period Period) ([]*FinancialReportByPeriod, error)
 	CalculateRating(ctx context.Context, id uuid.UUID) (float32, error)
 }
