@@ -180,6 +180,17 @@ func TestCompanyService_DeleteById(t *testing.T) {
 			},
 			wantErr: false,
 		},
+		{
+			name: "ошибка выполнения запроса в репозитории",
+			id:   curUuid,
+			beforeTest: func(compRepo mocks.MockICompanyRepository, finRepo mocks.MockIFinancialReportRepository) {
+				compRepo.EXPECT().
+					DeleteById(context.Background(), curUuid).
+					Return(fmt.Errorf("sql error"))
+			},
+			wantErr: true,
+			errStr:  errors.New("удаление компании по id: sql error"),
+		},
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -190,7 +201,7 @@ func TestCompanyService_DeleteById(t *testing.T) {
 			err := svc.DeleteById(context.Background(), tc.id)
 
 			if tc.wantErr {
-				require.Equal(t, tc.errStr, err)
+				require.Equal(t, tc.errStr.Error(), err.Error())
 			} else {
 				require.Nil(t, err)
 			}
@@ -391,21 +402,21 @@ func TestCompanyService_GetByOwnerId(t *testing.T) {
 					Return([]*domain.Company{
 						{
 							ID:              [16]byte{1},
-							OwnerId:         [16]byte{1},
+							OwnerID:         [16]byte{1},
 							Name:            "a",
 							FieldOfActivity: "a",
 							City:            "a",
 						},
 						{
 							ID:              [16]byte{2},
-							OwnerId:         [16]byte{1},
+							OwnerID:         [16]byte{1},
 							Name:            "b",
 							FieldOfActivity: "b",
 							City:            "b",
 						},
 						{
 							ID:              [16]byte{3},
-							OwnerId:         [16]byte{1},
+							OwnerID:         [16]byte{1},
 							Name:            "c",
 							FieldOfActivity: "c",
 							City:            "c",
@@ -415,21 +426,21 @@ func TestCompanyService_GetByOwnerId(t *testing.T) {
 			expected: []*domain.Company{
 				{
 					ID:              [16]byte{1},
-					OwnerId:         [16]byte{1},
+					OwnerID:         [16]byte{1},
 					Name:            "a",
 					FieldOfActivity: "a",
 					City:            "a",
 				},
 				{
 					ID:              [16]byte{2},
-					OwnerId:         [16]byte{1},
+					OwnerID:         [16]byte{1},
 					Name:            "b",
 					FieldOfActivity: "b",
 					City:            "b",
 				},
 				{
 					ID:              [16]byte{3},
-					OwnerId:         [16]byte{1},
+					OwnerID:         [16]byte{1},
 					Name:            "c",
 					FieldOfActivity: "c",
 					City:            "c",

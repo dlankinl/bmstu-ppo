@@ -71,7 +71,7 @@ func (s CompanyService) GetAll(ctx context.Context) (companies []*domain.Company
 func (s CompanyService) Update(ctx context.Context, company *domain.Company) (err error) {
 	err = s.companyRepo.Update(ctx, company)
 	if err != nil {
-		return fmt.Errorf("обновление компании с id=%d: %w", company.ID, err)
+		return fmt.Errorf("обновление информации о компании: %w", err)
 	}
 
 	return nil
