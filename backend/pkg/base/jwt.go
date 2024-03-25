@@ -11,10 +11,10 @@ func GenerateAuthToken(username, jwtKey string) (tokenString string, err error) 
 		jwt.SigningMethodHS256,
 		jwt.MapClaims{
 			"username": username,
-			"exp":      time.Now().Add(time.Hour * 24),
+			"exp":      time.Now().Add(time.Hour * 24).Unix(),
 		})
 
-	tokenString, err = token.SignedString(jwtKey)
+	tokenString, err = token.SignedString([]byte(jwtKey))
 	if err != nil {
 		return "", fmt.Errorf("формирование JWT-ключа: %w", err)
 	}
@@ -22,9 +22,9 @@ func GenerateAuthToken(username, jwtKey string) (tokenString string, err error) 
 	return tokenString, nil
 }
 
-func VerifyAuthToken(tokenString, jwtKey string) (err error) {
+func VerifyAuthToken(tokenString, jwtKey string) error {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		return jwtKey, nil
+		return []byte(jwtKey), nil
 	})
 
 	if err != nil {

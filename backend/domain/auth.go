@@ -6,17 +6,18 @@ import (
 )
 
 type UserAuth struct {
-	ID           uuid.UUID
-	Username     string
-	PasswordHash string
+	ID         uuid.UUID
+	Username   string
+	Password   string
+	HashedPass string
 }
 
 type IAuthRepository interface {
-	Register(ctx context.Context, username, password string) (err error)
+	Register(ctx context.Context, authInfo *UserAuth) (err error)
 	GetByUsername(ctx context.Context, username string) (*UserAuth, error)
 }
 
 type IAuthService interface {
-	Login(ctx context.Context, username, password string) (string, error)
-	Register(ctx context.Context, username, password string) (err error)
+	Login(ctx context.Context, authInfo *UserAuth) (string, error)
+	Register(ctx context.Context, authInfo *UserAuth) (err error)
 }

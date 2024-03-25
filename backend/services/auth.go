@@ -9,36 +9,35 @@ import (
 
 type AuthService struct {
 	authRepo domain.IAuthRepository
+	crypto   base.IHashCrypto
 	jwtKey   string
 }
 
-func NewAuthService(repo domain.IAuthRepository, jwtKey string) domain.IAuthService {
+func NewAuthService(repo domain.IAuthRepository, crypto base.IHashCrypto, jwtKey string) domain.IAuthService {
 	return &AuthService{
 		authRepo: repo,
+		crypto:   crypto,
 		jwtKey:   jwtKey,
 	}
 }
 
-func (s AuthService) Register(ctx context.Context, username, password string) (err error) {
-	if username == "" {
+func (s AuthService) Register(ctx context.Context, authInfo *domain.UserAuth) (err error) {
+	if authInfo.Username == "" {
 		return fmt.Errorf("должно быть указано имя пользователя")
 	}
 
-	if password == "" {
+	if authInfo.Password == "" {
 		return fmt.Errorf("должен быть указан пароль")
 	}
 
-	hashedPass, err := base.GenerateHashPass(password)
+	hashedPass, err := s.crypto.GenerateHashPass(authInfo.Password)
 	if err != nil {
 		return fmt.Errorf("генерация хэша: %w", err)
 	}
 
-	//userAuth := &domain.UserAuth{
-	//	Username:     username,
-	//	PasswordHash: hashedPass,
-	//}
+	authInfo.HashedPass = hashedPass
 
-	err = s.authRepo.Register(ctx, username, hashedPass)
+	err = s.authRepo.Register(ctx, authInfo)
 	if err != nil {
 		return fmt.Errorf("регистрация пользователя: %w", err)
 	}
@@ -46,25 +45,25 @@ func (s AuthService) Register(ctx context.Context, username, password string) (e
 	return nil
 }
 
-func (s AuthService) Login(ctx context.Context, username, password string) (token string, err error) {
-	if username == "" {
+func (s AuthService) Login(ctx context.Context, authInfo *domain.UserAuth) (token string, err error) {
+	if authInfo.Username == "" {
 		return "", fmt.Errorf("должно быть указано имя пользователя")
 	}
 
-	if password == "" {
+	if authInfo.Password == "" {
 		return "", fmt.Errorf("должен быть указан пароль")
 	}
 
-	userAuth, err := s.authRepo.GetByUsername(ctx, username)
+	userAuth, err := s.authRepo.GetByUsername(ctx, authInfo.Username)
 	if err != nil {
-		return "", fmt.Errorf("получение пользователя по username: %w", err) // FIXME: invalid_username
+		return "", fmt.Errorf("получение пользователя по username: %w", err)
 	}
 
-	if !base.CheckPasswordHash(password, userAuth.PasswordHash) {
-		return "", fmt.Errorf("неверный пароль") // FIXME: incorrect_credentials
+	if !s.crypto.CheckPasswordHash(authInfo.Password, userAuth.HashedPass) {
+		return "", fmt.Errorf("неверный пароль")
 	}
 
-	token, err = base.GenerateAuthToken(username, s.jwtKey)
+	token, err = base.GenerateAuthToken(authInfo.Username, s.jwtKey)
 	if err != nil {
 		return "", fmt.Errorf("генерация токена: %w", err)
 	}
