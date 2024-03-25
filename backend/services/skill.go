@@ -11,6 +11,12 @@ type SkillService struct {
 	skillRepo domain.ISkillRepository
 }
 
+func NewSkillService(skillRepo domain.ISkillRepository) domain.ISkillService {
+	return &SkillService{
+		skillRepo: skillRepo,
+	}
+}
+
 func (s SkillService) Create(ctx context.Context, skill *domain.Skill) (err error) {
 	if skill.Name == "" {
 		return fmt.Errorf("должно быть указано название навыка")
@@ -22,7 +28,7 @@ func (s SkillService) Create(ctx context.Context, skill *domain.Skill) (err erro
 
 	err = s.skillRepo.Create(ctx, skill)
 	if err != nil {
-		return fmt.Errorf("создание навыка: %w", err)
+		return fmt.Errorf("добавление навыка: %w", err)
 	}
 
 	return nil
@@ -40,7 +46,7 @@ func (s SkillService) GetById(ctx context.Context, id uuid.UUID) (skill *domain.
 func (s SkillService) GetAll(ctx context.Context) (skills []*domain.Skill, err error) {
 	skills, err = s.skillRepo.GetAll(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("получение всех навыков: %w", err)
+		return nil, fmt.Errorf("получение списка всех навыков: %w", err)
 	}
 
 	return skills, nil
