@@ -88,13 +88,11 @@ func (s UserSkillService) DeleteSkillsForUser(ctx context.Context, userId uuid.U
 	}
 
 	for _, userSkill := range userSkills {
-		err = s.skillRepo.DeleteById(ctx, userSkill.SkillId)
+		err = s.userSkillRepo.Delete(ctx, userSkill)
 		if err != nil {
-			return fmt.Errorf("удаление скилла по skillId: %w", err)
+			return fmt.Errorf("удаление пары пользователь-навык: %w", err)
 		}
 	}
-
-	// todo: додумать
 
 	return nil
 }

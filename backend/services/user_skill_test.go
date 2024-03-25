@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 	"ppo/domain"
@@ -176,107 +177,129 @@ func TestUserSkillService_GetSkillsForUser(t *testing.T) {
 			name: "успешное получение набора пользователь-навык",
 			pairs: []*domain.UserSkill{
 				{
-					UserId:  [16]byte{1},
-					SkillId: [16]byte{1},
+					UserId:  uuid.UUID{1},
+					SkillId: uuid.UUID{1},
 				},
 				{
-					UserId:  [16]byte{1},
-					SkillId: [16]byte{2},
+					UserId:  uuid.UUID{1},
+					SkillId: uuid.UUID{2},
 				},
 				{
-					UserId:  [16]byte{1},
-					SkillId: [16]byte{3},
-				},
-				{
-					UserId:  [16]byte{2},
-					SkillId: [16]byte{1},
+					UserId:  uuid.UUID{1},
+					SkillId: uuid.UUID{3},
 				},
 			},
 			beforeTest: func(userSkillRepo mocks.MockIUserSkillRepository, userRepo mocks.MockIUserRepository, skillRepo mocks.MockISkillRepository) {
 				userSkillRepo.EXPECT().
 					GetUserSkillsByUserId(
 						context.Background(),
-						[16]byte{1},
+						uuid.UUID{1},
 					).
 					Return([]*domain.UserSkill{
 						{
-							UserId:  [16]byte{1},
-							SkillId: [16]byte{1},
+							UserId:  uuid.UUID{1},
+							SkillId: uuid.UUID{1},
 						},
 						{
-							UserId:  [16]byte{1},
-							SkillId: [16]byte{2},
+							UserId:  uuid.UUID{1},
+							SkillId: uuid.UUID{2},
 						},
 						{
-							UserId:  [16]byte{1},
-							SkillId: [16]byte{3},
-						},
-						{
-							UserId:  [16]byte{2},
-							SkillId: [16]byte{1},
+							UserId:  uuid.UUID{1},
+							SkillId: uuid.UUID{3},
 						},
 					}, nil)
 
 				skillRepo.EXPECT().
 					GetById(
 						context.Background(),
-						[16]byte{1},
+						uuid.UUID{1},
 					).
-					Return(&domain.Skill{ID: [16]byte{1}, Name: "a", Description: "a"}, nil)
+					Return(&domain.Skill{ID: uuid.UUID{1}, Name: "a", Description: "a"}, nil)
 
 				skillRepo.EXPECT().
 					GetById(
 						context.Background(),
-						[16]byte{2},
+						uuid.UUID{2},
 					).
-					Return(&domain.Skill{ID: [16]byte{2}, Name: "b", Description: "b"}, nil)
+					Return(&domain.Skill{ID: uuid.UUID{2}, Name: "b", Description: "b"}, nil)
 
 				skillRepo.EXPECT().
 					GetById(
 						context.Background(),
-						[16]byte{3},
+						uuid.UUID{3},
 					).
-					Return(&domain.Skill{ID: [16]byte{3}, Name: "c", Description: "c"}, nil)
+					Return(&domain.Skill{ID: uuid.UUID{3}, Name: "c", Description: "c"}, nil)
 			},
 			expected: []*domain.Skill{
 				{
-					ID:          [16]byte{1},
+					ID:          uuid.UUID{1},
 					Name:        "a",
 					Description: "a",
 				},
 				{
-					ID:          [16]byte{2},
+					ID:          uuid.UUID{2},
 					Name:        "b",
 					Description: "b",
 				},
 				{
-					ID:          [16]byte{3},
+					ID:          uuid.UUID{3},
 					Name:        "c",
 					Description: "c",
 				},
 			},
 			wantErr: false,
 		},
-		//{
-		//	name: "ошибка выполнения запроса в репозитории",
-		//	pairs: domain.Skill{
-		//		UserId:  [16]byte{1},
-		//		SkillId: [16]byte{1},
-		//	},
-		//	beforeTest: func(userSkillRepo mocks.MockIUserSkillRepository, skillRepo mocks.MockISkillRepository) {
-		//		userSkillRepo.EXPECT().
-		//			Create(
-		//				context.Background(),
-		//				&domain.UserSkill{
-		//					UserId:  [16]byte{1},
-		//					SkillId: [16]byte{1},
-		//				},
-		//			).Return(fmt.Errorf("sql error")).
-		//			AnyTimes()
-		//	},
-		//	wantErr: true,
-		//	errStr:  errors.New("связывание пользователя и навыка: sql error"),
-		//},
+		{
+			name: "ошибка при получении данных из репозитория",
+			pairs: []*domain.UserSkill{
+				{
+					UserId:  uuid.UUID{1},
+					SkillId: uuid.UUID{1},
+				},
+			},
+			beforeTest: func(userSkillRepo mocks.MockIUserSkillRepository, userRepo mocks.MockIUserRepository, skillRepo mocks.MockISkillRepository) {
+				userSkillRepo.EXPECT().
+					GetUserSkillsByUserId(
+						context.Background(),
+						uuid.UUID{1},
+					).
+					Return([]*domain.UserSkill{
+						{
+							UserId:  uuid.UUID{1},
+							SkillId: uuid.UUID{1},
+						},
+					}, nil)
+
+				skillRepo.EXPECT().
+					GetById(
+						context.Background(),
+						uuid.UUID{1},
+					).
+					Return(nil, fmt.Errorf("sql error"))
+			},
+			wantErr: true,
+			errStr:  errors.New("получение скилла по skillId: sql error"),
+		},
+		{
+			name: "ошибка при получении данных из репозитория_2",
+			pairs: []*domain.UserSkill{
+				{
+					UserId:  uuid.UUID{1},
+					SkillId: uuid.UUID{1},
+				},
+			},
+			beforeTest: func(userSkillRepo mocks.MockIUserSkillRepository, userRepo mocks.MockIUserRepository, skillRepo mocks.MockISkillRepository) {
+				userSkillRepo.EXPECT().
+					GetUserSkillsByUserId(
+						context.Background(),
+						uuid.UUID{1},
+					).
+					Return(nil, fmt.Errorf("sql error"))
+			},
+			wantErr: true,
+			errStr:  errors.New("получение связок пользователь-навык по userId: sql error"),
+		},
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -284,8 +307,7 @@ func TestUserSkillService_GetSkillsForUser(t *testing.T) {
 				tc.beforeTest(*userSkillRepo, *userRepo, *skillRepo)
 			}
 
-			skills, err := svc.GetSkillsForUser(context.Background(), [16]byte{1})
-			fmt.Println(skills)
+			skills, err := svc.GetSkillsForUser(context.Background(), uuid.UUID{1})
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -297,40 +319,317 @@ func TestUserSkillService_GetSkillsForUser(t *testing.T) {
 	}
 }
 
-//func TestUserSkillService_GetUsersForSkill(t *testing.T) {
-//	type fields struct {
-//		userSkillRepo domain.IUserSkillRepository
-//		userRepo      domain.IUserRepository
-//		skillRepo     domain.ISkillRepository
-//	}
-//	type args struct {
-//		ctx     context.Context
-//		skillId uuid.UUID
-//	}
-//	tests := []struct {
-//		name      string
-//		fields    fields
-//		args      args
-//		wantUsers []*domain.User
-//		wantErr   bool
-//	}{
-//		// TODO: Add test cases.
-//	}
-//	for _, tt := range tests {
-//		t.Run(tt.name, func(t *testing.T) {
-//			s := UserSkillService{
-//				userSkillRepo: tt.fields.userSkillRepo,
-//				userRepo:      tt.fields.userRepo,
-//				skillRepo:     tt.fields.skillRepo,
-//			}
-//			gotUsers, err := s.GetUsersForSkill(tt.args.ctx, tt.args.skillId)
-//			if (err != nil) != tt.wantErr {
-//				t.Errorf("GetUsersForSkill() error = %v, wantErr %v", err, tt.wantErr)
-//				return
-//			}
-//			if !reflect.DeepEqual(gotUsers, tt.wantUsers) {
-//				t.Errorf("GetUsersForSkill() gotUsers = %v, want %v", gotUsers, tt.wantUsers)
-//			}
-//		})
-//	}
-//}
+func TestUserSkillService_GetUsersForSkill(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	userSkillRepo := mocks.NewMockIUserSkillRepository(ctrl)
+	userRepo := mocks.NewMockIUserRepository(ctrl)
+	skillRepo := mocks.NewMockISkillRepository(ctrl)
+	svc := NewUserSkillService(userSkillRepo, userRepo, skillRepo)
+
+	testCases := []struct {
+		name       string
+		pairs      []*domain.UserSkill
+		beforeTest func(userSkillRepo mocks.MockIUserSkillRepository, userRepo mocks.MockIUserRepository, skillRepo mocks.MockISkillRepository)
+		expected   []*domain.User
+		wantErr    bool
+		errStr     error
+	}{
+		{
+			name: "успешное получение набора пользователь-навык",
+			pairs: []*domain.UserSkill{
+				{
+					UserId:  uuid.UUID{1},
+					SkillId: uuid.UUID{1},
+				},
+				{
+					UserId:  uuid.UUID{1},
+					SkillId: uuid.UUID{2},
+				},
+				{
+					UserId:  uuid.UUID{1},
+					SkillId: uuid.UUID{3},
+				},
+			},
+			beforeTest: func(userSkillRepo mocks.MockIUserSkillRepository, userRepo mocks.MockIUserRepository, skillRepo mocks.MockISkillRepository) {
+				userSkillRepo.EXPECT().
+					GetUserSkillsBySkillId(
+						context.Background(),
+						uuid.UUID{1},
+					).
+					Return([]*domain.UserSkill{
+						{
+							UserId:  uuid.UUID{1},
+							SkillId: uuid.UUID{1},
+						},
+						{
+							UserId:  uuid.UUID{2},
+							SkillId: uuid.UUID{1},
+						},
+						{
+							UserId:  uuid.UUID{3},
+							SkillId: uuid.UUID{1},
+						},
+					}, nil)
+
+				userRepo.EXPECT().
+					GetById(
+						context.Background(),
+						uuid.UUID{1},
+					).
+					Return(&domain.User{ID: uuid.UUID{1}, Username: "a", FullName: "a"}, nil)
+
+				userRepo.EXPECT().
+					GetById(
+						context.Background(),
+						uuid.UUID{2},
+					).
+					Return(&domain.User{ID: uuid.UUID{2}, Username: "b", FullName: "b"}, nil)
+
+				userRepo.EXPECT().
+					GetById(
+						context.Background(),
+						uuid.UUID{3},
+					).
+					Return(&domain.User{ID: uuid.UUID{3}, Username: "c", FullName: "c"}, nil)
+			},
+			expected: []*domain.User{
+				{
+					ID:       uuid.UUID{1},
+					Username: "a",
+					FullName: "a",
+				},
+				{
+					ID:       uuid.UUID{2},
+					Username: "b",
+					FullName: "b",
+				},
+				{
+					ID:       uuid.UUID{3},
+					Username: "c",
+					FullName: "c",
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "ошибка при получении данных из репозитория",
+			pairs: []*domain.UserSkill{
+				{
+					UserId:  uuid.UUID{1},
+					SkillId: uuid.UUID{1},
+				},
+			},
+			beforeTest: func(userSkillRepo mocks.MockIUserSkillRepository, userRepo mocks.MockIUserRepository, skillRepo mocks.MockISkillRepository) {
+				userSkillRepo.EXPECT().
+					GetUserSkillsBySkillId(
+						context.Background(),
+						uuid.UUID{1},
+					).
+					Return([]*domain.UserSkill{
+						{
+							UserId:  uuid.UUID{1},
+							SkillId: uuid.UUID{1},
+						},
+					}, nil)
+
+				userRepo.EXPECT().
+					GetById(
+						context.Background(),
+						uuid.UUID{1},
+					).
+					Return(nil, fmt.Errorf("sql error"))
+			},
+			wantErr: true,
+			errStr:  errors.New("получение пользователя по userId: sql error"),
+		},
+		{
+			name: "ошибка при получении данных из репозитория_2",
+			pairs: []*domain.UserSkill{
+				{
+					UserId:  uuid.UUID{1},
+					SkillId: uuid.UUID{1},
+				},
+			},
+			beforeTest: func(userSkillRepo mocks.MockIUserSkillRepository, userRepo mocks.MockIUserRepository, skillRepo mocks.MockISkillRepository) {
+				userSkillRepo.EXPECT().
+					GetUserSkillsBySkillId(
+						context.Background(),
+						uuid.UUID{1},
+					).
+					Return(nil, fmt.Errorf("sql error"))
+			},
+			wantErr: true,
+			errStr:  errors.New("получение связок пользователь-навык по skillId: sql error"),
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.beforeTest != nil {
+				tc.beforeTest(*userSkillRepo, *userRepo, *skillRepo)
+			}
+
+			users, err := svc.GetUsersForSkill(context.Background(), uuid.UUID{1})
+
+			if tc.wantErr {
+				require.Equal(t, tc.errStr.Error(), err.Error())
+			} else {
+				require.Nil(t, err)
+				require.Equal(t, tc.expected, users)
+			}
+		})
+	}
+}
+
+func TestUserSkillService_DeleteSkillsForUser(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	userSkillRepo := mocks.NewMockIUserSkillRepository(ctrl)
+	userRepo := mocks.NewMockIUserRepository(ctrl)
+	skillRepo := mocks.NewMockISkillRepository(ctrl)
+	svc := NewUserSkillService(userSkillRepo, userRepo, skillRepo)
+
+	testCases := []struct {
+		name       string
+		pairs      []*domain.UserSkill
+		beforeTest func(userSkillRepo mocks.MockIUserSkillRepository, userRepo mocks.MockIUserRepository, skillRepo mocks.MockISkillRepository)
+		wantErr    bool
+		errStr     error
+	}{
+		{
+			name: "успешное удаление набора пользователь-навык по userId",
+			pairs: []*domain.UserSkill{
+				{
+					UserId:  uuid.UUID{1},
+					SkillId: uuid.UUID{1},
+				},
+				{
+					UserId:  uuid.UUID{1},
+					SkillId: uuid.UUID{2},
+				},
+				{
+					UserId:  uuid.UUID{1},
+					SkillId: uuid.UUID{3},
+				},
+			},
+			beforeTest: func(userSkillRepo mocks.MockIUserSkillRepository, userRepo mocks.MockIUserRepository, skillRepo mocks.MockISkillRepository) {
+				userSkillRepo.EXPECT().
+					GetUserSkillsByUserId(
+						context.Background(),
+						uuid.UUID{1},
+					).
+					Return([]*domain.UserSkill{
+						{
+							UserId:  uuid.UUID{1},
+							SkillId: uuid.UUID{1},
+						},
+						{
+							UserId:  uuid.UUID{1},
+							SkillId: uuid.UUID{2},
+						},
+						{
+							UserId:  uuid.UUID{1},
+							SkillId: uuid.UUID{3},
+						},
+					}, nil)
+
+				userSkillRepo.EXPECT().
+					Delete(
+						context.Background(),
+						&domain.UserSkill{UserId: uuid.UUID{1}, SkillId: uuid.UUID{1}},
+					).
+					Return(nil)
+
+				userSkillRepo.EXPECT().
+					Delete(
+						context.Background(),
+						&domain.UserSkill{UserId: uuid.UUID{1}, SkillId: uuid.UUID{2}},
+					).
+					Return(nil)
+
+				userSkillRepo.EXPECT().
+					Delete(
+						context.Background(),
+						&domain.UserSkill{UserId: uuid.UUID{1}, SkillId: uuid.UUID{3}},
+					).
+					Return(nil)
+			},
+			wantErr: false,
+		},
+		{
+			name: "ошибка выполнении запроса в репозитории",
+			pairs: []*domain.UserSkill{
+				{
+					UserId:  uuid.UUID{1},
+					SkillId: uuid.UUID{1},
+				},
+			},
+			beforeTest: func(userSkillRepo mocks.MockIUserSkillRepository, userRepo mocks.MockIUserRepository, skillRepo mocks.MockISkillRepository) {
+				userSkillRepo.EXPECT().
+					GetUserSkillsByUserId(
+						context.Background(),
+						uuid.UUID{1},
+					).
+					Return([]*domain.UserSkill{
+						{
+							UserId:  uuid.UUID{1},
+							SkillId: uuid.UUID{1},
+						},
+						{
+							UserId:  uuid.UUID{1},
+							SkillId: uuid.UUID{2},
+						},
+						{
+							UserId:  uuid.UUID{1},
+							SkillId: uuid.UUID{3},
+						},
+					}, nil)
+
+				userSkillRepo.EXPECT().
+					Delete(
+						context.Background(),
+						&domain.UserSkill{UserId: uuid.UUID{1}, SkillId: uuid.UUID{1}},
+					).
+					Return(fmt.Errorf("sql error"))
+			},
+			wantErr: true,
+			errStr:  errors.New("удаление пары пользователь-навык: sql error"),
+		},
+		{
+			name: "ошибка выполнении запроса в репозитории_2",
+			pairs: []*domain.UserSkill{
+				{
+					UserId:  uuid.UUID{1},
+					SkillId: uuid.UUID{1},
+				},
+			},
+			beforeTest: func(userSkillRepo mocks.MockIUserSkillRepository, userRepo mocks.MockIUserRepository, skillRepo mocks.MockISkillRepository) {
+				userSkillRepo.EXPECT().
+					GetUserSkillsByUserId(
+						context.Background(),
+						uuid.UUID{1},
+					).
+					Return(nil, fmt.Errorf("sql error"))
+			},
+			wantErr: true,
+			errStr:  errors.New("получение связок пользователь-навык по userId: sql error"),
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.beforeTest != nil {
+				tc.beforeTest(*userSkillRepo, *userRepo, *skillRepo)
+			}
+
+			err := svc.DeleteSkillsForUser(context.Background(), uuid.UUID{1})
+
+			if tc.wantErr {
+				require.Equal(t, tc.errStr.Error(), err.Error())
+			} else {
+				require.Nil(t, err)
+			}
+		})
+	}
+}
