@@ -1,4 +1,4 @@
-package services
+package contact
 
 import (
 	"context"
@@ -17,7 +17,7 @@ func TestContactService_Create(t *testing.T) {
 	defer ctrl.Finish()
 
 	conRepo := mocks.NewMockIContactsRepository(ctrl)
-	svc := NewContactService(conRepo)
+	svc := NewService(conRepo)
 
 	testCases := []struct {
 		name       string
@@ -127,7 +127,7 @@ func TestContactService_DeleteById(t *testing.T) {
 	defer ctrl.Finish()
 
 	conRepo := mocks.NewMockIContactsRepository(ctrl)
-	svc := NewContactService(conRepo)
+	svc := NewService(conRepo)
 
 	curUuid := uuid.New()
 
@@ -182,7 +182,7 @@ func TestContactService_GetByOwnerId(t *testing.T) {
 	defer ctrl.Finish()
 
 	conRepo := mocks.NewMockIContactsRepository(ctrl)
-	svc := NewContactService(conRepo)
+	svc := NewService(conRepo)
 
 	testCases := []struct {
 		name       string
@@ -282,7 +282,7 @@ func TestContactService_GetById(t *testing.T) {
 	defer ctrl.Finish()
 
 	conRepo := mocks.NewMockIContactsRepository(ctrl)
-	svc := NewContactService(conRepo)
+	svc := NewService(conRepo)
 
 	testCases := []struct {
 		name       string
@@ -352,7 +352,7 @@ func TestContactService_Update(t *testing.T) {
 	defer ctrl.Finish()
 
 	conRepo := mocks.NewMockIContactsRepository(ctrl)
-	svc := NewContactService(conRepo)
+	svc := NewService(conRepo)
 
 	testCases := []struct {
 		name       string

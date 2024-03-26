@@ -1,4 +1,4 @@
-package services
+package auth
 
 import (
 	"context"
@@ -7,21 +7,21 @@ import (
 	"ppo/pkg/base"
 )
 
-type AuthService struct {
+type Service struct {
 	authRepo domain.IAuthRepository
 	crypto   base.IHashCrypto
 	jwtKey   string
 }
 
-func NewAuthService(repo domain.IAuthRepository, crypto base.IHashCrypto, jwtKey string) domain.IAuthService {
-	return &AuthService{
+func NewService(repo domain.IAuthRepository, crypto base.IHashCrypto, jwtKey string) domain.IAuthService {
+	return &Service{
 		authRepo: repo,
 		crypto:   crypto,
 		jwtKey:   jwtKey,
 	}
 }
 
-func (s AuthService) Register(ctx context.Context, authInfo *domain.UserAuth) (err error) {
+func (s *Service) Register(ctx context.Context, authInfo *domain.UserAuth) (err error) {
 	if authInfo.Username == "" {
 		return fmt.Errorf("должно быть указано имя пользователя")
 	}
@@ -45,7 +45,7 @@ func (s AuthService) Register(ctx context.Context, authInfo *domain.UserAuth) (e
 	return nil
 }
 
-func (s AuthService) Login(ctx context.Context, authInfo *domain.UserAuth) (token string, err error) {
+func (s *Service) Login(ctx context.Context, authInfo *domain.UserAuth) (token string, err error) {
 	if authInfo.Username == "" {
 		return "", fmt.Errorf("должно быть указано имя пользователя")
 	}

@@ -1,4 +1,4 @@
-package services
+package skill
 
 import (
 	"context"
@@ -7,17 +7,17 @@ import (
 	"ppo/domain"
 )
 
-type SkillService struct {
+type Service struct {
 	skillRepo domain.ISkillRepository
 }
 
-func NewSkillService(skillRepo domain.ISkillRepository) domain.ISkillService {
-	return &SkillService{
+func NewService(skillRepo domain.ISkillRepository) domain.ISkillService {
+	return &Service{
 		skillRepo: skillRepo,
 	}
 }
 
-func (s SkillService) Create(ctx context.Context, skill *domain.Skill) (err error) {
+func (s *Service) Create(ctx context.Context, skill *domain.Skill) (err error) {
 	if skill.Name == "" {
 		return fmt.Errorf("должно быть указано название навыка")
 	}
@@ -34,7 +34,7 @@ func (s SkillService) Create(ctx context.Context, skill *domain.Skill) (err erro
 	return nil
 }
 
-func (s SkillService) GetById(ctx context.Context, id uuid.UUID) (skill *domain.Skill, err error) {
+func (s *Service) GetById(ctx context.Context, id uuid.UUID) (skill *domain.Skill, err error) {
 	skill, err = s.skillRepo.GetById(ctx, id)
 	if err != nil {
 		return nil, fmt.Errorf("получение навыка по id: %w", err)
@@ -43,7 +43,7 @@ func (s SkillService) GetById(ctx context.Context, id uuid.UUID) (skill *domain.
 	return skill, nil
 }
 
-func (s SkillService) GetAll(ctx context.Context) (skills []*domain.Skill, err error) {
+func (s *Service) GetAll(ctx context.Context) (skills []*domain.Skill, err error) {
 	skills, err = s.skillRepo.GetAll(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("получение списка всех навыков: %w", err)
@@ -52,7 +52,7 @@ func (s SkillService) GetAll(ctx context.Context) (skills []*domain.Skill, err e
 	return skills, nil
 }
 
-func (s SkillService) Update(ctx context.Context, skill *domain.Skill) (err error) {
+func (s *Service) Update(ctx context.Context, skill *domain.Skill) (err error) {
 	err = s.skillRepo.Update(ctx, skill)
 	if err != nil {
 		return fmt.Errorf("обновление информации о навыке: %w", err)
@@ -61,7 +61,7 @@ func (s SkillService) Update(ctx context.Context, skill *domain.Skill) (err erro
 	return nil
 }
 
-func (s SkillService) DeleteById(ctx context.Context, id uuid.UUID) (err error) {
+func (s *Service) DeleteById(ctx context.Context, id uuid.UUID) (err error) {
 	err = s.skillRepo.DeleteById(ctx, id)
 	if err != nil {
 		return fmt.Errorf("удаление навыка по id: %w", err)

@@ -1,4 +1,4 @@
-package services
+package user_skill
 
 import (
 	"context"
@@ -19,7 +19,7 @@ func TestUserSkillService_Create(t *testing.T) {
 	userSkillRepo := mocks.NewMockIUserSkillRepository(ctrl)
 	userRepo := mocks.NewMockIUserRepository(ctrl)
 	skillRepo := mocks.NewMockISkillRepository(ctrl)
-	svc := NewUserSkillService(userSkillRepo, userRepo, skillRepo)
+	svc := NewService(userSkillRepo, userRepo, skillRepo)
 
 	testCases := []struct {
 		name       string
@@ -91,7 +91,7 @@ func TestUserSkillService_Delete(t *testing.T) {
 	userSkillRepo := mocks.NewMockIUserSkillRepository(ctrl)
 	userRepo := mocks.NewMockIUserRepository(ctrl)
 	skillRepo := mocks.NewMockISkillRepository(ctrl)
-	svc := NewUserSkillService(userSkillRepo, userRepo, skillRepo)
+	svc := NewService(userSkillRepo, userRepo, skillRepo)
 
 	testCases := []struct {
 		name       string
@@ -163,7 +163,7 @@ func TestUserSkillService_GetSkillsForUser(t *testing.T) {
 	userSkillRepo := mocks.NewMockIUserSkillRepository(ctrl)
 	userRepo := mocks.NewMockIUserRepository(ctrl)
 	skillRepo := mocks.NewMockISkillRepository(ctrl)
-	svc := NewUserSkillService(userSkillRepo, userRepo, skillRepo)
+	svc := NewService(userSkillRepo, userRepo, skillRepo)
 
 	testCases := []struct {
 		name       string
@@ -326,7 +326,7 @@ func TestUserSkillService_GetUsersForSkill(t *testing.T) {
 	userSkillRepo := mocks.NewMockIUserSkillRepository(ctrl)
 	userRepo := mocks.NewMockIUserRepository(ctrl)
 	skillRepo := mocks.NewMockISkillRepository(ctrl)
-	svc := NewUserSkillService(userSkillRepo, userRepo, skillRepo)
+	svc := NewService(userSkillRepo, userRepo, skillRepo)
 
 	testCases := []struct {
 		name       string
@@ -489,7 +489,7 @@ func TestUserSkillService_DeleteSkillsForUser(t *testing.T) {
 	userSkillRepo := mocks.NewMockIUserSkillRepository(ctrl)
 	userRepo := mocks.NewMockIUserRepository(ctrl)
 	skillRepo := mocks.NewMockISkillRepository(ctrl)
-	svc := NewUserSkillService(userSkillRepo, userRepo, skillRepo)
+	svc := NewService(userSkillRepo, userRepo, skillRepo)
 
 	testCases := []struct {
 		name       string

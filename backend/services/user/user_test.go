@@ -1,4 +1,4 @@
-package services
+package user
 
 import (
 	"context"
@@ -22,7 +22,7 @@ func TestUserService_DeleteById(t *testing.T) {
 	userRepo := mocks.NewMockIUserRepository(ctrl)
 	compRepo := mocks.NewMockICompanyRepository(ctrl)
 	finRepo := mocks.NewMockIFinancialReportRepository(ctrl)
-	svc := NewUserService(userRepo, compRepo, finRepo)
+	svc := NewService(userRepo, compRepo, finRepo)
 
 	curUuid := uuid.New()
 
@@ -79,7 +79,7 @@ func TestUserService_GetAll(t *testing.T) {
 	userRepo := mocks.NewMockIUserRepository(ctrl)
 	compRepo := mocks.NewMockICompanyRepository(ctrl)
 	finRepo := mocks.NewMockIFinancialReportRepository(ctrl)
-	svc := NewUserService(userRepo, compRepo, finRepo)
+	svc := NewService(userRepo, compRepo, finRepo)
 
 	testCases := []struct {
 		name       string
@@ -92,7 +92,7 @@ func TestUserService_GetAll(t *testing.T) {
 			name: "успешное получение списка всех компаний",
 			beforeTest: func(userRepo mocks.MockIUserRepository) {
 				userRepo.EXPECT().
-					GetAll(context.Background()).
+					GetAll(context.Background(), nil).
 					Return([]*domain.User{
 						{
 							ID:       [16]byte{1},
@@ -152,7 +152,7 @@ func TestUserService_GetAll(t *testing.T) {
 			name: "ошибка получения данных в репозитории",
 			beforeTest: func(userRepo mocks.MockIUserRepository) {
 				userRepo.EXPECT().
-					GetAll(context.Background()).
+					GetAll(context.Background(), nil).
 					Return(nil, fmt.Errorf("sql error"))
 			},
 			wantErr: true,
@@ -165,7 +165,7 @@ func TestUserService_GetAll(t *testing.T) {
 				tc.beforeTest(*userRepo)
 			}
 
-			users, err := svc.GetAll(context.Background())
+			users, err := svc.GetAll(context.Background(), nil)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -184,7 +184,7 @@ func TestUserService_Create(t *testing.T) {
 	userRepo := mocks.NewMockIUserRepository(ctrl)
 	compRepo := mocks.NewMockICompanyRepository(ctrl)
 	finRepo := mocks.NewMockIFinancialReportRepository(ctrl)
-	svc := NewUserService(userRepo, compRepo, finRepo)
+	svc := NewService(userRepo, compRepo, finRepo)
 
 	testCases := []struct {
 		name       string
@@ -384,7 +384,7 @@ func TestUserService_GetById(t *testing.T) {
 	userRepo := mocks.NewMockIUserRepository(ctrl)
 	compRepo := mocks.NewMockICompanyRepository(ctrl)
 	finRepo := mocks.NewMockIFinancialReportRepository(ctrl)
-	svc := NewUserService(userRepo, compRepo, finRepo)
+	svc := NewService(userRepo, compRepo, finRepo)
 
 	testCases := []struct {
 		name       string
@@ -462,7 +462,7 @@ func TestUserService_GetFinancialReport(t *testing.T) {
 	userRepo := mocks.NewMockIUserRepository(ctrl)
 	compRepo := mocks.NewMockICompanyRepository(ctrl)
 	finRepo := mocks.NewMockIFinancialReportRepository(ctrl)
-	svc := NewUserService(userRepo, compRepo, finRepo)
+	svc := NewService(userRepo, compRepo, finRepo)
 
 	testCases := []struct {
 		name       string
@@ -1547,7 +1547,7 @@ func TestUserService_Update(t *testing.T) {
 	userRepo := mocks.NewMockIUserRepository(ctrl)
 	compRepo := mocks.NewMockICompanyRepository(ctrl)
 	finRepo := mocks.NewMockIFinancialReportRepository(ctrl)
-	svc := NewUserService(userRepo, compRepo, finRepo)
+	svc := NewService(userRepo, compRepo, finRepo)
 
 	testCases := []struct {
 		name       string

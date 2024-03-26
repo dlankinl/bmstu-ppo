@@ -1,4 +1,4 @@
-package services
+package company
 
 import (
 	"context"
@@ -18,7 +18,7 @@ func TestCompanyService_Create(t *testing.T) {
 
 	compRepo := mocks.NewMockICompanyRepository(ctrl)
 	finRepo := mocks.NewMockIFinancialReportRepository(ctrl)
-	svc := NewCompanyService(compRepo, finRepo)
+	svc := NewService(compRepo, finRepo)
 
 	testCases := []struct {
 		name       string
@@ -159,7 +159,7 @@ func TestCompanyService_DeleteById(t *testing.T) {
 
 	compRepo := mocks.NewMockICompanyRepository(ctrl)
 	finRepo := mocks.NewMockIFinancialReportRepository(ctrl)
-	svc := NewCompanyService(compRepo, finRepo)
+	svc := NewService(compRepo, finRepo)
 
 	curUuid := uuid.New()
 
@@ -215,7 +215,7 @@ func TestCompanyService_GetAll(t *testing.T) {
 
 	compRepo := mocks.NewMockICompanyRepository(ctrl)
 	finRepo := mocks.NewMockIFinancialReportRepository(ctrl)
-	svc := NewCompanyService(compRepo, finRepo)
+	svc := NewService(compRepo, finRepo)
 
 	testCases := []struct {
 		name       string
@@ -228,7 +228,7 @@ func TestCompanyService_GetAll(t *testing.T) {
 			name: "успешное получение списка всех компаний",
 			beforeTest: func(compRepo mocks.MockICompanyRepository) {
 				compRepo.EXPECT().
-					GetAll(context.Background()).
+					GetAll(context.Background(), nil).
 					Return([]*domain.Company{
 						{
 							ID:              [16]byte{1},
@@ -276,7 +276,7 @@ func TestCompanyService_GetAll(t *testing.T) {
 			name: "ошибка получения данных в репозитории",
 			beforeTest: func(compRepo mocks.MockICompanyRepository) {
 				compRepo.EXPECT().
-					GetAll(context.Background()).
+					GetAll(context.Background(), nil).
 					Return(nil, fmt.Errorf("sql error"))
 			},
 			wantErr: true,
@@ -289,7 +289,7 @@ func TestCompanyService_GetAll(t *testing.T) {
 				tc.beforeTest(*compRepo)
 			}
 
-			companies, err := svc.GetAll(context.Background())
+			companies, err := svc.GetAll(context.Background(), nil)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -307,7 +307,7 @@ func TestCompanyService_GetById(t *testing.T) {
 
 	compRepo := mocks.NewMockICompanyRepository(ctrl)
 	finRepo := mocks.NewMockIFinancialReportRepository(ctrl)
-	svc := NewCompanyService(compRepo, finRepo)
+	svc := NewService(compRepo, finRepo)
 
 	testCases := []struct {
 		name       string
@@ -380,7 +380,7 @@ func TestCompanyService_GetByOwnerId(t *testing.T) {
 
 	compRepo := mocks.NewMockICompanyRepository(ctrl)
 	finRepo := mocks.NewMockIFinancialReportRepository(ctrl)
-	svc := NewCompanyService(compRepo, finRepo)
+	svc := NewService(compRepo, finRepo)
 
 	testCases := []struct {
 		name       string
@@ -487,7 +487,7 @@ func TestCompanyService_Update(t *testing.T) {
 
 	compRepo := mocks.NewMockICompanyRepository(ctrl)
 	finRepo := mocks.NewMockIFinancialReportRepository(ctrl)
-	svc := NewCompanyService(compRepo, finRepo)
+	svc := NewService(compRepo, finRepo)
 
 	testCases := []struct {
 		name       string

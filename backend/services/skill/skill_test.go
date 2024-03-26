@@ -1,4 +1,4 @@
-package services
+package skill
 
 import (
 	"context"
@@ -17,7 +17,7 @@ func TestSkillService_Create(t *testing.T) {
 	defer ctrl.Finish()
 
 	skillRepo := mocks.NewMockISkillRepository(ctrl)
-	svc := NewSkillService(skillRepo)
+	svc := NewService(skillRepo)
 
 	testCases := []struct {
 		name       string
@@ -127,7 +127,7 @@ func TestSkillService_DeleteById(t *testing.T) {
 	defer ctrl.Finish()
 
 	skillRepo := mocks.NewMockISkillRepository(ctrl)
-	svc := NewSkillService(skillRepo)
+	svc := NewService(skillRepo)
 
 	curUuid := uuid.New()
 
@@ -182,7 +182,7 @@ func TestSkillService_GetAll(t *testing.T) {
 	defer ctrl.Finish()
 
 	skillRepo := mocks.NewMockISkillRepository(ctrl)
-	svc := NewSkillService(skillRepo)
+	svc := NewService(skillRepo)
 
 	testCases := []struct {
 		name       string
@@ -267,7 +267,7 @@ func TestSkillService_GetById(t *testing.T) {
 	defer ctrl.Finish()
 
 	skillRepo := mocks.NewMockISkillRepository(ctrl)
-	svc := NewSkillService(skillRepo)
+	svc := NewService(skillRepo)
 
 	testCases := []struct {
 		name       string
@@ -337,7 +337,7 @@ func TestSkillService_Update(t *testing.T) {
 	defer ctrl.Finish()
 
 	skillRepo := mocks.NewMockISkillRepository(ctrl)
-	svc := NewSkillService(skillRepo)
+	svc := NewService(skillRepo)
 
 	testCases := []struct {
 		name       string

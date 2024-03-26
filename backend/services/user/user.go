@@ -1,4 +1,4 @@
-package services
+package user
 
 import (
 	"context"
@@ -6,28 +6,29 @@ import (
 	"github.com/google/uuid"
 	"math"
 	"ppo/domain"
+	"ppo/pkg/utils"
 	"strings"
 	"time"
 )
 
-type UserService struct {
+type Service struct {
 	userRepo    domain.IUserRepository
 	companyRepo domain.ICompanyRepository
 	finRepo     domain.IFinancialReportRepository
 }
 
-func NewUserService(
+func NewService(
 	userRepo domain.IUserRepository,
 	companyRepo domain.ICompanyRepository,
 	finRepo domain.IFinancialReportRepository) domain.IUserService {
-	return &UserService{
+	return &Service{
 		userRepo:    userRepo,
 		companyRepo: companyRepo,
 		finRepo:     finRepo,
 	}
 }
 
-func (s UserService) Create(ctx context.Context, user *domain.User) (err error) {
+func (s *Service) Create(ctx context.Context, user *domain.User) (err error) {
 	if user.Gender != "m" && user.Gender != "w" {
 		return fmt.Errorf("неизвестный пол")
 	}
@@ -56,7 +57,7 @@ func (s UserService) Create(ctx context.Context, user *domain.User) (err error) 
 	return nil
 }
 
-func (s UserService) GetById(ctx context.Context, id uuid.UUID) (user *domain.User, err error) {
+func (s *Service) GetById(ctx context.Context, id uuid.UUID) (user *domain.User, err error) {
 	user, err = s.userRepo.GetById(ctx, id)
 	if err != nil {
 		return nil, fmt.Errorf("получение пользователя по id: %w", err)
@@ -65,9 +66,8 @@ func (s UserService) GetById(ctx context.Context, id uuid.UUID) (user *domain.Us
 	return user, nil
 }
 
-// TODO: фильтрация
-func (s UserService) GetAll(ctx context.Context) (users []*domain.User, err error) {
-	users, err = s.userRepo.GetAll(ctx)
+func (s *Service) GetAll(ctx context.Context, filters utils.Filters) (users []*domain.User, err error) {
+	users, err = s.userRepo.GetAll(ctx, filters)
 	if err != nil {
 		return nil, fmt.Errorf("получение списка всех пользователей: %w", err)
 	}
@@ -75,7 +75,7 @@ func (s UserService) GetAll(ctx context.Context) (users []*domain.User, err erro
 	return users, nil
 }
 
-func (s UserService) Update(ctx context.Context, user *domain.User) (err error) {
+func (s *Service) Update(ctx context.Context, user *domain.User) (err error) {
 	err = s.userRepo.Update(ctx, user)
 	if err != nil {
 		return fmt.Errorf("обновление информации о пользователе: %w", err)
@@ -84,7 +84,7 @@ func (s UserService) Update(ctx context.Context, user *domain.User) (err error) 
 	return nil
 }
 
-func (s UserService) DeleteById(ctx context.Context, id uuid.UUID) (err error) {
+func (s *Service) DeleteById(ctx context.Context, id uuid.UUID) (err error) {
 	err = s.userRepo.DeleteById(ctx, id)
 	if err != nil {
 		return fmt.Errorf("удаление пользователя по id: %w", err)
@@ -93,7 +93,7 @@ func (s UserService) DeleteById(ctx context.Context, id uuid.UUID) (err error) {
 	return nil
 }
 
-func (s UserService) GetFinancialReport(ctx context.Context, id uuid.UUID, period domain.Period) (finReports []*domain.FinancialReportByPeriod, err error) {
+func (s *Service) GetFinancialReport(ctx context.Context, id uuid.UUID, period domain.Period) (finReports []*domain.FinancialReportByPeriod, err error) {
 	if period.StartYear > period.EndYear ||
 		(period.StartYear == period.EndYear && period.StartQuarter > period.EndQuarter) {
 		return nil, fmt.Errorf("дата конца периода должна быть позже даты начала")
@@ -172,7 +172,7 @@ func (s UserService) GetFinancialReport(ctx context.Context, id uuid.UUID, perio
 	return finReports, nil
 }
 
-func (s UserService) CalculateRating(ctx context.Context, id uuid.UUID) (rating float32, err error) {
+func (s *Service) CalculateRating(ctx context.Context, id uuid.UUID) (rating float32, err error) {
 	var mainFieldWeight float32 // TODO: mainFieldWeight
 
 	prevYear := time.Now().AddDate(-1, 0, 0).Year()

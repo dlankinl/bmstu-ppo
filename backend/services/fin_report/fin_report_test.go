@@ -1,4 +1,4 @@
-package services
+package fin_report
 
 import (
 	"context"
@@ -17,7 +17,7 @@ func TestFinReportService_Create(t *testing.T) {
 	defer ctrl.Finish()
 
 	finRepo := mocks.NewMockIFinancialReportRepository(ctrl)
-	svc := NewFinReportService(finRepo)
+	svc := NewService(finRepo)
 
 	testCases := []struct {
 		name       string
@@ -235,7 +235,7 @@ func TestFinReportService_DeleteById(t *testing.T) {
 	defer ctrl.Finish()
 
 	finRepo := mocks.NewMockIFinancialReportRepository(ctrl)
-	svc := NewFinReportService(finRepo)
+	svc := NewService(finRepo)
 
 	curUuid := uuid.New()
 
@@ -290,7 +290,7 @@ func TestFinReportService_GetByCompany(t *testing.T) {
 	defer ctrl.Finish()
 
 	finRepo := mocks.NewMockIFinancialReportRepository(ctrl)
-	svc := NewFinReportService(finRepo)
+	svc := NewService(finRepo)
 
 	testCases := []struct {
 		name       string
@@ -608,7 +608,7 @@ func TestFinReportService_GetById(t *testing.T) {
 	defer ctrl.Finish()
 
 	finRepo := mocks.NewMockIFinancialReportRepository(ctrl)
-	svc := NewFinReportService(finRepo)
+	svc := NewService(finRepo)
 
 	testCases := []struct {
 		name       string
@@ -684,7 +684,7 @@ func TestFinReportService_Update(t *testing.T) {
 	defer ctrl.Finish()
 
 	finRepo := mocks.NewMockIFinancialReportRepository(ctrl)
-	svc := NewFinReportService(finRepo)
+	svc := NewService(finRepo)
 
 	testCases := []struct {
 		name       string

@@ -12,6 +12,7 @@ package mocks
 import (
 	context "context"
 	domain "ppo/domain"
+	utils "ppo/pkg/utils"
 	reflect "reflect"
 
 	uuid "github.com/google/uuid"
@@ -70,18 +71,18 @@ func (mr *MockIUserRepositoryMockRecorder) DeleteById(ctx, id any) *gomock.Call 
 }
 
 // GetAll mocks base method.
-func (m *MockIUserRepository) GetAll(ctx context.Context) ([]*domain.User, error) {
+func (m *MockIUserRepository) GetAll(ctx context.Context, filters utils.Filters) ([]*domain.User, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAll", ctx)
+	ret := m.ctrl.Call(m, "GetAll", ctx, filters)
 	ret0, _ := ret[0].([]*domain.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetAll indicates an expected call of GetAll.
-func (mr *MockIUserRepositoryMockRecorder) GetAll(ctx any) *gomock.Call {
+func (mr *MockIUserRepositoryMockRecorder) GetAll(ctx, filters any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockIUserRepository)(nil).GetAll), ctx)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockIUserRepository)(nil).GetAll), ctx, filters)
 }
 
 // GetById mocks base method.
@@ -180,18 +181,18 @@ func (mr *MockIUserServiceMockRecorder) DeleteById(ctx, id any) *gomock.Call {
 }
 
 // GetAll mocks base method.
-func (m *MockIUserService) GetAll(ctx context.Context) ([]*domain.User, error) {
+func (m *MockIUserService) GetAll(ctx context.Context, filters utils.Filters) ([]*domain.User, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAll", ctx)
+	ret := m.ctrl.Call(m, "GetAll", ctx, filters)
 	ret0, _ := ret[0].([]*domain.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetAll indicates an expected call of GetAll.
-func (mr *MockIUserServiceMockRecorder) GetAll(ctx any) *gomock.Call {
+func (mr *MockIUserServiceMockRecorder) GetAll(ctx, filters any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockIUserService)(nil).GetAll), ctx)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockIUserService)(nil).GetAll), ctx, filters)
 }
 
 // GetById mocks base method.

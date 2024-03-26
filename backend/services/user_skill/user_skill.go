@@ -1,4 +1,4 @@
-package services
+package user_skill
 
 import (
 	"context"
@@ -7,25 +7,25 @@ import (
 	"ppo/domain"
 )
 
-type UserSkillService struct {
+type Service struct {
 	userSkillRepo domain.IUserSkillRepository
 	userRepo      domain.IUserRepository
 	skillRepo     domain.ISkillRepository
 }
 
-func NewUserSkillService(
+func NewService(
 	userSkillRepo domain.IUserSkillRepository,
 	userRepo domain.IUserRepository,
 	skillRepo domain.ISkillRepository,
 ) domain.IUserSkillService {
-	return &UserSkillService{
+	return &Service{
 		userSkillRepo: userSkillRepo,
 		userRepo:      userRepo,
 		skillRepo:     skillRepo,
 	}
 }
 
-func (s UserSkillService) Create(ctx context.Context, pair *domain.UserSkill) (err error) {
+func (s *Service) Create(ctx context.Context, pair *domain.UserSkill) (err error) {
 	err = s.userSkillRepo.Create(ctx, pair)
 	if err != nil {
 		return fmt.Errorf("связывание пользователя и навыка: %w", err)
@@ -34,7 +34,7 @@ func (s UserSkillService) Create(ctx context.Context, pair *domain.UserSkill) (e
 	return nil
 }
 
-func (s UserSkillService) Delete(ctx context.Context, pair *domain.UserSkill) (err error) {
+func (s *Service) Delete(ctx context.Context, pair *domain.UserSkill) (err error) {
 	err = s.userSkillRepo.Delete(ctx, pair)
 	if err != nil {
 		return fmt.Errorf("удаление связи пользователь-навык: %w", err)
@@ -43,7 +43,7 @@ func (s UserSkillService) Delete(ctx context.Context, pair *domain.UserSkill) (e
 	return nil
 }
 
-func (s UserSkillService) GetSkillsForUser(ctx context.Context, userId uuid.UUID) (skills []*domain.Skill, err error) {
+func (s *Service) GetSkillsForUser(ctx context.Context, userId uuid.UUID) (skills []*domain.Skill, err error) {
 	userSkills, err := s.userSkillRepo.GetUserSkillsByUserId(ctx, userId)
 	if err != nil {
 		return nil, fmt.Errorf("получение связок пользователь-навык по userId: %w", err)
@@ -62,7 +62,7 @@ func (s UserSkillService) GetSkillsForUser(ctx context.Context, userId uuid.UUID
 	return skills, nil
 }
 
-func (s UserSkillService) GetUsersForSkill(ctx context.Context, skillId uuid.UUID) (users []*domain.User, err error) {
+func (s *Service) GetUsersForSkill(ctx context.Context, skillId uuid.UUID) (users []*domain.User, err error) {
 	userSkills, err := s.userSkillRepo.GetUserSkillsBySkillId(ctx, skillId)
 	if err != nil {
 		return nil, fmt.Errorf("получение связок пользователь-навык по skillId: %w", err)
@@ -81,7 +81,7 @@ func (s UserSkillService) GetUsersForSkill(ctx context.Context, skillId uuid.UUI
 	return users, nil
 }
 
-func (s UserSkillService) DeleteSkillsForUser(ctx context.Context, userId uuid.UUID) (err error) {
+func (s *Service) DeleteSkillsForUser(ctx context.Context, userId uuid.UUID) (err error) {
 	userSkills, err := s.userSkillRepo.GetUserSkillsByUserId(ctx, userId)
 	if err != nil {
 		return fmt.Errorf("получение связок пользователь-навык по userId: %w", err)

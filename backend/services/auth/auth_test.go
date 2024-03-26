@@ -1,4 +1,4 @@
-package services
+package auth
 
 import (
 	"context"
@@ -19,7 +19,7 @@ func TestAuthService_Login(t *testing.T) {
 	jwtKey := "abcdefgh123"
 	repo := mocks.NewMockIAuthRepository(ctrl)
 	crypto := mocks.NewMockIHashCrypto(ctrl)
-	svc := NewAuthService(repo, crypto, jwtKey)
+	svc := NewService(repo, crypto, jwtKey)
 
 	testCases := []struct {
 		name       string
@@ -128,7 +128,7 @@ func TestAuthService_Register(t *testing.T) {
 
 	repo := mocks.NewMockIAuthRepository(ctrl)
 	crypto := mocks.NewMockIHashCrypto(ctrl)
-	svc := NewAuthService(repo, crypto, "abcdefgh123")
+	svc := NewService(repo, crypto, "abcdefgh123")
 
 	testCases := []struct {
 		name       string
