@@ -68,7 +68,7 @@ func (s *Service) GetById(ctx context.Context, id uuid.UUID) (finReport *domain.
 	return finReport, nil
 }
 
-func (s *Service) GetByCompany(ctx context.Context, companyId uuid.UUID, period domain.Period) (
+func (s *Service) GetByCompany(ctx context.Context, companyId uuid.UUID, period *domain.Period) (
 	finReport *domain.FinancialReportByPeriod, err error) {
 	if period.StartYear > period.EndYear ||
 		(period.StartYear == period.EndYear && period.StartQuarter > period.EndQuarter) {
@@ -100,7 +100,7 @@ func (s *Service) GetByCompany(ctx context.Context, companyId uuid.UUID, period 
 			i++
 		}
 
-		per := domain.Period{
+		per := &domain.Period{
 			StartYear:    year,
 			EndYear:      year,
 			StartQuarter: startQtr,

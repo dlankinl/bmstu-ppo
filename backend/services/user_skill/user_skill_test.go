@@ -31,16 +31,16 @@ func TestUserSkillService_Create(t *testing.T) {
 		{
 			name: "успешное добавление",
 			pair: domain.UserSkill{
-				UserId:  [16]byte{1},
-				SkillId: [16]byte{1},
+				UserId:  uuid.UUID{1},
+				SkillId: uuid.UUID{1},
 			},
 			beforeTest: func(userSkillRepo mocks.MockIUserSkillRepository) {
 				userSkillRepo.EXPECT().
 					Create(
 						context.Background(),
 						&domain.UserSkill{
-							UserId:  [16]byte{1},
-							SkillId: [16]byte{1},
+							UserId:  uuid.UUID{1},
+							SkillId: uuid.UUID{1},
 						},
 					).Return(nil)
 			},
@@ -49,16 +49,16 @@ func TestUserSkillService_Create(t *testing.T) {
 		{
 			name: "ошибка выполнения запроса в репозитории",
 			pair: domain.UserSkill{
-				UserId:  [16]byte{1},
-				SkillId: [16]byte{1},
+				UserId:  uuid.UUID{1},
+				SkillId: uuid.UUID{1},
 			},
 			beforeTest: func(userSkillRepo mocks.MockIUserSkillRepository) {
 				userSkillRepo.EXPECT().
 					Create(
 						context.Background(),
 						&domain.UserSkill{
-							UserId:  [16]byte{1},
-							SkillId: [16]byte{1},
+							UserId:  uuid.UUID{1},
+							SkillId: uuid.UUID{1},
 						},
 					).Return(fmt.Errorf("sql error")).
 					AnyTimes()
@@ -103,16 +103,16 @@ func TestUserSkillService_Delete(t *testing.T) {
 		{
 			name: "успешное добавление",
 			pair: domain.UserSkill{
-				UserId:  [16]byte{1},
-				SkillId: [16]byte{1},
+				UserId:  uuid.UUID{1},
+				SkillId: uuid.UUID{1},
 			},
 			beforeTest: func(userSkillRepo mocks.MockIUserSkillRepository) {
 				userSkillRepo.EXPECT().
 					Delete(
 						context.Background(),
 						&domain.UserSkill{
-							UserId:  [16]byte{1},
-							SkillId: [16]byte{1},
+							UserId:  uuid.UUID{1},
+							SkillId: uuid.UUID{1},
 						},
 					).Return(nil)
 			},
@@ -121,16 +121,16 @@ func TestUserSkillService_Delete(t *testing.T) {
 		{
 			name: "ошибка выполнения запроса в репозитории",
 			pair: domain.UserSkill{
-				UserId:  [16]byte{1},
-				SkillId: [16]byte{1},
+				UserId:  uuid.UUID{1},
+				SkillId: uuid.UUID{1},
 			},
 			beforeTest: func(userSkillRepo mocks.MockIUserSkillRepository) {
 				userSkillRepo.EXPECT().
 					Delete(
 						context.Background(),
 						&domain.UserSkill{
-							UserId:  [16]byte{1},
-							SkillId: [16]byte{1},
+							UserId:  uuid.UUID{1},
+							SkillId: uuid.UUID{1},
 						},
 					).Return(fmt.Errorf("sql error")).
 					AnyTimes()

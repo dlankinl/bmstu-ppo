@@ -16,7 +16,7 @@ type FinancialReport struct {
 
 type FinancialReportByPeriod struct {
 	Reports []FinancialReport
-	Period  Period
+	Period  *Period
 	Taxes   float32
 	TaxLoad float32
 }
@@ -55,7 +55,7 @@ func (r *FinancialReportByPeriod) Profit() (sum float32) {
 type IFinancialReportRepository interface {
 	Create(ctx context.Context, finRep *FinancialReport) error
 	GetById(ctx context.Context, id uuid.UUID) (*FinancialReport, error)
-	GetByCompany(ctx context.Context, companyId uuid.UUID, period Period) (*FinancialReportByPeriod, error)
+	GetByCompany(ctx context.Context, companyId uuid.UUID, period *Period) (*FinancialReportByPeriod, error)
 	Update(ctx context.Context, finRep *FinancialReport) error
 	DeleteById(ctx context.Context, id uuid.UUID) error
 }
@@ -64,7 +64,7 @@ type IFinancialReportService interface {
 	Create(ctx context.Context, finRep *FinancialReport) error
 	CreateByPeriod(ctx context.Context, finReportByPeriod *FinancialReportByPeriod) error
 	GetById(ctx context.Context, id uuid.UUID) (*FinancialReport, error)
-	GetByCompany(ctx context.Context, companyId uuid.UUID, period Period) (*FinancialReportByPeriod, error)
+	GetByCompany(ctx context.Context, companyId uuid.UUID, period *Period) (*FinancialReportByPeriod, error)
 	Update(ctx context.Context, finRep *FinancialReport) error
 	DeleteById(ctx context.Context, id uuid.UUID) error
 }

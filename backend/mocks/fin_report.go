@@ -70,7 +70,7 @@ func (mr *MockIFinancialReportRepositoryMockRecorder) DeleteById(ctx, id any) *g
 }
 
 // GetByCompany mocks base method.
-func (m *MockIFinancialReportRepository) GetByCompany(ctx context.Context, companyId uuid.UUID, period domain.Period) (*domain.FinancialReportByPeriod, error) {
+func (m *MockIFinancialReportRepository) GetByCompany(ctx context.Context, companyId uuid.UUID, period *domain.Period) (*domain.FinancialReportByPeriod, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetByCompany", ctx, companyId, period)
 	ret0, _ := ret[0].(*domain.FinancialReportByPeriod)
@@ -179,7 +179,7 @@ func (mr *MockIFinancialReportServiceMockRecorder) DeleteById(ctx, id any) *gomo
 }
 
 // GetByCompany mocks base method.
-func (m *MockIFinancialReportService) GetByCompany(ctx context.Context, companyId uuid.UUID, period domain.Period) (*domain.FinancialReportByPeriod, error) {
+func (m *MockIFinancialReportService) GetByCompany(ctx context.Context, companyId uuid.UUID, period *domain.Period) (*domain.FinancialReportByPeriod, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetByCompany", ctx, companyId, period)
 	ret0, _ := ret[0].(*domain.FinancialReportByPeriod)

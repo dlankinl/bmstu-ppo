@@ -21,14 +21,14 @@ func TestContactService_Create(t *testing.T) {
 
 	testCases := []struct {
 		name       string
-		contact    domain.Contact
+		data       *domain.Contact
 		beforeTest func(conRepo mocks.MockIContactsRepository)
 		wantErr    bool
 		errStr     error
 	}{
 		{
 			name: "успешное добавление",
-			contact: domain.Contact{
+			data: &domain.Contact{
 				Name:  "aaa",
 				Value: "bbb",
 			},
@@ -46,7 +46,7 @@ func TestContactService_Create(t *testing.T) {
 		},
 		{
 			name: "пустое название средства связи",
-			contact: domain.Contact{
+			data: &domain.Contact{
 				Name:  "",
 				Value: "bbb",
 			},
@@ -66,7 +66,7 @@ func TestContactService_Create(t *testing.T) {
 		},
 		{
 			name: "пустое значение",
-			contact: domain.Contact{
+			data: &domain.Contact{
 				Name:  "aaa",
 				Value: "",
 			},
@@ -86,7 +86,7 @@ func TestContactService_Create(t *testing.T) {
 		},
 		{
 			name: "ошибка выполнения запроса в репозитории",
-			contact: domain.Contact{
+			data: &domain.Contact{
 				Name:  "aaa",
 				Value: "bbb",
 			},
@@ -111,7 +111,7 @@ func TestContactService_Create(t *testing.T) {
 				tc.beforeTest(*conRepo)
 			}
 
-			err := svc.Create(context.Background(), &tc.contact)
+			err := svc.Create(context.Background(), tc.data)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -194,29 +194,29 @@ func TestContactService_GetByOwnerId(t *testing.T) {
 	}{
 		{
 			name: "успешное получение компании по id",
-			id:   [16]byte{1},
+			id:   uuid.UUID{1},
 			beforeTest: func(conRepo mocks.MockIContactsRepository) {
 				conRepo.EXPECT().
 					GetByOwnerId(
 						context.Background(),
-						[16]byte{1},
+						uuid.UUID{1},
 					).
 					Return([]*domain.Contact{
 						{
-							ID:      [16]byte{1},
-							OwnerID: [16]byte{1},
+							ID:      uuid.UUID{1},
+							OwnerID: uuid.UUID{1},
 							Name:    "a",
 							Value:   "a",
 						},
 						{
-							ID:      [16]byte{2},
-							OwnerID: [16]byte{1},
+							ID:      uuid.UUID{2},
+							OwnerID: uuid.UUID{1},
 							Name:    "b",
 							Value:   "b",
 						},
 						{
-							ID:      [16]byte{3},
-							OwnerID: [16]byte{1},
+							ID:      uuid.UUID{3},
+							OwnerID: uuid.UUID{1},
 							Name:    "c",
 							Value:   "c",
 						},
@@ -224,20 +224,20 @@ func TestContactService_GetByOwnerId(t *testing.T) {
 			},
 			expected: []*domain.Contact{
 				{
-					ID:      [16]byte{1},
-					OwnerID: [16]byte{1},
+					ID:      uuid.UUID{1},
+					OwnerID: uuid.UUID{1},
 					Name:    "a",
 					Value:   "a",
 				},
 				{
-					ID:      [16]byte{2},
-					OwnerID: [16]byte{1},
+					ID:      uuid.UUID{2},
+					OwnerID: uuid.UUID{1},
 					Name:    "b",
 					Value:   "b",
 				},
 				{
-					ID:      [16]byte{3},
-					OwnerID: [16]byte{1},
+					ID:      uuid.UUID{3},
+					OwnerID: uuid.UUID{1},
 					Name:    "c",
 					Value:   "c",
 				},
@@ -246,12 +246,12 @@ func TestContactService_GetByOwnerId(t *testing.T) {
 		},
 		{
 			name: "ошибка получения данных в репозитории",
-			id:   [16]byte{1},
+			id:   uuid.UUID{1},
 			beforeTest: func(conRepo mocks.MockIContactsRepository) {
 				conRepo.EXPECT().
 					GetByOwnerId(
 						context.Background(),
-						[16]byte{1},
+						uuid.UUID{1},
 					).
 					Return(nil, fmt.Errorf("sql error"))
 			},
@@ -293,22 +293,22 @@ func TestContactService_GetById(t *testing.T) {
 		errStr     error
 	}{
 		{
-			name: "успешное получение компании по id",
-			id:   [16]byte{1},
+			name: "успешное получение средства связи по id",
+			id:   uuid.UUID{1},
 			beforeTest: func(conRepo mocks.MockIContactsRepository) {
 				conRepo.EXPECT().
 					GetById(
 						context.Background(),
-						[16]byte{1},
+						uuid.UUID{1},
 					).
 					Return(&domain.Contact{
-						ID:    [16]byte{1},
+						ID:    uuid.UUID{1},
 						Name:  "a",
 						Value: "a",
 					}, nil)
 			},
 			expected: &domain.Contact{
-				ID:    [16]byte{1},
+				ID:    uuid.UUID{1},
 				Name:  "a",
 				Value: "a",
 			},
@@ -316,12 +316,12 @@ func TestContactService_GetById(t *testing.T) {
 		},
 		{
 			name: "ошибка получения данных в репозитории",
-			id:   [16]byte{1},
+			id:   uuid.UUID{1},
 			beforeTest: func(conRepo mocks.MockIContactsRepository) {
 				conRepo.EXPECT().
 					GetById(
 						context.Background(),
-						[16]byte{1},
+						uuid.UUID{1},
 					).
 					Return(nil, fmt.Errorf("sql error"))
 			},
@@ -356,15 +356,15 @@ func TestContactService_Update(t *testing.T) {
 
 	testCases := []struct {
 		name       string
-		company    domain.Contact
+		data       *domain.Contact
 		beforeTest func(conRepo mocks.MockIContactsRepository)
 		wantErr    bool
 		errStr     error
 	}{
 		{
 			name: "успешное обновление",
-			company: domain.Contact{
-				ID:   [16]byte{1},
+			data: &domain.Contact{
+				ID:   uuid.UUID{1},
 				Name: "aaa",
 			},
 			beforeTest: func(conRepo mocks.MockIContactsRepository) {
@@ -372,7 +372,7 @@ func TestContactService_Update(t *testing.T) {
 					Update(
 						context.Background(),
 						&domain.Contact{
-							ID:   [16]byte{1},
+							ID:   uuid.UUID{1},
 							Name: "aaa",
 						},
 					).Return(nil)
@@ -381,8 +381,8 @@ func TestContactService_Update(t *testing.T) {
 		},
 		{
 			name: "ошибка выполнения запроса в репозитории",
-			company: domain.Contact{
-				ID:   [16]byte{1},
+			data: &domain.Contact{
+				ID:   uuid.UUID{1},
 				Name: "aaa",
 			},
 			beforeTest: func(conRepo mocks.MockIContactsRepository) {
@@ -390,7 +390,7 @@ func TestContactService_Update(t *testing.T) {
 					Update(
 						context.Background(),
 						&domain.Contact{
-							ID:   [16]byte{1},
+							ID:   uuid.UUID{1},
 							Name: "aaa",
 						},
 					).Return(fmt.Errorf("sql error"))
@@ -405,7 +405,7 @@ func TestContactService_Update(t *testing.T) {
 				tc.beforeTest(*conRepo)
 			}
 
-			err := svc.Update(context.Background(), &tc.company)
+			err := svc.Update(context.Background(), tc.data)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())

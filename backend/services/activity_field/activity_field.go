@@ -9,7 +9,8 @@ import (
 )
 
 type Service struct {
-	repo domain.IActivityFieldRepository
+	repo        domain.IActivityFieldRepository
+	companyRepo domain.ICompanyRepository
 }
 
 func NewService(repo domain.IActivityFieldRepository) domain.IActivityFieldService {
@@ -65,3 +66,32 @@ func (s *Service) GetById(ctx context.Context, id uuid.UUID) (data *domain.Activ
 
 	return data, nil
 }
+
+func (s *Service) GetCostByCompanyId(ctx context.Context, id uuid.UUID) (cost float32, err error) {
+	cost, err = s.repo.GetByCompanyId(ctx, id)
+	if err != nil {
+		return 0, fmt.Errorf("получение веса сферы деятельности по id компании: %w", err)
+	}
+
+	return cost, nil
+}
+
+//func (s *Service) GetMainActivityFieldWeight(ctx context.Context, companyId uuid.UUID) (value float32, err error) {
+//	companies, err := s.companyRepo.GetByOwnerId(ctx, userId)
+//	if err != nil {
+//		return 0, fmt.Errorf("получение списка компаний по id владельца: %w", err)
+//	}
+//
+//	var maxProfit float32
+//	for _, comp := range companies {
+//
+//		//compCost, err := s.repo.GetById(ctx, comp.ActivityFieldId)
+//		//if err != nil {
+//		//	return 0, fmt.Errorf("получение веса сферы деятельности по id компании: %w", err)
+//		//}
+//
+//		value = max(value, compCost.Cost)
+//	}
+//
+//	return value, nil
+//}

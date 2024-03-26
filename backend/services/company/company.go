@@ -29,10 +29,6 @@ func (s *Service) Create(ctx context.Context, company *domain.Company) (err erro
 		return fmt.Errorf("должно быть указано название города")
 	}
 
-	if company.FieldOfActivity == "" {
-		return fmt.Errorf("должно быть указано название сферы деятельности")
-	}
-
 	err = s.companyRepo.Create(ctx, company)
 	if err != nil {
 		return fmt.Errorf("добавление компании: %w", err)

@@ -22,7 +22,8 @@ func TestUserService_DeleteById(t *testing.T) {
 	userRepo := mocks.NewMockIUserRepository(ctrl)
 	compRepo := mocks.NewMockICompanyRepository(ctrl)
 	finRepo := mocks.NewMockIFinancialReportRepository(ctrl)
-	svc := NewService(userRepo, compRepo, finRepo)
+	actFieldRepo := mocks.NewMockIActivityFieldRepository(ctrl)
+	svc := NewService(userRepo, compRepo, finRepo, actFieldRepo)
 
 	curUuid := uuid.New()
 
@@ -79,7 +80,8 @@ func TestUserService_GetAll(t *testing.T) {
 	userRepo := mocks.NewMockIUserRepository(ctrl)
 	compRepo := mocks.NewMockICompanyRepository(ctrl)
 	finRepo := mocks.NewMockIFinancialReportRepository(ctrl)
-	svc := NewService(userRepo, compRepo, finRepo)
+	actFieldRepo := mocks.NewMockIActivityFieldRepository(ctrl)
+	svc := NewService(userRepo, compRepo, finRepo, actFieldRepo)
 
 	testCases := []struct {
 		name       string
@@ -95,7 +97,7 @@ func TestUserService_GetAll(t *testing.T) {
 					GetAll(context.Background(), nil).
 					Return([]*domain.User{
 						{
-							ID:       [16]byte{1},
+							ID:       uuid.UUID{1},
 							Username: "a",
 							FullName: "a",
 							Gender:   "m",
@@ -103,7 +105,7 @@ func TestUserService_GetAll(t *testing.T) {
 							City:     "a",
 						},
 						{
-							ID:       [16]byte{2},
+							ID:       uuid.UUID{2},
 							Username: "b",
 							FullName: "b",
 							Gender:   "w",
@@ -111,7 +113,7 @@ func TestUserService_GetAll(t *testing.T) {
 							City:     "b",
 						},
 						{
-							ID:       [16]byte{3},
+							ID:       uuid.UUID{3},
 							Username: "c",
 							FullName: "c",
 							Gender:   "m",
@@ -122,7 +124,7 @@ func TestUserService_GetAll(t *testing.T) {
 			},
 			expected: []*domain.User{
 				{
-					ID:       [16]byte{1},
+					ID:       uuid.UUID{1},
 					Username: "a",
 					FullName: "a",
 					Gender:   "m",
@@ -130,7 +132,7 @@ func TestUserService_GetAll(t *testing.T) {
 					City:     "a",
 				},
 				{
-					ID:       [16]byte{2},
+					ID:       uuid.UUID{2},
 					Username: "b",
 					FullName: "b",
 					Gender:   "w",
@@ -138,7 +140,7 @@ func TestUserService_GetAll(t *testing.T) {
 					City:     "b",
 				},
 				{
-					ID:       [16]byte{3},
+					ID:       uuid.UUID{3},
 					Username: "c",
 					FullName: "c",
 					Gender:   "m",
@@ -184,7 +186,8 @@ func TestUserService_Create(t *testing.T) {
 	userRepo := mocks.NewMockIUserRepository(ctrl)
 	compRepo := mocks.NewMockICompanyRepository(ctrl)
 	finRepo := mocks.NewMockIFinancialReportRepository(ctrl)
-	svc := NewService(userRepo, compRepo, finRepo)
+	actFieldRepo := mocks.NewMockIActivityFieldRepository(ctrl)
+	svc := NewService(userRepo, compRepo, finRepo, actFieldRepo)
 
 	testCases := []struct {
 		name       string
@@ -196,7 +199,7 @@ func TestUserService_Create(t *testing.T) {
 		{
 			name: "успешное добавление",
 			user: domain.User{
-				ID:       [16]byte{1},
+				ID:       uuid.UUID{1},
 				Username: "a",
 				FullName: "a b c",
 				Gender:   "m",
@@ -208,7 +211,7 @@ func TestUserService_Create(t *testing.T) {
 					Create(
 						context.Background(),
 						&domain.User{
-							ID:       [16]byte{1},
+							ID:       uuid.UUID{1},
 							Username: "a",
 							FullName: "a b c",
 							Gender:   "m",
@@ -222,7 +225,7 @@ func TestUserService_Create(t *testing.T) {
 		{
 			name: "некорректное ФИО (не 3 слова)",
 			user: domain.User{
-				ID:       [16]byte{1},
+				ID:       uuid.UUID{1},
 				Username: "a",
 				FullName: "a",
 				Gender:   "m",
@@ -234,7 +237,7 @@ func TestUserService_Create(t *testing.T) {
 					Create(
 						context.Background(),
 						&domain.User{
-							ID:       [16]byte{1},
+							ID:       uuid.UUID{1},
 							Username: "a",
 							FullName: "a",
 							Gender:   "m",
@@ -250,7 +253,7 @@ func TestUserService_Create(t *testing.T) {
 		{
 			name: "пустое название города",
 			user: domain.User{
-				ID:       [16]byte{1},
+				ID:       uuid.UUID{1},
 				Username: "a",
 				FullName: "a b c",
 				Gender:   "m",
@@ -262,7 +265,7 @@ func TestUserService_Create(t *testing.T) {
 					Create(
 						context.Background(),
 						&domain.User{
-							ID:       [16]byte{1},
+							ID:       uuid.UUID{1},
 							Username: "a",
 							FullName: "a b c",
 							Gender:   "m",
@@ -278,7 +281,7 @@ func TestUserService_Create(t *testing.T) {
 		{
 			name: "неизвестный пол",
 			user: domain.User{
-				ID:       [16]byte{1},
+				ID:       uuid.UUID{1},
 				Username: "a",
 				FullName: "a b c",
 				Gender:   "r",
@@ -290,7 +293,7 @@ func TestUserService_Create(t *testing.T) {
 					Create(
 						context.Background(),
 						&domain.User{
-							ID:       [16]byte{1},
+							ID:       uuid.UUID{1},
 							Username: "a",
 							FullName: "a b c",
 							Gender:   "r",
@@ -306,7 +309,7 @@ func TestUserService_Create(t *testing.T) {
 		{
 			name: "пустая дата рождения",
 			user: domain.User{
-				ID:       [16]byte{1},
+				ID:       uuid.UUID{1},
 				Username: "a",
 				FullName: "a b c",
 				Gender:   "w",
@@ -318,7 +321,7 @@ func TestUserService_Create(t *testing.T) {
 					Create(
 						context.Background(),
 						&domain.User{
-							ID:       [16]byte{1},
+							ID:       uuid.UUID{1},
 							Username: "a",
 							FullName: "a b c",
 							Gender:   "w",
@@ -334,7 +337,7 @@ func TestUserService_Create(t *testing.T) {
 		{
 			name: "ошибка выполнения запроса в репозитории",
 			user: domain.User{
-				ID:       [16]byte{1},
+				ID:       uuid.UUID{1},
 				Username: "a",
 				FullName: "a b c",
 				Gender:   "w",
@@ -346,7 +349,7 @@ func TestUserService_Create(t *testing.T) {
 					Create(
 						context.Background(),
 						&domain.User{
-							ID:       [16]byte{1},
+							ID:       uuid.UUID{1},
 							Username: "a",
 							FullName: "a b c",
 							Gender:   "w",
@@ -384,7 +387,8 @@ func TestUserService_GetById(t *testing.T) {
 	userRepo := mocks.NewMockIUserRepository(ctrl)
 	compRepo := mocks.NewMockICompanyRepository(ctrl)
 	finRepo := mocks.NewMockIFinancialReportRepository(ctrl)
-	svc := NewService(userRepo, compRepo, finRepo)
+	actFieldRepo := mocks.NewMockIActivityFieldRepository(ctrl)
+	svc := NewService(userRepo, compRepo, finRepo, actFieldRepo)
 
 	testCases := []struct {
 		name       string
@@ -396,15 +400,15 @@ func TestUserService_GetById(t *testing.T) {
 	}{
 		{
 			name: "успешное получение компании по id",
-			id:   [16]byte{1},
+			id:   uuid.UUID{1},
 			beforeTest: func(userRepo mocks.MockIUserRepository) {
 				userRepo.EXPECT().
 					GetById(
 						context.Background(),
-						[16]byte{1},
+						uuid.UUID{1},
 					).
 					Return(&domain.User{
-						ID:       [16]byte{1},
+						ID:       uuid.UUID{1},
 						Username: "a",
 						FullName: "a b c",
 						Gender:   "m",
@@ -413,7 +417,7 @@ func TestUserService_GetById(t *testing.T) {
 					}, nil)
 			},
 			expected: &domain.User{
-				ID:       [16]byte{1},
+				ID:       uuid.UUID{1},
 				Username: "a",
 				FullName: "a b c",
 				Gender:   "m",
@@ -424,12 +428,12 @@ func TestUserService_GetById(t *testing.T) {
 		},
 		{
 			name: "ошибка получения данных в репозитории",
-			id:   [16]byte{1},
+			id:   uuid.UUID{1},
 			beforeTest: func(userRepo mocks.MockIUserRepository) {
 				userRepo.EXPECT().
 					GetById(
 						context.Background(),
-						[16]byte{1},
+						uuid.UUID{1},
 					).
 					Return(nil, fmt.Errorf("sql error"))
 			},
@@ -462,12 +466,13 @@ func TestUserService_GetFinancialReport(t *testing.T) {
 	userRepo := mocks.NewMockIUserRepository(ctrl)
 	compRepo := mocks.NewMockICompanyRepository(ctrl)
 	finRepo := mocks.NewMockIFinancialReportRepository(ctrl)
-	svc := NewService(userRepo, compRepo, finRepo)
+	actFieldRepo := mocks.NewMockIActivityFieldRepository(ctrl)
+	svc := NewService(userRepo, compRepo, finRepo, actFieldRepo)
 
 	testCases := []struct {
 		name       string
 		id         uuid.UUID
-		period     domain.Period
+		period     *domain.Period
 		beforeTest func(userRepo mocks.MockIUserRepository, compRepo mocks.MockICompanyRepository, finRepo mocks.MockIFinancialReportRepository)
 		expected   []*domain.FinancialReportByPeriod
 		wantErr    bool
@@ -475,8 +480,8 @@ func TestUserService_GetFinancialReport(t *testing.T) {
 	}{
 		{
 			name: "успешное получение отчета деятельности пользователя по id",
-			id:   [16]byte{1},
-			period: domain.Period{
+			id:   uuid.UUID{1},
+			period: &domain.Period{
 				StartYear:    2021,
 				EndYear:      2023,
 				StartQuarter: 2,
@@ -484,30 +489,28 @@ func TestUserService_GetFinancialReport(t *testing.T) {
 			},
 			beforeTest: func(userRepo mocks.MockIUserRepository, compRepo mocks.MockICompanyRepository, finRepo mocks.MockIFinancialReportRepository) {
 				compRepo.EXPECT().
-					GetByOwnerId(context.Background(), [16]byte{1}).
+					GetByOwnerId(context.Background(), uuid.UUID{1}).
 					Return(
 						[]*domain.Company{
 							{
-								ID:              [16]byte{1},
-								OwnerID:         [16]byte{1},
-								Name:            "a",
-								FieldOfActivity: "a",
-								City:            "a",
+								ID:      uuid.UUID{1},
+								OwnerID: uuid.UUID{1},
+								Name:    "a",
+								City:    "a",
 							},
 							{
-								ID:              [16]byte{2},
-								OwnerID:         [16]byte{1},
-								Name:            "b",
-								FieldOfActivity: "b",
-								City:            "b",
+								ID:      uuid.UUID{2},
+								OwnerID: uuid.UUID{1},
+								Name:    "b",
+								City:    "b",
 							},
 						}, nil)
 
 				finRepo.EXPECT().
 					GetByCompany(
 						context.Background(),
-						[16]byte{1},
-						domain.Period{
+						uuid.UUID{1},
+						&domain.Period{
 							StartYear:    2021,
 							EndYear:      2023,
 							StartQuarter: 2,
@@ -517,84 +520,84 @@ func TestUserService_GetFinancialReport(t *testing.T) {
 					Return(&domain.FinancialReportByPeriod{
 						Reports: []domain.FinancialReport{
 							{
-								ID:      [16]byte{1},
+								ID:      uuid.UUID{1},
 								Year:    2021,
 								Quarter: 2,
 								Revenue: 1432523,
 								Costs:   75423,
 							},
 							{
-								ID:      [16]byte{2},
+								ID:      uuid.UUID{2},
 								Year:    2021,
 								Quarter: 3,
 								Revenue: 7435235,
 								Costs:   125654,
 							},
 							{
-								ID:      [16]byte{3},
+								ID:      uuid.UUID{3},
 								Year:    2021,
 								Quarter: 4,
 								Revenue: 65742,
 								Costs:   7845634,
 							},
 							{
-								ID:      [16]byte{4},
+								ID:      uuid.UUID{4},
 								Year:    2022,
 								Quarter: 1,
 								Revenue: 43635325,
 								Costs:   12362332,
 							},
 							{
-								ID:      [16]byte{5},
+								ID:      uuid.UUID{5},
 								Year:    2022,
 								Quarter: 2,
 								Revenue: 50934123,
 								Costs:   13543623,
 							},
 							{
-								ID:      [16]byte{6},
+								ID:      uuid.UUID{6},
 								Year:    2022,
 								Quarter: 3,
 								Revenue: 78902453,
 								Costs:   15326443,
 							},
 							{
-								ID:      [16]byte{7},
+								ID:      uuid.UUID{7},
 								Year:    2022,
 								Quarter: 4,
 								Revenue: 64352357,
 								Costs:   23534252,
-							}, // 173 057 608 => 34 611 521.6; 237 824 258 => 14.5534025
+							},
 							{
-								ID:      [16]byte{8},
+								ID:      uuid.UUID{8},
 								Year:    2023,
 								Quarter: 1,
 								Revenue: 32532513,
 								Costs:   5436438,
 							},
 							{
-								ID:      [16]byte{9},
+								ID:      uuid.UUID{9},
 								Year:    2023,
 								Quarter: 2,
 								Revenue: 6743634,
 								Costs:   9876967,
 							},
 							{
-								ID:      [16]byte{10},
+								ID:      uuid.UUID{10},
 								Year:    2023,
 								Quarter: 3,
 								Revenue: 46754124,
 								Costs:   24367653,
 							},
 							{
-								ID:      [16]byte{11},
+								ID:      uuid.UUID{11},
 								Year:    2023,
 								Quarter: 4,
 								Revenue: 14385253,
 								Costs:   7546424,
 							},
 						},
-						Period: domain.Period{
+						Period: &domain.Period{
 							StartYear:    2021,
 							EndYear:      2023,
 							StartQuarter: 2,
@@ -605,8 +608,8 @@ func TestUserService_GetFinancialReport(t *testing.T) {
 				finRepo.EXPECT().
 					GetByCompany(
 						context.Background(),
-						[16]byte{2},
-						domain.Period{
+						uuid.UUID{2},
+						&domain.Period{
 							StartYear:    2021,
 							EndYear:      2023,
 							StartQuarter: 2,
@@ -616,84 +619,84 @@ func TestUserService_GetFinancialReport(t *testing.T) {
 					Return(&domain.FinancialReportByPeriod{
 						Reports: []domain.FinancialReport{
 							{
-								ID:      [16]byte{1},
+								ID:      uuid.UUID{1},
 								Year:    2021,
 								Quarter: 2,
 								Revenue: 1432523,
 								Costs:   75423,
 							},
 							{
-								ID:      [16]byte{2},
+								ID:      uuid.UUID{2},
 								Year:    2021,
 								Quarter: 3,
 								Revenue: 7435235,
 								Costs:   125654,
 							},
 							{
-								ID:      [16]byte{3},
+								ID:      uuid.UUID{3},
 								Year:    2021,
 								Quarter: 4,
 								Revenue: 65742,
 								Costs:   7845634,
 							},
 							{
-								ID:      [16]byte{4},
+								ID:      uuid.UUID{4},
 								Year:    2022,
 								Quarter: 1,
 								Revenue: 43635325,
 								Costs:   12362332,
 							},
 							{
-								ID:      [16]byte{5},
+								ID:      uuid.UUID{5},
 								Year:    2022,
 								Quarter: 2,
 								Revenue: 50934123,
 								Costs:   13543623,
 							},
 							{
-								ID:      [16]byte{6},
+								ID:      uuid.UUID{6},
 								Year:    2022,
 								Quarter: 3,
 								Revenue: 78902453,
 								Costs:   15326443,
 							},
 							{
-								ID:      [16]byte{7},
+								ID:      uuid.UUID{7},
 								Year:    2022,
 								Quarter: 4,
 								Revenue: 64352357,
 								Costs:   23534252,
 							}, // 173 057 608 => 34 611 521.6; 237 824 258 => 14.5534025
 							{
-								ID:      [16]byte{8},
+								ID:      uuid.UUID{8},
 								Year:    2023,
 								Quarter: 1,
 								Revenue: 32532513,
 								Costs:   5436438,
 							},
 							{
-								ID:      [16]byte{9},
+								ID:      uuid.UUID{9},
 								Year:    2023,
 								Quarter: 2,
 								Revenue: 6743634,
 								Costs:   9876967,
 							},
 							{
-								ID:      [16]byte{10},
+								ID:      uuid.UUID{10},
 								Year:    2023,
 								Quarter: 3,
 								Revenue: 46754124,
 								Costs:   24367653,
 							},
 							{
-								ID:      [16]byte{11},
+								ID:      uuid.UUID{11},
 								Year:    2023,
 								Quarter: 4,
 								Revenue: 14385253,
 								Costs:   7546424,
 							},
 						},
-						Period: domain.Period{
+						Period: &domain.Period{
 							StartYear:    2021,
 							EndYear:      2023,
 							StartQuarter: 2,
@@ -705,84 +708,84 @@ func TestUserService_GetFinancialReport(t *testing.T) {
 				{
 					Reports: []domain.FinancialReport{
 						{
-							ID:      [16]byte{1},
+							ID:      uuid.UUID{1},
 							Year:    2021,
 							Quarter: 2,
 							Revenue: 1432523,
 							Costs:   75423,
 						},
 						{
-							ID:      [16]byte{2},
+							ID:      uuid.UUID{2},
 							Year:    2021,
 							Quarter: 3,
 							Revenue: 7435235,
 							Costs:   125654,
 						},
 						{
-							ID:      [16]byte{3},
+							ID:      uuid.UUID{3},
 							Year:    2021,
 							Quarter: 4,
 							Revenue: 65742,
 							Costs:   7845634,
 						},
 						{
-							ID:      [16]byte{4},
+							ID:      uuid.UUID{4},
 							Year:    2022,
 							Quarter: 1,
 							Revenue: 43635325,
 							Costs:   12362332,
 						},
 						{
-							ID:      [16]byte{5},
+							ID:      uuid.UUID{5},
 							Year:    2022,
 							Quarter: 2,
 							Revenue: 50934123,
 							Costs:   13543623,
 						},
 						{
-							ID:      [16]byte{6},
+							ID:      uuid.UUID{6},
 							Year:    2022,
 							Quarter: 3,
 							Revenue: 78902453,
 							Costs:   15326443,
 						},
 						{
-							ID:      [16]byte{7},
+							ID:      uuid.UUID{7},
 							Year:    2022,
 							Quarter: 4,
 							Revenue: 64352357,
 							Costs:   23534252,
 						}, // 173 057 608 => 34 611 521.6; 237 824 258 => 14.5534025
 						{
-							ID:      [16]byte{8},
+							ID:      uuid.UUID{8},
 							Year:    2023,
 							Quarter: 1,
 							Revenue: 32532513,
 							Costs:   5436438,
 						},
 						{
-							ID:      [16]byte{9},
+							ID:      uuid.UUID{9},
 							Year:    2023,
 							Quarter: 2,
 							Revenue: 6743634,
 							Costs:   9876967,
 						},
 						{
-							ID:      [16]byte{10},
+							ID:      uuid.UUID{10},
 							Year:    2023,
 							Quarter: 3,
 							Revenue: 46754124,
 							Costs:   24367653,
 						},
 						{
-							ID:      [16]byte{11},
+							ID:      uuid.UUID{11},
 							Year:    2023,
 							Quarter: 4,
 							Revenue: 14385253,
 							Costs:   7546424,
 						},
 					},
-					Period: domain.Period{
+					Period: &domain.Period{
 						StartYear:    2021,
 						EndYear:      2023,
 						StartQuarter: 2,
@@ -794,84 +797,84 @@ func TestUserService_GetFinancialReport(t *testing.T) {
 				{
 					Reports: []domain.FinancialReport{
 						{
-							ID:      [16]byte{1},
+							ID:      uuid.UUID{1},
 							Year:    2021,
 							Quarter: 2,
 							Revenue: 1432523,
 							Costs:   75423,
 						},
 						{
-							ID:      [16]byte{2},
+							ID:      uuid.UUID{2},
 							Year:    2021,
 							Quarter: 3,
 							Revenue: 7435235,
 							Costs:   125654,
 						},
 						{
-							ID:      [16]byte{3},
+							ID:      uuid.UUID{3},
 							Year:    2021,
 							Quarter: 4,
 							Revenue: 65742,
 							Costs:   7845634,
 						},
 						{
-							ID:      [16]byte{4},
+							ID:      uuid.UUID{4},
 							Year:    2022,
 							Quarter: 1,
 							Revenue: 43635325,
 							Costs:   12362332,
 						},
 						{
-							ID:      [16]byte{5},
+							ID:      uuid.UUID{5},
 							Year:    2022,
 							Quarter: 2,
 							Revenue: 50934123,
 							Costs:   13543623,
 						},
 						{
-							ID:      [16]byte{6},
+							ID:      uuid.UUID{6},
 							Year:    2022,
 							Quarter: 3,
 							Revenue: 78902453,
 							Costs:   15326443,
 						},
 						{
-							ID:      [16]byte{7},
+							ID:      uuid.UUID{7},
 							Year:    2022,
 							Quarter: 4,
 							Revenue: 64352357,
 							Costs:   23534252,
 						}, // 173 057 608 => 34 611 521.6; 237 824 258 => 14.5534025
 						{
-							ID:      [16]byte{8},
+							ID:      uuid.UUID{8},
 							Year:    2023,
 							Quarter: 1,
 							Revenue: 32532513,
 							Costs:   5436438,
 						},
 						{
-							ID:      [16]byte{9},
+							ID:      uuid.UUID{9},
 							Year:    2023,
 							Quarter: 2,
 							Revenue: 6743634,
 							Costs:   9876967,
 						},
 						{
-							ID:      [16]byte{10},
+							ID:      uuid.UUID{10},
 							Year:    2023,
 							Quarter: 3,
 							Revenue: 46754124,
 							Costs:   24367653,
 						},
 						{
-							ID:      [16]byte{11},
+							ID:      uuid.UUID{11},
 							Year:    2023,
 							Quarter: 4,
 							Revenue: 14385253,
 							Costs:   7546424,
 						},
 					},
-					Period: domain.Period{
+					Period: &domain.Period{
 						StartYear:    2021,
 						EndYear:      2023,
 						StartQuarter: 2,
@@ -885,8 +888,8 @@ func TestUserService_GetFinancialReport(t *testing.T) {
 		},
 		{
 			name: "год начала периода больше года конца периода",
-			id:   [16]byte{1},
-			period: domain.Period{
+			id:   uuid.UUID{1},
+			period: &domain.Period{
 				StartYear:    2,
 				EndYear:      1,
 				StartQuarter: 1,
@@ -894,22 +897,20 @@ func TestUserService_GetFinancialReport(t *testing.T) {
 			},
 			beforeTest: func(userRepo mocks.MockIUserRepository, compRepo mocks.MockICompanyRepository, finRepo mocks.MockIFinancialReportRepository) {
 				compRepo.EXPECT().
-					GetByOwnerId(context.Background(), [16]byte{1}).
+					GetByOwnerId(context.Background(), uuid.UUID{1}).
 					Return(
 						[]*domain.Company{
 							{
-								ID:              [16]byte{1},
-								OwnerID:         [16]byte{1},
-								Name:            "a",
-								FieldOfActivity: "a",
-								City:            "a",
+								ID:      uuid.UUID{1},
+								OwnerID: uuid.UUID{1},
+								Name:    "a",
+								City:    "a",
 							},
 							{
-								ID:              [16]byte{2},
-								OwnerID:         [16]byte{1},
-								Name:            "b",
-								FieldOfActivity: "b",
-								City:            "b",
+								ID:      uuid.UUID{2},
+								OwnerID: uuid.UUID{1},
+								Name:    "b",
+								City:    "b",
 							},
 						}, nil).
 					AnyTimes()
@@ -917,8 +918,8 @@ func TestUserService_GetFinancialReport(t *testing.T) {
 				finRepo.EXPECT().
 					GetByCompany(
 						context.Background(),
-						[16]byte{1},
-						domain.Period{
+						uuid.UUID{1},
+						&domain.Period{
 							StartYear:    2021,
 							EndYear:      2023,
 							StartQuarter: 2,
@@ -928,84 +929,84 @@ func TestUserService_GetFinancialReport(t *testing.T) {
 					Return(&domain.FinancialReportByPeriod{
 						Reports: []domain.FinancialReport{
 							{
-								ID:      [16]byte{1},
+								ID:      uuid.UUID{1},
 								Year:    2021,
 								Quarter: 2,
 								Revenue: 1432523,
 								Costs:   75423,
 							},
 							{
-								ID:      [16]byte{2},
+								ID:      uuid.UUID{2},
 								Year:    2021,
 								Quarter: 3,
 								Revenue: 7435235,
 								Costs:   125654,
 							},
 							{
-								ID:      [16]byte{3},
+								ID:      uuid.UUID{3},
 								Year:    2021,
 								Quarter: 4,
 								Revenue: 65742,
 								Costs:   7845634,
 							},
 							{
-								ID:      [16]byte{4},
+								ID:      uuid.UUID{4},
 								Year:    2022,
 								Quarter: 1,
 								Revenue: 43635325,
 								Costs:   12362332,
 							},
 							{
-								ID:      [16]byte{5},
+								ID:      uuid.UUID{5},
 								Year:    2022,
 								Quarter: 2,
 								Revenue: 50934123,
 								Costs:   13543623,
 							},
 							{
-								ID:      [16]byte{6},
+								ID:      uuid.UUID{6},
 								Year:    2022,
 								Quarter: 3,
 								Revenue: 78902453,
 								Costs:   15326443,
 							},
 							{
-								ID:      [16]byte{7},
+								ID:      uuid.UUID{7},
 								Year:    2022,
 								Quarter: 4,
 								Revenue: 64352357,
 								Costs:   23534252,
 							}, // 173 057 608 => 34 611 521.6; 237 824 258 => 14.5534025
 							{
-								ID:      [16]byte{8},
+								ID:      uuid.UUID{8},
 								Year:    2023,
 								Quarter: 1,
 								Revenue: 32532513,
 								Costs:   5436438,
 							},
 							{
-								ID:      [16]byte{9},
+								ID:      uuid.UUID{9},
 								Year:    2023,
 								Quarter: 2,
 								Revenue: 6743634,
 								Costs:   9876967,
 							},
 							{
-								ID:      [16]byte{10},
+								ID:      uuid.UUID{10},
 								Year:    2023,
 								Quarter: 3,
 								Revenue: 46754124,
 								Costs:   24367653,
 							},
 							{
-								ID:      [16]byte{11},
+								ID:      uuid.UUID{11},
 								Year:    2023,
 								Quarter: 4,
 								Revenue: 14385253,
 								Costs:   7546424,
 							},
 						},
-						Period: domain.Period{
+						Period: &domain.Period{
 							StartYear:    2021,
 							EndYear:      2023,
 							StartQuarter: 2,
@@ -1017,8 +1018,8 @@ func TestUserService_GetFinancialReport(t *testing.T) {
 				finRepo.EXPECT().
 					GetByCompany(
 						context.Background(),
-						[16]byte{2},
-						domain.Period{
+						uuid.UUID{2},
+						&domain.Period{
 							StartYear:    2021,
 							EndYear:      2023,
 							StartQuarter: 2,
@@ -1028,84 +1029,84 @@ func TestUserService_GetFinancialReport(t *testing.T) {
 					Return(&domain.FinancialReportByPeriod{
 						Reports: []domain.FinancialReport{
 							{
-								ID:      [16]byte{1},
+								ID:      uuid.UUID{1},
 								Year:    2021,
 								Quarter: 2,
 								Revenue: 1432523,
 								Costs:   75423,
 							},
 							{
-								ID:      [16]byte{2},
+								ID:      uuid.UUID{2},
 								Year:    2021,
 								Quarter: 3,
 								Revenue: 7435235,
 								Costs:   125654,
 							},
 							{
-								ID:      [16]byte{3},
+								ID:      uuid.UUID{3},
 								Year:    2021,
 								Quarter: 4,
 								Revenue: 65742,
 								Costs:   7845634,
 							},
 							{
-								ID:      [16]byte{4},
+								ID:      uuid.UUID{4},
 								Year:    2022,
 								Quarter: 1,
 								Revenue: 43635325,
 								Costs:   12362332,
 							},
 							{
-								ID:      [16]byte{5},
+								ID:      uuid.UUID{5},
 								Year:    2022,
 								Quarter: 2,
 								Revenue: 50934123,
 								Costs:   13543623,
 							},
 							{
-								ID:      [16]byte{6},
+								ID:      uuid.UUID{6},
 								Year:    2022,
 								Quarter: 3,
 								Revenue: 78902453,
 								Costs:   15326443,
 							},
 							{
-								ID:      [16]byte{7},
+								ID:      uuid.UUID{7},
 								Year:    2022,
 								Quarter: 4,
 								Revenue: 64352357,
 								Costs:   23534252,
 							}, // 173 057 608 => 34 611 521.6; 237 824 258 => 14.5534025
 							{
-								ID:      [16]byte{8},
+								ID:      uuid.UUID{8},
 								Year:    2023,
 								Quarter: 1,
 								Revenue: 32532513,
 								Costs:   5436438,
 							},
 							{
-								ID:      [16]byte{9},
+								ID:      uuid.UUID{9},
 								Year:    2023,
 								Quarter: 2,
 								Revenue: 6743634,
 								Costs:   9876967,
 							},
 							{
-								ID:      [16]byte{10},
+								ID:      uuid.UUID{10},
 								Year:    2023,
 								Quarter: 3,
 								Revenue: 46754124,
 								Costs:   24367653,
 							},
 							{
-								ID:      [16]byte{11},
+								ID:      uuid.UUID{11},
 								Year:    2023,
 								Quarter: 4,
 								Revenue: 14385253,
 								Costs:   7546424,
 							},
 						},
-						Period: domain.Period{
+						Period: &domain.Period{
 							StartYear:    2021,
 							EndYear:      2023,
 							StartQuarter: 2,
@@ -1119,8 +1120,8 @@ func TestUserService_GetFinancialReport(t *testing.T) {
 		},
 		{
 			name: "равный год, но квартал начала больше квартала конца",
-			id:   [16]byte{1},
-			period: domain.Period{
+			id:   uuid.UUID{1},
+			period: &domain.Period{
 				StartYear:    1,
 				EndYear:      1,
 				StartQuarter: 3,
@@ -1128,22 +1129,20 @@ func TestUserService_GetFinancialReport(t *testing.T) {
 			},
 			beforeTest: func(userRepo mocks.MockIUserRepository, compRepo mocks.MockICompanyRepository, finRepo mocks.MockIFinancialReportRepository) {
 				compRepo.EXPECT().
-					GetByOwnerId(context.Background(), [16]byte{1}).
+					GetByOwnerId(context.Background(), uuid.UUID{1}).
 					Return(
 						[]*domain.Company{
 							{
-								ID:              [16]byte{1},
-								OwnerID:         [16]byte{1},
-								Name:            "a",
-								FieldOfActivity: "a",
-								City:            "a",
+								ID:      uuid.UUID{1},
+								OwnerID: uuid.UUID{1},
+								Name:    "a",
+								City:    "a",
 							},
 							{
-								ID:              [16]byte{2},
-								OwnerID:         [16]byte{1},
-								Name:            "b",
-								FieldOfActivity: "b",
-								City:            "b",
+								ID:      uuid.UUID{2},
+								OwnerID: uuid.UUID{1},
+								Name:    "b",
+								City:    "b",
 							},
 						}, nil).
 					AnyTimes()
@@ -1151,7 +1150,7 @@ func TestUserService_GetFinancialReport(t *testing.T) {
 				finRepo.EXPECT().
 					GetByCompany(
 						context.Background(),
-						[16]byte{1},
+						uuid.UUID{1},
 						domain.Period{
 							StartYear:    2021,
 							EndYear:      2023,
@@ -1162,84 +1161,84 @@ func TestUserService_GetFinancialReport(t *testing.T) {
 					Return(&domain.FinancialReportByPeriod{
 						Reports: []domain.FinancialReport{
 							{
-								ID:      [16]byte{1},
+								ID:      uuid.UUID{1},
 								Year:    2021,
 								Quarter: 2,
 								Revenue: 1432523,
 								Costs:   75423,
 							},
 							{
-								ID:      [16]byte{2},
+								ID:      uuid.UUID{2},
 								Year:    2021,
 								Quarter: 3,
 								Revenue: 7435235,
 								Costs:   125654,
 							},
 							{
-								ID:      [16]byte{3},
+								ID:      uuid.UUID{3},
 								Year:    2021,
 								Quarter: 4,
 								Revenue: 65742,
 								Costs:   7845634,
 							},
 							{
-								ID:      [16]byte{4},
+								ID:      uuid.UUID{4},
 								Year:    2022,
 								Quarter: 1,
 								Revenue: 43635325,
 								Costs:   12362332,
 							},
 							{
-								ID:      [16]byte{5},
+								ID:      uuid.UUID{5},
 								Year:    2022,
 								Quarter: 2,
 								Revenue: 50934123,
 								Costs:   13543623,
 							},
 							{
-								ID:      [16]byte{6},
+								ID:      uuid.UUID{6},
 								Year:    2022,
 								Quarter: 3,
 								Revenue: 78902453,
 								Costs:   15326443,
 							},
 							{
-								ID:      [16]byte{7},
+								ID:      uuid.UUID{7},
 								Year:    2022,
 								Quarter: 4,
 								Revenue: 64352357,
 								Costs:   23534252,
 							}, // 173 057 608 => 34 611 521.6; 237 824 258 => 14.5534025
 							{
-								ID:      [16]byte{8},
+								ID:      uuid.UUID{8},
 								Year:    2023,
 								Quarter: 1,
 								Revenue: 32532513,
 								Costs:   5436438,
 							},
 							{
-								ID:      [16]byte{9},
+								ID:      uuid.UUID{9},
 								Year:    2023,
 								Quarter: 2,
 								Revenue: 6743634,
 								Costs:   9876967,
 							},
 							{
-								ID:      [16]byte{10},
+								ID:      uuid.UUID{10},
 								Year:    2023,
 								Quarter: 3,
 								Revenue: 46754124,
 								Costs:   24367653,
 							},
 							{
-								ID:      [16]byte{11},
+								ID:      uuid.UUID{11},
 								Year:    2023,
 								Quarter: 4,
 								Revenue: 14385253,
 								Costs:   7546424,
 							},
 						},
-						Period: domain.Period{
+						Period: &domain.Period{
 							StartYear:    2021,
 							EndYear:      2023,
 							StartQuarter: 2,
@@ -1251,7 +1250,7 @@ func TestUserService_GetFinancialReport(t *testing.T) {
 				finRepo.EXPECT().
 					GetByCompany(
 						context.Background(),
-						[16]byte{2},
+						uuid.UUID{2},
 						domain.Period{
 							StartYear:    2021,
 							EndYear:      2023,
@@ -1262,84 +1261,84 @@ func TestUserService_GetFinancialReport(t *testing.T) {
 					Return(&domain.FinancialReportByPeriod{
 						Reports: []domain.FinancialReport{
 							{
-								ID:      [16]byte{1},
+								ID:      uuid.UUID{1},
 								Year:    2021,
 								Quarter: 2,
 								Revenue: 1432523,
 								Costs:   75423,
 							},
 							{
-								ID:      [16]byte{2},
+								ID:      uuid.UUID{2},
 								Year:    2021,
 								Quarter: 3,
 								Revenue: 7435235,
 								Costs:   125654,
 							},
 							{
-								ID:      [16]byte{3},
+								ID:      uuid.UUID{3},
 								Year:    2021,
 								Quarter: 4,
 								Revenue: 65742,
 								Costs:   7845634,
 							},
 							{
-								ID:      [16]byte{4},
+								ID:      uuid.UUID{4},
 								Year:    2022,
 								Quarter: 1,
 								Revenue: 43635325,
 								Costs:   12362332,
 							},
 							{
-								ID:      [16]byte{5},
+								ID:      uuid.UUID{5},
 								Year:    2022,
 								Quarter: 2,
 								Revenue: 50934123,
 								Costs:   13543623,
 							},
 							{
-								ID:      [16]byte{6},
+								ID:      uuid.UUID{6},
 								Year:    2022,
 								Quarter: 3,
 								Revenue: 78902453,
 								Costs:   15326443,
 							},
 							{
-								ID:      [16]byte{7},
+								ID:      uuid.UUID{7},
 								Year:    2022,
 								Quarter: 4,
 								Revenue: 64352357,
 								Costs:   23534252,
 							}, // 173 057 608 => 34 611 521.6; 237 824 258 => 14.5534025
 							{
-								ID:      [16]byte{8},
+								ID:      uuid.UUID{8},
 								Year:    2023,
 								Quarter: 1,
 								Revenue: 32532513,
 								Costs:   5436438,
 							},
 							{
-								ID:      [16]byte{9},
+								ID:      uuid.UUID{9},
 								Year:    2023,
 								Quarter: 2,
 								Revenue: 6743634,
 								Costs:   9876967,
 							},
 							{
-								ID:      [16]byte{10},
+								ID:      uuid.UUID{10},
 								Year:    2023,
 								Quarter: 3,
 								Revenue: 46754124,
 								Costs:   24367653,
 							},
 							{
-								ID:      [16]byte{11},
+								ID:      uuid.UUID{11},
 								Year:    2023,
 								Quarter: 4,
 								Revenue: 14385253,
 								Costs:   7546424,
 							},
 						},
-						Period: domain.Period{
+						Period: &domain.Period{
 							StartYear:    2021,
 							EndYear:      2023,
 							StartQuarter: 2,
@@ -1351,172 +1350,170 @@ func TestUserService_GetFinancialReport(t *testing.T) {
 			wantErr: true,
 			errStr:  errors.New("дата конца периода должна быть позже даты начала"),
 		},
-		//	{
-		//		name: "ошибка получения данных в репозитории",
-		//		id:   [16]byte{1},
-		//		period: domain.Period{
-		//			StartYear:    2021,
-		//			EndYear:      2023,
-		//			StartQuarter: 2,
-		//			EndQuarter:   4,
-		//		},
-		//		beforeTest: func(userRepo mocks.MockIUserRepository, compRepo mocks.MockICompanyRepository, finRepo mocks.MockIFinancialReportRepository) {
-		//			compRepo.EXPECT().
-		//				GetByOwnerId(context.Background(), [16]byte{1}).
-		//				Return(nil, fmt.Errorf("sql error")).
-		//				AnyTimes()
-		//		},
-		//		wantErr: true,
-		//		errStr:  errors.New("получение списка компаний предпринимателя по id: sql error"),
+		//{
+		//	name: "ошибка получения данных в репозитории",
+		//	id:   uuid.UUID{1},
+		//	period: &domain.Period{
+		//		StartYear:    2021,
+		//		EndYear:      2023,
+		//		StartQuarter: 2,
+		//		EndQuarter:   4,
 		//	},
-		//	{
-		//		name: "ошибка получения данных в репозитории_2",
-		//		id:   [16]byte{1},
-		//		period: domain.Period{
-		//			StartYear:    2021,
-		//			EndYear:      2023,
-		//			StartQuarter: 2,
-		//			EndQuarter:   4,
-		//		},
-		//		beforeTest: func(userRepo mocks.MockIUserRepository, compRepo mocks.MockICompanyRepository, finRepo mocks.MockIFinancialReportRepository) {
-		//			compRepo.EXPECT().
-		//				GetByOwnerId(context.Background(), [16]byte{1}).
-		//				Return(
-		//					[]*domain.Company{
-		//						{
-		//							ID:              [16]byte{1},
-		//							OwnerID:         [16]byte{1},
-		//							Name:            "a",
-		//							FieldOfActivity: "a",
-		//							City:            "a",
-		//						},
-		//						{
-		//							ID:              [16]byte{2},
-		//							OwnerID:         [16]byte{1},
-		//							Name:            "b",
-		//							FieldOfActivity: "b",
-		//							City:            "b",
-		//						},
-		//					}, nil).
-		//				AnyTimes()
-		//
-		//			finRepo.EXPECT().
-		//				GetByCompany(
-		//					context.Background(),
-		//					[16]byte{1},
-		//					domain.Period{
-		//						StartYear:    2021,
-		//						EndYear:      2023,
-		//						StartQuarter: 2,
-		//						EndQuarter:   4,
+		//	beforeTest: func(userRepo mocks.MockIUserRepository, compRepo mocks.MockICompanyRepository, finRepo mocks.MockIFinancialReportRepository) {
+		//		compRepo.EXPECT().
+		//			GetByOwnerId(context.Background(), uuid.UUID{1}).
+		//			Return(nil, fmt.Errorf("sql error")).
+		//			AnyTimes()
+		//	},
+		//	wantErr: true,
+		//	errStr:  errors.New("получение списка компаний предпринимателя по id: sql error"),
+		//}, // FIXME
+		//{
+		//	name: "ошибка получения данных в репозитории_2",
+		//	id:   uuid.UUID{1},
+		//	period: &domain.Period{
+		//		StartYear:    2021,
+		//		EndYear:      2023,
+		//		StartQuarter: 2,
+		//		EndQuarter:   4,
+		//	},
+		//	beforeTest: func(userRepo mocks.MockIUserRepository, compRepo mocks.MockICompanyRepository, finRepo mocks.MockIFinancialReportRepository) {
+		//		compRepo.EXPECT().
+		//			GetByOwnerId(context.Background(), uuid.UUID{1}).
+		//			Return(
+		//				[]*domain.Company{
+		//					{
+		//						ID:      uuid.UUID{1},
+		//						OwnerID: uuid.UUID{1},
+		//						Name:    "a",
+		//						City:    "a",
 		//					},
-		//				).
-		//				Return(nil, fmt.Errorf("sql error")).
-		//				AnyTimes()
-		//
-		//			finRepo.EXPECT().
-		//				GetByCompany(
-		//					context.Background(),
-		//					[16]byte{2},
-		//					domain.Period{
-		//						StartYear:    2021,
-		//						EndYear:      2023,
-		//						StartQuarter: 2,
-		//						EndQuarter:   4,
-		//					},
-		//				).
-		//				Return(&domain.FinancialReportByPeriod{
-		//					Reports: []domain.FinancialReport{
-		//						{
-		//							ID:      [16]byte{1},
-		//							Year:    2021,
-		//							Quarter: 2,
-		//							Revenue: 1432523,
-		//							Costs:   75423,
-		//						},
-		//						{
-		//							ID:      [16]byte{2},
-		//							Year:    2021,
-		//							Quarter: 3,
-		//							Revenue: 7435235,
-		//							Costs:   125654,
-		//						},
-		//						{
-		//							ID:      [16]byte{3},
-		//							Year:    2021,
-		//							Quarter: 4,
-		//							Revenue: 65742,
-		//							Costs:   7845634,
-		//						},
-		//						{
-		//							ID:      [16]byte{4},
-		//							Year:    2022,
-		//							Quarter: 1,
-		//							Revenue: 43635325,
-		//							Costs:   12362332,
-		//						},
-		//						{
-		//							ID:      [16]byte{5},
-		//							Year:    2022,
-		//							Quarter: 2,
-		//							Revenue: 50934123,
-		//							Costs:   13543623,
-		//						},
-		//						{
-		//							ID:      [16]byte{6},
-		//							Year:    2022,
-		//							Quarter: 3,
-		//							Revenue: 78902453,
-		//							Costs:   15326443,
-		//						},
-		//						{
-		//							ID:      [16]byte{7},
-		//							Year:    2022,
-		//							Quarter: 4,
-		//							Revenue: 64352357,
-		//							Costs:   23534252,
-		//						}, // 173 057 608 => 34 611 521.6; 237 824 258 => 14.5534025
-		//						{
-		//							ID:      [16]byte{8},
-		//							Year:    2023,
-		//							Quarter: 1,
-		//							Revenue: 32532513,
-		//							Costs:   5436438,
-		//						},
-		//						{
-		//							ID:      [16]byte{9},
-		//							Year:    2023,
-		//							Quarter: 2,
-		//							Revenue: 6743634,
-		//							Costs:   9876967,
-		//						},
-		//						{
-		//							ID:      [16]byte{10},
-		//							Year:    2023,
-		//							Quarter: 3,
-		//							Revenue: 46754124,
-		//							Costs:   24367653,
-		//						},
-		//						{
-		//							ID:      [16]byte{11},
-		//							Year:    2023,
-		//							Quarter: 4,
-		//							Revenue: 14385253,
-		//							Costs:   7546424,
-		//						},
-		//					},
-		//					Period: domain.Period{
-		//						StartYear:    2021,
-		//						EndYear:      2023,
-		//						StartQuarter: 2,
-		//						EndQuarter:   4,
+		//					{
+		//						ID:      uuid.UUID{2},
+		//						OwnerID: uuid.UUID{1},
+		//						Name:    "b",
+		//						City:    "b",
 		//					},
 		//				}, nil).
-		//				AnyTimes()
-		//		},
-		//		wantErr: true,
-		//		errStr:  errors.New("получение финансовой отчетности компании по id: sql error"),
-		//	}, // FIXME
+		//			AnyTimes()
+		//
+		//		finRepo.EXPECT().
+		//			GetByCompany(
+		//				context.Background(),
+		//				uuid.UUID{1},
+		//				&domain.Period{
+		//					StartYear:    2021,
+		//					EndYear:      2023,
+		//					StartQuarter: 2,
+		//					EndQuarter:   4,
+		//				},
+		//			).
+		//			Return(nil, fmt.Errorf("sql error")).
+		//			AnyTimes()
+		//
+		//		finRepo.EXPECT().
+		//			GetByCompany(
+		//				context.Background(),
+		//				uuid.UUID{2},
+		//				&domain.Period{
+		//					StartYear:    2021,
+		//					EndYear:      2023,
+		//					StartQuarter: 2,
+		//					EndQuarter:   4,
+		//				},
+		//			).
+		//			Return(&domain.FinancialReportByPeriod{
+		//				Reports: []domain.FinancialReport{
+		//					{
+		//						ID:      uuid.UUID{1},
+		//						Year:    2021,
+		//						Quarter: 2,
+		//						Revenue: 1432523,
+		//						Costs:   75423,
+		//					},
+		//					{
+		//						ID:      uuid.UUID{2},
+		//						Year:    2021,
+		//						Quarter: 3,
+		//						Revenue: 7435235,
+		//						Costs:   125654,
+		//					},
+		//					{
+		//						ID:      uuid.UUID{3},
+		//						Year:    2021,
+		//						Quarter: 4,
+		//						Revenue: 65742,
+		//						Costs:   7845634,
+		//					},
+		//					{
+		//						ID:      uuid.UUID{4},
+		//						Year:    2022,
+		//						Quarter: 1,
+		//						Revenue: 43635325,
+		//						Costs:   12362332,
+		//					},
+		//					{
+		//						ID:      uuid.UUID{5},
+		//						Year:    2022,
+		//						Quarter: 2,
+		//						Revenue: 50934123,
+		//						Costs:   13543623,
+		//					},
+		//					{
+		//						ID:      uuid.UUID{6},
+		//						Year:    2022,
+		//						Quarter: 3,
+		//						Revenue: 78902453,
+		//						Costs:   15326443,
+		//					},
+		//					{
+		//						ID:      uuid.UUID{7},
+		//						Year:    2022,
+		//						Quarter: 4,
+		//						Revenue: 64352357,
+		//						Costs:   23534252,
+		//					}, // 173 057 608 => 34 611 521.6; 237 824 258 => 14.5534025
+		//					{
+		//						ID:      uuid.UUID{8},
+		//						Year:    2023,
+		//						Quarter: 1,
+		//						Revenue: 32532513,
+		//						Costs:   5436438,
+		//					},
+		//					{
+		//						ID:      uuid.UUID{9},
+		//						Year:    2023,
+		//						Quarter: 2,
+		//						Revenue: 6743634,
+		//						Costs:   9876967,
+		//					},
+		//					{
+		//						ID:      uuid.UUID{10},
+		//						Year:    2023,
+		//						Quarter: 3,
+		//						Revenue: 46754124,
+		//						Costs:   24367653,
+		//					},
+		//					{
+		//						ID:      uuid.UUID{11},
+		//						Year:    2023,
+		//						Quarter: 4,
+		//						Revenue: 14385253,
+		//						Costs:   7546424,
+		//					},
+		//				},
+		//				Period: &domain.Period{
+		//					StartYear:    2021,
+		//					EndYear:      2023,
+		//					StartQuarter: 2,
+		//					EndQuarter:   4,
+		//				},
+		//			}, nil).
+		//			AnyTimes()
+		//	},
+		//	wantErr: true,
+		//	errStr:  errors.New("получение финансовой отчетности компании по id: sql error"),
+		//}, // FIXME
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -1547,7 +1544,8 @@ func TestUserService_Update(t *testing.T) {
 	userRepo := mocks.NewMockIUserRepository(ctrl)
 	compRepo := mocks.NewMockICompanyRepository(ctrl)
 	finRepo := mocks.NewMockIFinancialReportRepository(ctrl)
-	svc := NewService(userRepo, compRepo, finRepo)
+	actFieldRepo := mocks.NewMockIActivityFieldRepository(ctrl)
+	svc := NewService(userRepo, compRepo, finRepo, actFieldRepo)
 
 	testCases := []struct {
 		name       string
@@ -1559,7 +1557,7 @@ func TestUserService_Update(t *testing.T) {
 		{
 			name: "успешное обновление",
 			user: domain.User{
-				ID:   [16]byte{1},
+				ID:   uuid.UUID{1},
 				City: "a",
 			},
 			beforeTest: func(userRepo mocks.MockIUserRepository) {
@@ -1567,7 +1565,7 @@ func TestUserService_Update(t *testing.T) {
 					Update(
 						context.Background(),
 						&domain.User{
-							ID:   [16]byte{1},
+							ID:   uuid.UUID{1},
 							City: "a",
 						},
 					).Return(nil)
@@ -1577,7 +1575,7 @@ func TestUserService_Update(t *testing.T) {
 		{
 			name: "ошибка выполнения запроса в репозитории",
 			user: domain.User{
-				ID:   [16]byte{1},
+				ID:   uuid.UUID{1},
 				City: "a",
 			},
 			beforeTest: func(userRepo mocks.MockIUserRepository) {
@@ -1585,7 +1583,7 @@ func TestUserService_Update(t *testing.T) {
 					Update(
 						context.Background(),
 						&domain.User{
-							ID:   [16]byte{1},
+							ID:   uuid.UUID{1},
 							City: "a",
 						},
 					).Return(fmt.Errorf("sql error"))

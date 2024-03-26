@@ -9,8 +9,8 @@ import (
 type Company struct {
 	ID              uuid.UUID
 	OwnerID         uuid.UUID
+	ActivityFieldId uuid.UUID
 	Name            string
-	FieldOfActivity string
 	City            string
 }
 

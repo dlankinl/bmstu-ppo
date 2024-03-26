@@ -4,27 +4,29 @@ import (
 	"context"
 	"fmt"
 	"github.com/google/uuid"
-	"math"
 	"ppo/domain"
 	"ppo/pkg/utils"
 	"strings"
-	"time"
 )
 
 type Service struct {
-	userRepo    domain.IUserRepository
-	companyRepo domain.ICompanyRepository
-	finRepo     domain.IFinancialReportRepository
+	userRepo     domain.IUserRepository
+	companyRepo  domain.ICompanyRepository
+	finRepo      domain.IFinancialReportRepository
+	actFieldRepo domain.IActivityFieldRepository
 }
 
 func NewService(
 	userRepo domain.IUserRepository,
 	companyRepo domain.ICompanyRepository,
-	finRepo domain.IFinancialReportRepository) domain.IUserService {
+	finRepo domain.IFinancialReportRepository,
+	actFieldRepo domain.IActivityFieldRepository,
+) domain.IUserService {
 	return &Service{
-		userRepo:    userRepo,
-		companyRepo: companyRepo,
-		finRepo:     finRepo,
+		userRepo:     userRepo,
+		companyRepo:  companyRepo,
+		finRepo:      finRepo,
+		actFieldRepo: actFieldRepo,
 	}
 }
 
@@ -93,17 +95,16 @@ func (s *Service) DeleteById(ctx context.Context, id uuid.UUID) (err error) {
 	return nil
 }
 
-func (s *Service) GetFinancialReport(ctx context.Context, id uuid.UUID, period domain.Period) (finReports []*domain.FinancialReportByPeriod, err error) {
+func (s *Service) GetFinancialReport(ctx context.Context, companies []*domain.Company, period *domain.Period) (finReports []*domain.FinancialReportByPeriod, err error) {
 	if period.StartYear > period.EndYear ||
 		(period.StartYear == period.EndYear && period.StartQuarter > period.EndQuarter) {
 		return nil, fmt.Errorf("дата конца периода должна быть позже даты начала")
 	}
 
-	companies, err := s.companyRepo.GetByOwnerId(ctx, id)
-	if err != nil {
-		fmt.Println("HEREEEEEEEE")
-		return nil, fmt.Errorf("получение списка компаний предпринимателя по id: %w", err)
-	}
+	//companies, err := s.companyRepo.GetByOwnerId(ctx, id)
+	//if err != nil {
+	//	return nil, fmt.Errorf("получение списка компаний предпринимателя по id: %w", err)
+	//}
 
 	finReports = make([]*domain.FinancialReportByPeriod, 0)
 	for _, company := range companies {
@@ -132,7 +133,7 @@ func (s *Service) GetFinancialReport(ctx context.Context, id uuid.UUID, period d
 				i++
 			}
 
-			per := domain.Period{
+			per := &domain.Period{
 				StartYear:    year,
 				EndYear:      year,
 				StartQuarter: startQtr,
@@ -172,29 +173,29 @@ func (s *Service) GetFinancialReport(ctx context.Context, id uuid.UUID, period d
 	return finReports, nil
 }
 
-func (s *Service) CalculateRating(ctx context.Context, id uuid.UUID) (rating float32, err error) {
-	var mainFieldWeight float32 // TODO: mainFieldWeight
-
-	prevYear := time.Now().AddDate(-1, 0, 0).Year()
-	period := domain.Period{
-		StartYear:    prevYear,
-		EndYear:      prevYear,
-		StartQuarter: 1,
-		EndQuarter:   4,
-	}
-
-	reports, err := s.GetFinancialReport(ctx, id, period)
-	if err != nil {
-		return 0, fmt.Errorf("получение финансового отчета за прошлый год: %w", err)
-	}
-
-	var totalRevenue, totalProfit float32
-	for _, rep := range reports {
-		totalRevenue += rep.Revenue()
-		totalProfit += rep.Profit()
-	}
-
-	rating = 1.2*mainFieldWeight*mainFieldWeight + 0.35*totalRevenue + 0.9*float32(math.Pow(float64(totalProfit), 1.5))
-
-	return rating, nil
-}
+//func (s *Service) CalculateRating(ctx context.Context, reports []*domain.FinancialReportByPeriod, mainFieldWeight float32) (rating float32, err error) {
+//	//var mainFieldWeight float32 // TODO: mainFieldWeight
+//
+//	//prevYear := time.Now().AddDate(-1, 0, 0).Year()
+//	//period := &domain.Period{
+//	//	StartYear:    prevYear,
+//	//	EndYear:      prevYear,
+//	//	StartQuarter: 1,
+//	//	EndQuarter:   4,
+//	//}
+//
+//	//reports, err := s.GetFinancialReport(ctx, id, period)
+//	//if err != nil {
+//	//	return 0, fmt.Errorf("получение финансового отчета за прошлый год: %w", err)
+//	//}
+//
+//	var totalRevenue, totalProfit float32
+//	for _, rep := range reports {
+//		totalRevenue += rep.Revenue()
+//		totalProfit += rep.Profit()
+//	}
+//
+//	rating = 1.2*mainFieldWeight*mainFieldWeight + 0.35*totalRevenue + 0.9*float32(math.Pow(float64(totalProfit), 1.5))
+//
+//	return rating, nil
+//}

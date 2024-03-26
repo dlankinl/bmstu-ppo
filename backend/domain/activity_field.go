@@ -17,6 +17,7 @@ type IActivityFieldRepository interface {
 	DeleteById(context.Context, uuid.UUID) error
 	Update(context.Context, *ActivityField) error
 	GetById(context.Context, uuid.UUID) (*ActivityField, error)
+	GetByCompanyId(context.Context, uuid.UUID) (float32, error)
 }
 
 type IActivityFieldService interface {
@@ -24,4 +25,6 @@ type IActivityFieldService interface {
 	DeleteById(context.Context, uuid.UUID) error
 	Update(context.Context, *ActivityField) error
 	GetById(context.Context, uuid.UUID) (*ActivityField, error)
+	//GetMainActivityFieldWeight(context.Context, uuid.UUID) (float32, error)
+	GetCostByCompanyId(context.Context, uuid.UUID) (float32, error)
 }

@@ -22,26 +22,24 @@ func TestCompanyService_Create(t *testing.T) {
 
 	testCases := []struct {
 		name       string
-		company    domain.Company
+		company    *domain.Company
 		beforeTest func(compRepo mocks.MockICompanyRepository, finRepo mocks.MockIFinancialReportRepository)
 		wantErr    bool
 		errStr     error
 	}{
 		{
 			name: "успешное добавление",
-			company: domain.Company{
-				Name:            "aaa",
-				FieldOfActivity: "bbb",
-				City:            "ccc",
+			company: &domain.Company{
+				Name: "aaa",
+				City: "ccc",
 			},
 			beforeTest: func(compRepo mocks.MockICompanyRepository, finRepo mocks.MockIFinancialReportRepository) {
 				compRepo.EXPECT().
 					Create(
 						context.Background(),
 						&domain.Company{
-							Name:            "aaa",
-							FieldOfActivity: "bbb",
-							City:            "ccc",
+							Name: "aaa",
+							City: "ccc",
 						},
 					).Return(nil)
 			},
@@ -49,19 +47,17 @@ func TestCompanyService_Create(t *testing.T) {
 		},
 		{
 			name: "пустое название компании",
-			company: domain.Company{
-				Name:            "",
-				FieldOfActivity: "bbb",
-				City:            "ccc",
+			company: &domain.Company{
+				Name: "",
+				City: "ccc",
 			},
 			beforeTest: func(compRepo mocks.MockICompanyRepository, finRepo mocks.MockIFinancialReportRepository) {
 				compRepo.EXPECT().
 					Create(
 						context.Background(),
 						&domain.Company{
-							Name:            "",
-							FieldOfActivity: "bbb",
-							City:            "ccc",
+							Name: "",
+							City: "ccc",
 						},
 					).Return(nil).
 					AnyTimes()
@@ -71,19 +67,17 @@ func TestCompanyService_Create(t *testing.T) {
 		},
 		{
 			name: "пустое название города",
-			company: domain.Company{
-				Name:            "aaa",
-				FieldOfActivity: "bbb",
-				City:            "",
+			company: &domain.Company{
+				Name: "aaa",
+				City: "",
 			},
 			beforeTest: func(compRepo mocks.MockICompanyRepository, finRepo mocks.MockIFinancialReportRepository) {
 				compRepo.EXPECT().
 					Create(
 						context.Background(),
 						&domain.Company{
-							Name:            "aaa",
-							FieldOfActivity: "bbb",
-							City:            "",
+							Name: "aaa",
+							City: "",
 						},
 					).Return(nil).
 					AnyTimes()
@@ -92,42 +86,18 @@ func TestCompanyService_Create(t *testing.T) {
 			errStr:  errors.New("должно быть указано название города"),
 		},
 		{
-			name: "пустое название сферы деятельности",
-			company: domain.Company{
-				Name:            "aaa",
-				FieldOfActivity: "",
-				City:            "ccc",
-			},
-			beforeTest: func(compRepo mocks.MockICompanyRepository, finRepo mocks.MockIFinancialReportRepository) {
-				compRepo.EXPECT().
-					Create(
-						context.Background(),
-						&domain.Company{
-							Name:            "aaa",
-							FieldOfActivity: "",
-							City:            "ccc",
-						},
-					).Return(nil).
-					AnyTimes()
-			},
-			wantErr: true,
-			errStr:  errors.New("должно быть указано название сферы деятельности"),
-		},
-		{
 			name: "ошибка выполнения запроса в репозитории",
-			company: domain.Company{
-				Name:            "aaa",
-				FieldOfActivity: "bbb",
-				City:            "ccc",
+			company: &domain.Company{
+				Name: "aaa",
+				City: "ccc",
 			},
 			beforeTest: func(compRepo mocks.MockICompanyRepository, finRepo mocks.MockIFinancialReportRepository) {
 				compRepo.EXPECT().
 					Create(
 						context.Background(),
 						&domain.Company{
-							Name:            "aaa",
-							FieldOfActivity: "bbb",
-							City:            "ccc",
+							Name: "aaa",
+							City: "ccc",
 						},
 					).Return(fmt.Errorf("sql error")).
 					AnyTimes()
@@ -142,7 +112,7 @@ func TestCompanyService_Create(t *testing.T) {
 				tc.beforeTest(*compRepo, *finRepo)
 			}
 
-			err := svc.Create(context.Background(), &tc.company)
+			err := svc.Create(context.Background(), tc.company)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -231,43 +201,37 @@ func TestCompanyService_GetAll(t *testing.T) {
 					GetAll(context.Background(), nil).
 					Return([]*domain.Company{
 						{
-							ID:              [16]byte{1},
-							Name:            "a",
-							FieldOfActivity: "a",
-							City:            "a",
+							ID:   uuid.UUID{1},
+							Name: "a",
+							City: "a",
 						},
 						{
-							ID:              [16]byte{2},
-							Name:            "b",
-							FieldOfActivity: "b",
-							City:            "b",
+							ID:   uuid.UUID{2},
+							Name: "b",
+							City: "b",
 						},
 						{
-							ID:              [16]byte{3},
-							Name:            "c",
-							FieldOfActivity: "c",
-							City:            "c",
+							ID:   uuid.UUID{3},
+							Name: "c",
+							City: "c",
 						},
 					}, nil)
 			},
 			expected: []*domain.Company{
 				{
-					ID:              [16]byte{1},
-					Name:            "a",
-					FieldOfActivity: "a",
-					City:            "a",
+					ID:   uuid.UUID{1},
+					Name: "a",
+					City: "a",
 				},
 				{
-					ID:              [16]byte{2},
-					Name:            "b",
-					FieldOfActivity: "b",
-					City:            "b",
+					ID:   uuid.UUID{2},
+					Name: "b",
+					City: "b",
 				},
 				{
-					ID:              [16]byte{3},
-					Name:            "c",
-					FieldOfActivity: "c",
-					City:            "c",
+					ID:   uuid.UUID{3},
+					Name: "c",
+					City: "c",
 				},
 			},
 			wantErr: false,
@@ -319,36 +283,34 @@ func TestCompanyService_GetById(t *testing.T) {
 	}{
 		{
 			name: "успешное получение компании по id",
-			id:   [16]byte{1},
+			id:   uuid.UUID{1},
 			beforeTest: func(compRepo mocks.MockICompanyRepository) {
 				compRepo.EXPECT().
 					GetById(
 						context.Background(),
-						[16]byte{1},
+						uuid.UUID{1},
 					).
 					Return(&domain.Company{
-						ID:              [16]byte{1},
-						Name:            "a",
-						FieldOfActivity: "a",
-						City:            "a",
+						ID:   uuid.UUID{1},
+						Name: "a",
+						City: "a",
 					}, nil)
 			},
 			expected: &domain.Company{
-				ID:              [16]byte{1},
-				Name:            "a",
-				FieldOfActivity: "a",
-				City:            "a",
+				ID:   uuid.UUID{1},
+				Name: "a",
+				City: "a",
 			},
 			wantErr: false,
 		},
 		{
 			name: "ошибка получения данных в репозитории",
-			id:   [16]byte{1},
+			id:   uuid.UUID{1},
 			beforeTest: func(compRepo mocks.MockICompanyRepository) {
 				compRepo.EXPECT().
 					GetById(
 						context.Background(),
-						[16]byte{1},
+						uuid.UUID{1},
 					).
 					Return(nil, fmt.Errorf("sql error"))
 			},
@@ -392,70 +354,64 @@ func TestCompanyService_GetByOwnerId(t *testing.T) {
 	}{
 		{
 			name: "успешное получение компании по id",
-			id:   [16]byte{1},
+			id:   uuid.UUID{1},
 			beforeTest: func(compRepo mocks.MockICompanyRepository) {
 				compRepo.EXPECT().
 					GetByOwnerId(
 						context.Background(),
-						[16]byte{1},
+						uuid.UUID{1},
 					).
 					Return([]*domain.Company{
 						{
-							ID:              [16]byte{1},
-							OwnerID:         [16]byte{1},
-							Name:            "a",
-							FieldOfActivity: "a",
-							City:            "a",
+							ID:      uuid.UUID{1},
+							OwnerID: uuid.UUID{1},
+							Name:    "a",
+							City:    "a",
 						},
 						{
-							ID:              [16]byte{2},
-							OwnerID:         [16]byte{1},
-							Name:            "b",
-							FieldOfActivity: "b",
-							City:            "b",
+							ID:      uuid.UUID{2},
+							OwnerID: uuid.UUID{1},
+							Name:    "b",
+							City:    "b",
 						},
 						{
-							ID:              [16]byte{3},
-							OwnerID:         [16]byte{1},
-							Name:            "c",
-							FieldOfActivity: "c",
-							City:            "c",
+							ID:      uuid.UUID{3},
+							OwnerID: uuid.UUID{1},
+							Name:    "c",
+							City:    "c",
 						},
 					}, nil)
 			},
 			expected: []*domain.Company{
 				{
-					ID:              [16]byte{1},
-					OwnerID:         [16]byte{1},
-					Name:            "a",
-					FieldOfActivity: "a",
-					City:            "a",
+					ID:      uuid.UUID{1},
+					OwnerID: uuid.UUID{1},
+					Name:    "a",
+					City:    "a",
 				},
 				{
-					ID:              [16]byte{2},
-					OwnerID:         [16]byte{1},
-					Name:            "b",
-					FieldOfActivity: "b",
-					City:            "b",
+					ID:      uuid.UUID{2},
+					OwnerID: uuid.UUID{1},
+					Name:    "b",
+					City:    "b",
 				},
 				{
-					ID:              [16]byte{3},
-					OwnerID:         [16]byte{1},
-					Name:            "c",
-					FieldOfActivity: "c",
-					City:            "c",
+					ID:      uuid.UUID{3},
+					OwnerID: uuid.UUID{1},
+					Name:    "c",
+					City:    "c",
 				},
 			},
 			wantErr: false,
 		},
 		{
 			name: "ошибка получения данных в репозитории",
-			id:   [16]byte{1},
+			id:   uuid.UUID{1},
 			beforeTest: func(compRepo mocks.MockICompanyRepository) {
 				compRepo.EXPECT().
 					GetByOwnerId(
 						context.Background(),
-						[16]byte{1},
+						uuid.UUID{1},
 					).
 					Return(nil, fmt.Errorf("sql error"))
 			},
@@ -499,7 +455,7 @@ func TestCompanyService_Update(t *testing.T) {
 		{
 			name: "успешное обновление",
 			company: domain.Company{
-				ID:   [16]byte{1},
+				ID:   uuid.UUID{1},
 				Name: "aaa",
 			},
 			beforeTest: func(compRepo mocks.MockICompanyRepository, finRepo mocks.MockIFinancialReportRepository) {
@@ -507,7 +463,7 @@ func TestCompanyService_Update(t *testing.T) {
 					Update(
 						context.Background(),
 						&domain.Company{
-							ID:   [16]byte{1},
+							ID:   uuid.UUID{1},
 							Name: "aaa",
 						},
 					).Return(nil)
@@ -517,7 +473,7 @@ func TestCompanyService_Update(t *testing.T) {
 		{
 			name: "ошибка выполнения запроса в репозитории",
 			company: domain.Company{
-				ID:   [16]byte{1},
+				ID:   uuid.UUID{1},
 				Name: "aaa",
 			},
 			beforeTest: func(compRepo mocks.MockICompanyRepository, finRepo mocks.MockIFinancialReportRepository) {
@@ -525,7 +481,7 @@ func TestCompanyService_Update(t *testing.T) {
 					Update(
 						context.Background(),
 						&domain.Company{
-							ID:   [16]byte{1},
+							ID:   uuid.UUID{1},
 							Name: "aaa",
 						},
 					).Return(fmt.Errorf("sql error"))

@@ -198,17 +198,17 @@ func TestSkillService_GetAll(t *testing.T) {
 					GetAll(context.Background()).
 					Return([]*domain.Skill{
 						{
-							ID:          [16]byte{1},
+							ID:          uuid.UUID{1},
 							Name:        "a",
 							Description: "a",
 						},
 						{
-							ID:          [16]byte{2},
+							ID:          uuid.UUID{2},
 							Name:        "b",
 							Description: "b",
 						},
 						{
-							ID:          [16]byte{3},
+							ID:          uuid.UUID{3},
 							Name:        "c",
 							Description: "c",
 						},
@@ -216,17 +216,17 @@ func TestSkillService_GetAll(t *testing.T) {
 			},
 			expected: []*domain.Skill{
 				{
-					ID:          [16]byte{1},
+					ID:          uuid.UUID{1},
 					Name:        "a",
 					Description: "a",
 				},
 				{
-					ID:          [16]byte{2},
+					ID:          uuid.UUID{2},
 					Name:        "b",
 					Description: "b",
 				},
 				{
-					ID:          [16]byte{3},
+					ID:          uuid.UUID{3},
 					Name:        "c",
 					Description: "c",
 				},
@@ -279,21 +279,21 @@ func TestSkillService_GetById(t *testing.T) {
 	}{
 		{
 			name: "успешное получение навыка по id",
-			id:   [16]byte{1},
+			id:   uuid.UUID{1},
 			beforeTest: func(skillRepo mocks.MockISkillRepository) {
 				skillRepo.EXPECT().
 					GetById(
 						context.Background(),
-						[16]byte{1},
+						uuid.UUID{1},
 					).
 					Return(&domain.Skill{
-						ID:          [16]byte{1},
+						ID:          uuid.UUID{1},
 						Name:        "a",
 						Description: "a",
 					}, nil)
 			},
 			expected: &domain.Skill{
-				ID:          [16]byte{1},
+				ID:          uuid.UUID{1},
 				Name:        "a",
 				Description: "a",
 			},
@@ -301,12 +301,12 @@ func TestSkillService_GetById(t *testing.T) {
 		},
 		{
 			name: "ошибка получения данных в репозитории",
-			id:   [16]byte{1},
+			id:   uuid.UUID{1},
 			beforeTest: func(skillRepo mocks.MockISkillRepository) {
 				skillRepo.EXPECT().
 					GetById(
 						context.Background(),
-						[16]byte{1},
+						uuid.UUID{1},
 					).
 					Return(nil, fmt.Errorf("sql error"))
 			},
@@ -349,7 +349,7 @@ func TestSkillService_Update(t *testing.T) {
 		{
 			name: "успешное обновление",
 			skill: domain.Skill{
-				ID:   [16]byte{1},
+				ID:   uuid.UUID{1},
 				Name: "aaa",
 			},
 			beforeTest: func(skillRepo mocks.MockISkillRepository) {
@@ -357,7 +357,7 @@ func TestSkillService_Update(t *testing.T) {
 					Update(
 						context.Background(),
 						&domain.Skill{
-							ID:   [16]byte{1},
+							ID:   uuid.UUID{1},
 							Name: "aaa",
 						},
 					).Return(nil)
@@ -367,7 +367,7 @@ func TestSkillService_Update(t *testing.T) {
 		{
 			name: "ошибка выполнения запроса в репозитории",
 			skill: domain.Skill{
-				ID:   [16]byte{1},
+				ID:   uuid.UUID{1},
 				Name: "aaa",
 			},
 			beforeTest: func(skillRepo mocks.MockISkillRepository) {
@@ -375,7 +375,7 @@ func TestSkillService_Update(t *testing.T) {
 					Update(
 						context.Background(),
 						&domain.Skill{
-							ID:   [16]byte{1},
+							ID:   uuid.UUID{1},
 							Name: "aaa",
 						},
 					).Return(fmt.Errorf("sql error"))
