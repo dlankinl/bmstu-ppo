@@ -225,9 +225,9 @@ func TestInteractor_GetMostProfitableCompany(t *testing.T) {
 			name: "успешный случай",
 			period: &domain.Period{
 				StartYear:    2023,
-				EndYear:      2024,
+				EndYear:      2023,
 				StartQuarter: 1,
-				EndQuarter:   1,
+				EndQuarter:   4,
 			},
 			companies: []*domain.Company{
 				{
