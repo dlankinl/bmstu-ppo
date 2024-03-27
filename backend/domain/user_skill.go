@@ -18,9 +18,9 @@ type IUserSkillRepository interface {
 }
 
 type IUserSkillService interface {
-	Create(ctx context.Context, pair *UserSkill) error
-	Delete(ctx context.Context, pair *UserSkill) error
-	GetSkillsForUser(ctx context.Context, userId uuid.UUID) ([]*Skill, error)
-	GetUsersForSkill(ctx context.Context, skillId uuid.UUID) ([]*User, error)
-	DeleteSkillsForUser(ctx context.Context, userId uuid.UUID) error
+	Create(pair *UserSkill) error
+	Delete(pair *UserSkill) error
+	GetSkillsForUser(userId uuid.UUID) ([]*Skill, error)
+	GetUsersForSkill(skillId uuid.UUID) ([]*User, error)
+	DeleteSkillsForUser(userId uuid.UUID) error
 }

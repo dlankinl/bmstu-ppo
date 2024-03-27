@@ -20,9 +20,9 @@ type ISkillRepository interface {
 }
 
 type ISkillService interface {
-	Create(ctx context.Context, skill *Skill) error
-	GetById(ctx context.Context, id uuid.UUID) (*Skill, error)
-	GetAll(ctx context.Context) ([]*Skill, error)
-	Update(ctx context.Context, skill *Skill) error
-	DeleteById(ctx context.Context, id uuid.UUID) error
+	Create(skill *Skill) error
+	GetById(id uuid.UUID) (*Skill, error)
+	GetAll() ([]*Skill, error)
+	Update(skill *Skill) error
+	DeleteById(id uuid.UUID) error
 }

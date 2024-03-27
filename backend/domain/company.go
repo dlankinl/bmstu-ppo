@@ -24,10 +24,12 @@ type ICompanyRepository interface { // FIXME: разобраться с сущн
 }
 
 type ICompanyService interface {
-	Create(ctx context.Context, company *Company) error
-	GetById(ctx context.Context, id uuid.UUID) (*Company, error)
-	GetByOwnerId(ctx context.Context, id uuid.UUID) ([]*Company, error)
-	GetAll(ctx context.Context, filters utils.Filters) ([]*Company, error)
-	Update(ctx context.Context, company *Company) error
-	DeleteById(ctx context.Context, id uuid.UUID) error
+	Create(company *Company) error
+	GetById(id uuid.UUID) (*Company, error)
+	GetByOwnerId(id uuid.UUID) ([]*Company, error)
+	GetAll(filters utils.Filters) ([]*Company, error)
+	Update(company *Company) error
+	DeleteById(id uuid.UUID) error
 }
+
+// hазобраться с фильтрами

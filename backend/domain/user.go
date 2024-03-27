@@ -25,12 +25,12 @@ type IUserRepository interface {
 }
 
 type IUserService interface {
-	Create(ctx context.Context, user *User) error
-	GetById(ctx context.Context, id uuid.UUID) (*User, error)
-	GetAll(ctx context.Context, filters utils.Filters) ([]*User, error)
-	Update(ctx context.Context, user *User) error
-	DeleteById(ctx context.Context, id uuid.UUID) error
-	GetFinancialReport(ctx context.Context, companies []*Company, period *Period) (finReports []*FinancialReportByPeriod, err error)
+	Create(user *User) error
+	GetById(id uuid.UUID) (*User, error)
+	GetAll(filters utils.Filters) ([]*User, error)
+	Update(user *User) error
+	DeleteById(id uuid.UUID) error
+	GetFinancialReport(companies []*Company, period *Period) (finReports []*FinancialReportByPeriod, err error)
 	//GetFinancialReport(ctx context.Context, id uuid.UUID, period *Period) ([]*FinancialReportByPeriod, error)
 	//CalculateRating(ctx context.Context, id uuid.UUID, mainFieldWeight float32) (rating float32, err error)
 }

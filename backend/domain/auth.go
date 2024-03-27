@@ -18,6 +18,6 @@ type IAuthRepository interface {
 }
 
 type IAuthService interface {
-	Login(ctx context.Context, authInfo *UserAuth) (string, error)
-	Register(ctx context.Context, authInfo *UserAuth) (err error)
+	Login(authInfo *UserAuth) (string, error)
+	Register(authInfo *UserAuth) (err error)
 }

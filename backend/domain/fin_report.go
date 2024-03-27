@@ -61,10 +61,10 @@ type IFinancialReportRepository interface {
 }
 
 type IFinancialReportService interface {
-	Create(ctx context.Context, finRep *FinancialReport) error
-	CreateByPeriod(ctx context.Context, finReportByPeriod *FinancialReportByPeriod) error
-	GetById(ctx context.Context, id uuid.UUID) (*FinancialReport, error)
-	GetByCompany(ctx context.Context, companyId uuid.UUID, period *Period) (*FinancialReportByPeriod, error)
-	Update(ctx context.Context, finRep *FinancialReport) error
-	DeleteById(ctx context.Context, id uuid.UUID) error
+	Create(finRep *FinancialReport) error
+	CreateByPeriod(finReportByPeriod *FinancialReportByPeriod) error
+	GetById(id uuid.UUID) (*FinancialReport, error)
+	GetByCompany(companyId uuid.UUID, period *Period) (*FinancialReportByPeriod, error)
+	Update(finRep *FinancialReport) error
+	DeleteById(id uuid.UUID) error
 }

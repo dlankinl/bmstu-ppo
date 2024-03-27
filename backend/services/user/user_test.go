@@ -13,8 +13,6 @@ import (
 	"time"
 )
 
-//func TestUserService_CalculateRating(t *testing.T) {} // TODO: mainFieldWeight...
-
 func TestUserService_DeleteById(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -1521,7 +1519,8 @@ func TestUserService_GetFinancialReport(t *testing.T) {
 				tc.beforeTest(*userRepo, *compRepo, *finRepo)
 			}
 
-			report, err := svc.GetFinancialReport(context.Background(), tc.id, tc.period)
+			var companies []*domain.Company // TODO
+			report, err := svc.GetFinancialReport(context.Background(), companies, tc.period)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())

@@ -30,7 +30,7 @@ func NewService(
 	}
 }
 
-func (s *Service) Create(ctx context.Context, user *domain.User) (err error) {
+func (s *Service) Create(user *domain.User) (err error) {
 	if user.Gender != "m" && user.Gender != "w" {
 		return fmt.Errorf("неизвестный пол")
 	}
@@ -51,6 +51,8 @@ func (s *Service) Create(ctx context.Context, user *domain.User) (err error) {
 		return fmt.Errorf("некорректное количество слов (должны быть фамилия, имя и отчество)")
 	}
 
+	var ctx context.Context
+
 	err = s.userRepo.Create(ctx, user)
 	if err != nil {
 		return fmt.Errorf("создание пользователя: %w", err)
@@ -59,7 +61,9 @@ func (s *Service) Create(ctx context.Context, user *domain.User) (err error) {
 	return nil
 }
 
-func (s *Service) GetById(ctx context.Context, id uuid.UUID) (user *domain.User, err error) {
+func (s *Service) GetById(id uuid.UUID) (user *domain.User, err error) {
+	var ctx context.Context
+
 	user, err = s.userRepo.GetById(ctx, id)
 	if err != nil {
 		return nil, fmt.Errorf("получение пользователя по id: %w", err)
@@ -68,7 +72,10 @@ func (s *Service) GetById(ctx context.Context, id uuid.UUID) (user *domain.User,
 	return user, nil
 }
 
-func (s *Service) GetAll(ctx context.Context, filters utils.Filters) (users []*domain.User, err error) {
+// TODO: pagination
+func (s *Service) GetAll(filters utils.Filters) (users []*domain.User, err error) {
+	var ctx context.Context
+
 	users, err = s.userRepo.GetAll(ctx, filters)
 	if err != nil {
 		return nil, fmt.Errorf("получение списка всех пользователей: %w", err)
@@ -77,7 +84,9 @@ func (s *Service) GetAll(ctx context.Context, filters utils.Filters) (users []*d
 	return users, nil
 }
 
-func (s *Service) Update(ctx context.Context, user *domain.User) (err error) {
+func (s *Service) Update(user *domain.User) (err error) {
+	var ctx context.Context
+
 	err = s.userRepo.Update(ctx, user)
 	if err != nil {
 		return fmt.Errorf("обновление информации о пользователе: %w", err)
@@ -86,7 +95,9 @@ func (s *Service) Update(ctx context.Context, user *domain.User) (err error) {
 	return nil
 }
 
-func (s *Service) DeleteById(ctx context.Context, id uuid.UUID) (err error) {
+func (s *Service) DeleteById(id uuid.UUID) (err error) {
+	var ctx context.Context
+
 	err = s.userRepo.DeleteById(ctx, id)
 	if err != nil {
 		return fmt.Errorf("удаление пользователя по id: %w", err)
@@ -95,16 +106,13 @@ func (s *Service) DeleteById(ctx context.Context, id uuid.UUID) (err error) {
 	return nil
 }
 
-func (s *Service) GetFinancialReport(ctx context.Context, companies []*domain.Company, period *domain.Period) (finReports []*domain.FinancialReportByPeriod, err error) {
+func (s *Service) GetFinancialReport(companies []*domain.Company, period *domain.Period) (finReports []*domain.FinancialReportByPeriod, err error) {
+	var ctx context.Context
+
 	if period.StartYear > period.EndYear ||
 		(period.StartYear == period.EndYear && period.StartQuarter > period.EndQuarter) {
 		return nil, fmt.Errorf("дата конца периода должна быть позже даты начала")
 	}
-
-	//companies, err := s.companyRepo.GetByOwnerId(ctx, id)
-	//if err != nil {
-	//	return nil, fmt.Errorf("получение списка компаний предпринимателя по id: %w", err)
-	//}
 
 	finReports = make([]*domain.FinancialReportByPeriod, 0)
 	for _, company := range companies {
@@ -172,30 +180,3 @@ func (s *Service) GetFinancialReport(ctx context.Context, companies []*domain.Co
 
 	return finReports, nil
 }
-
-//func (s *Service) CalculateRating(ctx context.Context, reports []*domain.FinancialReportByPeriod, mainFieldWeight float32) (rating float32, err error) {
-//	//var mainFieldWeight float32 // TODO: mainFieldWeight
-//
-//	//prevYear := time.Now().AddDate(-1, 0, 0).Year()
-//	//period := &domain.Period{
-//	//	StartYear:    prevYear,
-//	//	EndYear:      prevYear,
-//	//	StartQuarter: 1,
-//	//	EndQuarter:   4,
-//	//}
-//
-//	//reports, err := s.GetFinancialReport(ctx, id, period)
-//	//if err != nil {
-//	//	return 0, fmt.Errorf("получение финансового отчета за прошлый год: %w", err)
-//	//}
-//
-//	var totalRevenue, totalProfit float32
-//	for _, rep := range reports {
-//		totalRevenue += rep.Revenue()
-//		totalProfit += rep.Profit()
-//	}
-//
-//	rating = 1.2*mainFieldWeight*mainFieldWeight + 0.35*totalRevenue + 0.9*float32(math.Pow(float64(totalProfit), 1.5))
-//
-//	return rating, nil
-//}

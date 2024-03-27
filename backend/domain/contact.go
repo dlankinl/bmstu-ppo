@@ -21,9 +21,9 @@ type IContactsRepository interface {
 }
 
 type IContactsService interface {
-	Create(ctx context.Context, contact *Contact) error
-	GetById(ctx context.Context, id uuid.UUID) (*Contact, error)
-	GetByOwnerId(ctx context.Context, id uuid.UUID) ([]*Contact, error)
-	Update(ctx context.Context, contact *Contact) error
-	DeleteById(ctx context.Context, id uuid.UUID) error
+	Create(contact *Contact) error
+	GetById(id uuid.UUID) (*Contact, error)
+	GetByOwnerId(id uuid.UUID) ([]*Contact, error)
+	Update(contact *Contact) error
+	DeleteById(id uuid.UUID) error
 }
