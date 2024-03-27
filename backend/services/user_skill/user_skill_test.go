@@ -23,14 +23,14 @@ func TestUserSkillService_Create(t *testing.T) {
 
 	testCases := []struct {
 		name       string
-		pair       domain.UserSkill
+		pair       *domain.UserSkill
 		beforeTest func(userSkillRepo mocks.MockIUserSkillRepository)
 		wantErr    bool
 		errStr     error
 	}{
 		{
 			name: "успешное добавление",
-			pair: domain.UserSkill{
+			pair: &domain.UserSkill{
 				UserId:  uuid.UUID{1},
 				SkillId: uuid.UUID{1},
 			},
@@ -48,7 +48,7 @@ func TestUserSkillService_Create(t *testing.T) {
 		},
 		{
 			name: "ошибка выполнения запроса в репозитории",
-			pair: domain.UserSkill{
+			pair: &domain.UserSkill{
 				UserId:  uuid.UUID{1},
 				SkillId: uuid.UUID{1},
 			},
@@ -73,7 +73,7 @@ func TestUserSkillService_Create(t *testing.T) {
 				tc.beforeTest(*userSkillRepo)
 			}
 
-			err := svc.Create(context.Background(), &tc.pair)
+			err := svc.Create(tc.pair)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -95,14 +95,14 @@ func TestUserSkillService_Delete(t *testing.T) {
 
 	testCases := []struct {
 		name       string
-		pair       domain.UserSkill
+		pair       *domain.UserSkill
 		beforeTest func(userSkillRepo mocks.MockIUserSkillRepository)
 		wantErr    bool
 		errStr     error
 	}{
 		{
-			name: "успешное добавление",
-			pair: domain.UserSkill{
+			name: "успешное удаление",
+			pair: &domain.UserSkill{
 				UserId:  uuid.UUID{1},
 				SkillId: uuid.UUID{1},
 			},
@@ -120,7 +120,7 @@ func TestUserSkillService_Delete(t *testing.T) {
 		},
 		{
 			name: "ошибка выполнения запроса в репозитории",
-			pair: domain.UserSkill{
+			pair: &domain.UserSkill{
 				UserId:  uuid.UUID{1},
 				SkillId: uuid.UUID{1},
 			},
@@ -145,7 +145,7 @@ func TestUserSkillService_Delete(t *testing.T) {
 				tc.beforeTest(*userSkillRepo)
 			}
 
-			err := svc.Delete(context.Background(), &tc.pair)
+			err := svc.Delete(tc.pair)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -307,7 +307,7 @@ func TestUserSkillService_GetSkillsForUser(t *testing.T) {
 				tc.beforeTest(*userSkillRepo, *userRepo, *skillRepo)
 			}
 
-			skills, err := svc.GetSkillsForUser(context.Background(), uuid.UUID{1})
+			skills, err := svc.GetSkillsForUser(uuid.UUID{1})
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -470,7 +470,7 @@ func TestUserSkillService_GetUsersForSkill(t *testing.T) {
 				tc.beforeTest(*userSkillRepo, *userRepo, *skillRepo)
 			}
 
-			users, err := svc.GetUsersForSkill(context.Background(), uuid.UUID{1})
+			users, err := svc.GetUsersForSkill(uuid.UUID{1})
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -623,7 +623,7 @@ func TestUserSkillService_DeleteSkillsForUser(t *testing.T) {
 				tc.beforeTest(*userSkillRepo, *userRepo, *skillRepo)
 			}
 
-			err := svc.DeleteSkillsForUser(context.Background(), uuid.UUID{1})
+			err := svc.DeleteSkillsForUser(uuid.UUID{1})
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())

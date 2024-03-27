@@ -51,7 +51,7 @@ func (s *Service) Create(user *domain.User) (err error) {
 		return fmt.Errorf("некорректное количество слов (должны быть фамилия, имя и отчество)")
 	}
 
-	var ctx context.Context
+	ctx := context.Background()
 
 	err = s.userRepo.Create(ctx, user)
 	if err != nil {
@@ -62,7 +62,7 @@ func (s *Service) Create(user *domain.User) (err error) {
 }
 
 func (s *Service) GetById(id uuid.UUID) (user *domain.User, err error) {
-	var ctx context.Context
+	ctx := context.Background()
 
 	user, err = s.userRepo.GetById(ctx, id)
 	if err != nil {
@@ -74,7 +74,7 @@ func (s *Service) GetById(id uuid.UUID) (user *domain.User, err error) {
 
 // TODO: pagination
 func (s *Service) GetAll(filters utils.Filters) (users []*domain.User, err error) {
-	var ctx context.Context
+	ctx := context.Background()
 
 	users, err = s.userRepo.GetAll(ctx, filters)
 	if err != nil {
@@ -85,7 +85,7 @@ func (s *Service) GetAll(filters utils.Filters) (users []*domain.User, err error
 }
 
 func (s *Service) Update(user *domain.User) (err error) {
-	var ctx context.Context
+	ctx := context.Background()
 
 	err = s.userRepo.Update(ctx, user)
 	if err != nil {
@@ -96,7 +96,7 @@ func (s *Service) Update(user *domain.User) (err error) {
 }
 
 func (s *Service) DeleteById(id uuid.UUID) (err error) {
-	var ctx context.Context
+	ctx := context.Background()
 
 	err = s.userRepo.DeleteById(ctx, id)
 	if err != nil {
@@ -106,77 +106,77 @@ func (s *Service) DeleteById(id uuid.UUID) (err error) {
 	return nil
 }
 
-func (s *Service) GetFinancialReport(companies []*domain.Company, period *domain.Period) (finReports []*domain.FinancialReportByPeriod, err error) {
-	var ctx context.Context
-
-	if period.StartYear > period.EndYear ||
-		(period.StartYear == period.EndYear && period.StartQuarter > period.EndQuarter) {
-		return nil, fmt.Errorf("дата конца периода должна быть позже даты начала")
-	}
-
-	finReports = make([]*domain.FinancialReportByPeriod, 0)
-	for _, company := range companies {
-		report, err := s.finRepo.GetByCompany(ctx, company.ID, period)
-		if err != nil {
-			return nil, fmt.Errorf("получение финансовой отчетности компании по id: %w", err)
-		}
-
-		yearReports := make(map[int]domain.FinancialReportByPeriod)
-
-		var i int
-		for year := period.StartYear; year <= period.EndYear; year++ {
-			startQtr := 1
-			endQtr := 4
-
-			if year == period.StartYear {
-				startQtr = period.StartQuarter
-			}
-			if year == period.EndYear {
-				endQtr = period.EndQuarter
-			}
-
-			var totalFinReport domain.FinancialReportByPeriod
-			for quarter := startQtr; quarter <= endQtr; quarter++ {
-				totalFinReport.Reports = append(totalFinReport.Reports, report.Reports[i])
-				i++
-			}
-
-			per := &domain.Period{
-				StartYear:    year,
-				EndYear:      year,
-				StartQuarter: startQtr,
-				EndQuarter:   endQtr,
-			}
-			totalFinReport.Period = per
-			yearReports[year] = totalFinReport
-		}
-
-		for _, v := range yearReports {
-			if len(v.Reports) == 4 {
-				totalProfit := v.Profit()
-				var taxFare int
-				switch true {
-				case totalProfit < 10000000:
-					taxFare = 4
-				case totalProfit < 50000000:
-					taxFare = 7
-				case totalProfit < 150000000:
-					taxFare = 13
-				case totalProfit < 500000000:
-					taxFare = 20
-				default:
-					taxFare = 30
-				}
-
-				v.Taxes = totalProfit * (float32(taxFare) / 100)
-
-				report.Taxes += v.Taxes
-				report.TaxLoad += v.Taxes / v.Revenue() * 100
-			}
-		}
-
-		finReports = append(finReports, report)
-	}
-
-	return finReports, nil
-}
+//func (s *Service) GetFinancialReport(companies []*domain.Company, period *domain.Period) (finReports []*domain.FinancialReportByPeriod, err error) {
+//	ctx := context.Background()
+//
+//	if period.StartYear > period.EndYear ||
+//		(period.StartYear == period.EndYear && period.StartQuarter > period.EndQuarter) {
+//		return nil, fmt.Errorf("дата конца периода должна быть позже даты начала")
+//	}
+//
+//	finReports = make([]*domain.FinancialReportByPeriod, 0)
+//	for _, company := range companies {
+//		report, err := s.finRepo.GetByCompany(ctx, company.ID, period)
+//		if err != nil {
+//			return nil, fmt.Errorf("получение финансовой отчетности компании по id: %w", err)
+//		}
+//
+//		yearReports := make(map[int]domain.FinancialReportByPeriod)
+//
+//		var i int
+//		for year := period.StartYear; year <= period.EndYear; year++ {
+//			startQtr := 1
+//			endQtr := 4
+//
+//			if year == period.StartYear {
+//				startQtr = period.StartQuarter
+//			}
+//			if year == period.EndYear {
+//				endQtr = period.EndQuarter
+//			}
+//
+//			var totalFinReport domain.FinancialReportByPeriod
+//			for quarter := startQtr; quarter <= endQtr; quarter++ {
+//				totalFinReport.Reports = append(totalFinReport.Reports, report.Reports[i])
+//				i++
+//			}
+//
+//			per := &domain.Period{
+//				StartYear:    year,
+//				EndYear:      year,
+//				StartQuarter: startQtr,
+//				EndQuarter:   endQtr,
+//			}
+//			totalFinReport.Period = per
+//			yearReports[year] = totalFinReport
+//		}
+//
+//		for _, v := range yearReports {
+//			if len(v.Reports) == 4 {
+//				totalProfit := v.Profit()
+//				var taxFare int
+//				switch true {
+//				case totalProfit < 10000000:
+//					taxFare = 4
+//				case totalProfit < 50000000:
+//					taxFare = 7
+//				case totalProfit < 150000000:
+//					taxFare = 13
+//				case totalProfit < 500000000:
+//					taxFare = 20
+//				default:
+//					taxFare = 30
+//				}
+//
+//				v.Taxes = totalProfit * (float32(taxFare) / 100)
+//
+//				report.Taxes += v.Taxes
+//				report.TaxLoad += v.Taxes / v.Revenue() * 100
+//			}
+//		}
+//
+//		finReports = append(finReports, report)
+//	}
+//
+//	return finReports, nil
+//}

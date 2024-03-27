@@ -219,7 +219,7 @@ func TestFinReportService_Create(t *testing.T) {
 				tc.beforeTest(*finRepo)
 			}
 
-			err := svc.Create(context.Background(), tc.data)
+			err := svc.Create(tc.data)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -274,7 +274,7 @@ func TestFinReportService_DeleteById(t *testing.T) {
 				tc.beforeTest(*finRepo)
 			}
 
-			err := svc.DeleteById(context.Background(), tc.id)
+			err := svc.DeleteById(tc.id)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -588,7 +588,7 @@ func TestFinReportService_GetByCompany(t *testing.T) {
 				tc.beforeTest(*finRepo)
 			}
 
-			report, err := svc.GetByCompany(context.Background(), tc.id, tc.period)
+			report, err := svc.GetByCompany(tc.id, tc.period)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -667,7 +667,7 @@ func TestFinReportService_GetById(t *testing.T) {
 				tc.beforeTest(*repo)
 			}
 
-			report, err := svc.GetById(context.Background(), tc.id)
+			report, err := svc.GetById(tc.id)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -688,14 +688,14 @@ func TestFinReportService_Update(t *testing.T) {
 
 	testCases := []struct {
 		name       string
-		report     domain.FinancialReport
+		report     *domain.FinancialReport
 		beforeTest func(finRepo mocks.MockIFinancialReportRepository)
 		wantErr    bool
 		errStr     error
 	}{
 		{
 			name: "успешное обновление",
-			report: domain.FinancialReport{
+			report: &domain.FinancialReport{
 				ID:      uuid.UUID{1},
 				Revenue: 2,
 			},
@@ -713,7 +713,7 @@ func TestFinReportService_Update(t *testing.T) {
 		},
 		{
 			name: "ошибка выполнения запроса в репозитории",
-			report: domain.FinancialReport{
+			report: &domain.FinancialReport{
 				ID:      uuid.UUID{1},
 				Revenue: 2,
 			},
@@ -737,7 +737,7 @@ func TestFinReportService_Update(t *testing.T) {
 				tc.beforeTest(*repo)
 			}
 
-			err := svc.Update(context.Background(), &tc.report)
+			err := svc.Update(tc.report)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())

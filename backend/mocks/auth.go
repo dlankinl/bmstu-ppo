@@ -93,30 +93,30 @@ func (m *MockIAuthService) EXPECT() *MockIAuthServiceMockRecorder {
 }
 
 // Login mocks base method.
-func (m *MockIAuthService) Login(ctx context.Context, authInfo *domain.UserAuth) (string, error) {
+func (m *MockIAuthService) Login(authInfo *domain.UserAuth) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Login", ctx, authInfo)
+	ret := m.ctrl.Call(m, "Login", authInfo)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Login indicates an expected call of Login.
-func (mr *MockIAuthServiceMockRecorder) Login(ctx, authInfo any) *gomock.Call {
+func (mr *MockIAuthServiceMockRecorder) Login(authInfo any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Login", reflect.TypeOf((*MockIAuthService)(nil).Login), ctx, authInfo)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Login", reflect.TypeOf((*MockIAuthService)(nil).Login), authInfo)
 }
 
 // Register mocks base method.
-func (m *MockIAuthService) Register(ctx context.Context, authInfo *domain.UserAuth) error {
+func (m *MockIAuthService) Register(authInfo *domain.UserAuth) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Register", ctx, authInfo)
+	ret := m.ctrl.Call(m, "Register", authInfo)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Register indicates an expected call of Register.
-func (mr *MockIAuthServiceMockRecorder) Register(ctx, authInfo any) *gomock.Call {
+func (mr *MockIAuthServiceMockRecorder) Register(authInfo any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Register", reflect.TypeOf((*MockIAuthService)(nil).Register), ctx, authInfo)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Register", reflect.TypeOf((*MockIAuthService)(nil).Register), authInfo)
 }

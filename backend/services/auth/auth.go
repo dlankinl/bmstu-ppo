@@ -37,7 +37,7 @@ func (s *Service) Register(authInfo *domain.UserAuth) (err error) {
 
 	authInfo.HashedPass = hashedPass
 
-	var ctx context.Context
+	ctx := context.Background()
 
 	err = s.authRepo.Register(ctx, authInfo)
 	if err != nil {
@@ -56,7 +56,7 @@ func (s *Service) Login(authInfo *domain.UserAuth) (token string, err error) {
 		return "", fmt.Errorf("должен быть указан пароль")
 	}
 
-	var ctx context.Context
+	ctx := context.Background()
 
 	userAuth, err := s.authRepo.GetByUsername(ctx, authInfo.Username)
 	if err != nil {

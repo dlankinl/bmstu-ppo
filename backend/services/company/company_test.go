@@ -112,7 +112,7 @@ func TestCompanyService_Create(t *testing.T) {
 				tc.beforeTest(*compRepo, *finRepo)
 			}
 
-			err := svc.Create(context.Background(), tc.company)
+			err := svc.Create(tc.company)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -168,7 +168,7 @@ func TestCompanyService_DeleteById(t *testing.T) {
 				tc.beforeTest(*compRepo, *finRepo)
 			}
 
-			err := svc.DeleteById(context.Background(), tc.id)
+			err := svc.DeleteById(tc.id)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -253,7 +253,7 @@ func TestCompanyService_GetAll(t *testing.T) {
 				tc.beforeTest(*compRepo)
 			}
 
-			companies, err := svc.GetAll(context.Background(), nil)
+			companies, err := svc.GetAll(nil)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -324,7 +324,7 @@ func TestCompanyService_GetById(t *testing.T) {
 				tc.beforeTest(*compRepo)
 			}
 
-			company, err := svc.GetById(context.Background(), tc.id)
+			company, err := svc.GetById(tc.id)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -425,7 +425,7 @@ func TestCompanyService_GetByOwnerId(t *testing.T) {
 				tc.beforeTest(*compRepo)
 			}
 
-			companies, err := svc.GetByOwnerId(context.Background(), tc.id)
+			companies, err := svc.GetByOwnerId(tc.id)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -447,14 +447,14 @@ func TestCompanyService_Update(t *testing.T) {
 
 	testCases := []struct {
 		name       string
-		company    domain.Company
+		company    *domain.Company
 		beforeTest func(compRepo mocks.MockICompanyRepository, finRepo mocks.MockIFinancialReportRepository)
 		wantErr    bool
 		errStr     error
 	}{
 		{
 			name: "успешное обновление",
-			company: domain.Company{
+			company: &domain.Company{
 				ID:   uuid.UUID{1},
 				Name: "aaa",
 			},
@@ -472,7 +472,7 @@ func TestCompanyService_Update(t *testing.T) {
 		},
 		{
 			name: "ошибка выполнения запроса в репозитории",
-			company: domain.Company{
+			company: &domain.Company{
 				ID:   uuid.UUID{1},
 				Name: "aaa",
 			},
@@ -496,7 +496,7 @@ func TestCompanyService_Update(t *testing.T) {
 				tc.beforeTest(*compRepo, *finRepo)
 			}
 
-			err := svc.Update(context.Background(), &tc.company)
+			err := svc.Update(tc.company)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())

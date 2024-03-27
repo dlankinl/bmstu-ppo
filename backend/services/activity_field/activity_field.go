@@ -32,7 +32,7 @@ func (s *Service) Create(data *domain.ActivityField) (err error) {
 		return fmt.Errorf("вес сферы деятельности не может быть равен 0")
 	}
 
-	var ctx context.Context
+	ctx := context.Background()
 
 	err = s.repo.Create(ctx, data)
 	if err != nil {
@@ -43,7 +43,7 @@ func (s *Service) Create(data *domain.ActivityField) (err error) {
 }
 
 func (s *Service) DeleteById(id uuid.UUID) (err error) {
-	var ctx context.Context
+	ctx := context.Background()
 
 	err = s.repo.DeleteById(ctx, id)
 	if err != nil {
@@ -54,7 +54,7 @@ func (s *Service) DeleteById(id uuid.UUID) (err error) {
 }
 
 func (s *Service) Update(data *domain.ActivityField) (err error) {
-	var ctx context.Context
+	ctx := context.Background()
 
 	err = s.repo.Update(ctx, data)
 	if err != nil {
@@ -65,7 +65,7 @@ func (s *Service) Update(data *domain.ActivityField) (err error) {
 }
 
 func (s *Service) GetById(id uuid.UUID) (data *domain.ActivityField, err error) {
-	var ctx context.Context
+	ctx := context.Background()
 
 	data, err = s.repo.GetById(ctx, id)
 	if err != nil {
@@ -76,7 +76,7 @@ func (s *Service) GetById(id uuid.UUID) (data *domain.ActivityField, err error) 
 }
 
 func (s *Service) GetCostByCompanyId(id uuid.UUID) (cost float32, err error) {
-	var ctx context.Context
+	ctx := context.Background()
 
 	cost, err = s.repo.GetByCompanyId(ctx, id)
 	if err != nil {
@@ -84,4 +84,15 @@ func (s *Service) GetCostByCompanyId(id uuid.UUID) (cost float32, err error) {
 	}
 
 	return cost, nil
+}
+
+func (s *Service) GetMaxCost() (maxCost float32, err error) {
+	ctx := context.Background()
+
+	maxCost, err = s.repo.GetMaxCost(ctx)
+	if err != nil {
+		return 0, fmt.Errorf("получение максимального веса сфееры деятельности: %w", err)
+	}
+
+	return maxCost, nil
 }

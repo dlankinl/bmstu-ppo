@@ -137,73 +137,73 @@ func (m *MockIContactsService) EXPECT() *MockIContactsServiceMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockIContactsService) Create(ctx context.Context, contact *domain.Contact) error {
+func (m *MockIContactsService) Create(contact *domain.Contact) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create", ctx, contact)
+	ret := m.ctrl.Call(m, "Create", contact)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Create indicates an expected call of Create.
-func (mr *MockIContactsServiceMockRecorder) Create(ctx, contact any) *gomock.Call {
+func (mr *MockIContactsServiceMockRecorder) Create(contact any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockIContactsService)(nil).Create), ctx, contact)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockIContactsService)(nil).Create), contact)
 }
 
 // DeleteById mocks base method.
-func (m *MockIContactsService) DeleteById(ctx context.Context, id uuid.UUID) error {
+func (m *MockIContactsService) DeleteById(id uuid.UUID) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteById", ctx, id)
+	ret := m.ctrl.Call(m, "DeleteById", id)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // DeleteById indicates an expected call of DeleteById.
-func (mr *MockIContactsServiceMockRecorder) DeleteById(ctx, id any) *gomock.Call {
+func (mr *MockIContactsServiceMockRecorder) DeleteById(id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteById", reflect.TypeOf((*MockIContactsService)(nil).DeleteById), ctx, id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteById", reflect.TypeOf((*MockIContactsService)(nil).DeleteById), id)
 }
 
 // GetById mocks base method.
-func (m *MockIContactsService) GetById(ctx context.Context, id uuid.UUID) (*domain.Contact, error) {
+func (m *MockIContactsService) GetById(id uuid.UUID) (*domain.Contact, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetById", ctx, id)
+	ret := m.ctrl.Call(m, "GetById", id)
 	ret0, _ := ret[0].(*domain.Contact)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetById indicates an expected call of GetById.
-func (mr *MockIContactsServiceMockRecorder) GetById(ctx, id any) *gomock.Call {
+func (mr *MockIContactsServiceMockRecorder) GetById(id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetById", reflect.TypeOf((*MockIContactsService)(nil).GetById), ctx, id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetById", reflect.TypeOf((*MockIContactsService)(nil).GetById), id)
 }
 
 // GetByOwnerId mocks base method.
-func (m *MockIContactsService) GetByOwnerId(ctx context.Context, id uuid.UUID) ([]*domain.Contact, error) {
+func (m *MockIContactsService) GetByOwnerId(id uuid.UUID) ([]*domain.Contact, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetByOwnerId", ctx, id)
+	ret := m.ctrl.Call(m, "GetByOwnerId", id)
 	ret0, _ := ret[0].([]*domain.Contact)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetByOwnerId indicates an expected call of GetByOwnerId.
-func (mr *MockIContactsServiceMockRecorder) GetByOwnerId(ctx, id any) *gomock.Call {
+func (mr *MockIContactsServiceMockRecorder) GetByOwnerId(id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByOwnerId", reflect.TypeOf((*MockIContactsService)(nil).GetByOwnerId), ctx, id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByOwnerId", reflect.TypeOf((*MockIContactsService)(nil).GetByOwnerId), id)
 }
 
 // Update mocks base method.
-func (m *MockIContactsService) Update(ctx context.Context, contact *domain.Contact) error {
+func (m *MockIContactsService) Update(contact *domain.Contact) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Update", ctx, contact)
+	ret := m.ctrl.Call(m, "Update", contact)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Update indicates an expected call of Update.
-func (mr *MockIContactsServiceMockRecorder) Update(ctx, contact any) *gomock.Call {
+func (mr *MockIContactsServiceMockRecorder) Update(contact any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockIContactsService)(nil).Update), ctx, contact)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockIContactsService)(nil).Update), contact)
 }

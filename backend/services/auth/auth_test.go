@@ -110,7 +110,7 @@ func TestAuthService_Login(t *testing.T) {
 				tc.beforeTest(*repo, *crypto)
 			}
 
-			token, err := svc.Login(context.Background(), tc.authInfo)
+			token, err := svc.Login(tc.authInfo)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -217,7 +217,7 @@ func TestAuthService_Register(t *testing.T) {
 				tc.beforeTest(*repo, *crypto)
 			}
 
-			err := svc.Register(context.Background(), tc.authInfo)
+			err := svc.Register(tc.authInfo)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())

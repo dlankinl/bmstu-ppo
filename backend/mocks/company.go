@@ -153,88 +153,88 @@ func (m *MockICompanyService) EXPECT() *MockICompanyServiceMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockICompanyService) Create(ctx context.Context, company *domain.Company) error {
+func (m *MockICompanyService) Create(company *domain.Company) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create", ctx, company)
+	ret := m.ctrl.Call(m, "Create", company)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Create indicates an expected call of Create.
-func (mr *MockICompanyServiceMockRecorder) Create(ctx, company any) *gomock.Call {
+func (mr *MockICompanyServiceMockRecorder) Create(company any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockICompanyService)(nil).Create), ctx, company)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockICompanyService)(nil).Create), company)
 }
 
 // DeleteById mocks base method.
-func (m *MockICompanyService) DeleteById(ctx context.Context, id uuid.UUID) error {
+func (m *MockICompanyService) DeleteById(id uuid.UUID) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteById", ctx, id)
+	ret := m.ctrl.Call(m, "DeleteById", id)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // DeleteById indicates an expected call of DeleteById.
-func (mr *MockICompanyServiceMockRecorder) DeleteById(ctx, id any) *gomock.Call {
+func (mr *MockICompanyServiceMockRecorder) DeleteById(id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteById", reflect.TypeOf((*MockICompanyService)(nil).DeleteById), ctx, id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteById", reflect.TypeOf((*MockICompanyService)(nil).DeleteById), id)
 }
 
 // GetAll mocks base method.
-func (m *MockICompanyService) GetAll(ctx context.Context, filters utils.Filters) ([]*domain.Company, error) {
+func (m *MockICompanyService) GetAll(filters utils.Filters) ([]*domain.Company, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAll", ctx, filters)
+	ret := m.ctrl.Call(m, "GetAll", filters)
 	ret0, _ := ret[0].([]*domain.Company)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetAll indicates an expected call of GetAll.
-func (mr *MockICompanyServiceMockRecorder) GetAll(ctx, filters any) *gomock.Call {
+func (mr *MockICompanyServiceMockRecorder) GetAll(filters any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockICompanyService)(nil).GetAll), ctx, filters)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockICompanyService)(nil).GetAll), filters)
 }
 
 // GetById mocks base method.
-func (m *MockICompanyService) GetById(ctx context.Context, id uuid.UUID) (*domain.Company, error) {
+func (m *MockICompanyService) GetById(id uuid.UUID) (*domain.Company, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetById", ctx, id)
+	ret := m.ctrl.Call(m, "GetById", id)
 	ret0, _ := ret[0].(*domain.Company)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetById indicates an expected call of GetById.
-func (mr *MockICompanyServiceMockRecorder) GetById(ctx, id any) *gomock.Call {
+func (mr *MockICompanyServiceMockRecorder) GetById(id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetById", reflect.TypeOf((*MockICompanyService)(nil).GetById), ctx, id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetById", reflect.TypeOf((*MockICompanyService)(nil).GetById), id)
 }
 
 // GetByOwnerId mocks base method.
-func (m *MockICompanyService) GetByOwnerId(ctx context.Context, id uuid.UUID) ([]*domain.Company, error) {
+func (m *MockICompanyService) GetByOwnerId(id uuid.UUID) ([]*domain.Company, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetByOwnerId", ctx, id)
+	ret := m.ctrl.Call(m, "GetByOwnerId", id)
 	ret0, _ := ret[0].([]*domain.Company)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetByOwnerId indicates an expected call of GetByOwnerId.
-func (mr *MockICompanyServiceMockRecorder) GetByOwnerId(ctx, id any) *gomock.Call {
+func (mr *MockICompanyServiceMockRecorder) GetByOwnerId(id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByOwnerId", reflect.TypeOf((*MockICompanyService)(nil).GetByOwnerId), ctx, id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByOwnerId", reflect.TypeOf((*MockICompanyService)(nil).GetByOwnerId), id)
 }
 
 // Update mocks base method.
-func (m *MockICompanyService) Update(ctx context.Context, company *domain.Company) error {
+func (m *MockICompanyService) Update(company *domain.Company) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Update", ctx, company)
+	ret := m.ctrl.Call(m, "Update", company)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Update indicates an expected call of Update.
-func (mr *MockICompanyServiceMockRecorder) Update(ctx, company any) *gomock.Call {
+func (mr *MockICompanyServiceMockRecorder) Update(company any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockICompanyService)(nil).Update), ctx, company)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockICompanyService)(nil).Update), company)
 }

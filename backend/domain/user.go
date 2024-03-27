@@ -30,7 +30,7 @@ type IUserService interface {
 	GetAll(filters utils.Filters) ([]*User, error)
 	Update(user *User) error
 	DeleteById(id uuid.UUID) error
-	GetFinancialReport(companies []*Company, period *Period) (finReports []*FinancialReportByPeriod, err error)
+	//GetFinancialReport(companies []*Company, period *Period) (finReports []*FinancialReportByPeriod, err error)
 	//GetFinancialReport(ctx context.Context, id uuid.UUID, period *Period) ([]*FinancialReportByPeriod, error)
 	//CalculateRating(ctx context.Context, id uuid.UUID, mainFieldWeight float32) (rating float32, err error)
 }

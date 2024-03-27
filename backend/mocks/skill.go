@@ -137,73 +137,73 @@ func (m *MockISkillService) EXPECT() *MockISkillServiceMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockISkillService) Create(ctx context.Context, skill *domain.Skill) error {
+func (m *MockISkillService) Create(skill *domain.Skill) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create", ctx, skill)
+	ret := m.ctrl.Call(m, "Create", skill)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Create indicates an expected call of Create.
-func (mr *MockISkillServiceMockRecorder) Create(ctx, skill any) *gomock.Call {
+func (mr *MockISkillServiceMockRecorder) Create(skill any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockISkillService)(nil).Create), ctx, skill)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockISkillService)(nil).Create), skill)
 }
 
 // DeleteById mocks base method.
-func (m *MockISkillService) DeleteById(ctx context.Context, id uuid.UUID) error {
+func (m *MockISkillService) DeleteById(id uuid.UUID) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteById", ctx, id)
+	ret := m.ctrl.Call(m, "DeleteById", id)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // DeleteById indicates an expected call of DeleteById.
-func (mr *MockISkillServiceMockRecorder) DeleteById(ctx, id any) *gomock.Call {
+func (mr *MockISkillServiceMockRecorder) DeleteById(id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteById", reflect.TypeOf((*MockISkillService)(nil).DeleteById), ctx, id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteById", reflect.TypeOf((*MockISkillService)(nil).DeleteById), id)
 }
 
 // GetAll mocks base method.
-func (m *MockISkillService) GetAll(ctx context.Context) ([]*domain.Skill, error) {
+func (m *MockISkillService) GetAll() ([]*domain.Skill, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAll", ctx)
+	ret := m.ctrl.Call(m, "GetAll")
 	ret0, _ := ret[0].([]*domain.Skill)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetAll indicates an expected call of GetAll.
-func (mr *MockISkillServiceMockRecorder) GetAll(ctx any) *gomock.Call {
+func (mr *MockISkillServiceMockRecorder) GetAll() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockISkillService)(nil).GetAll), ctx)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockISkillService)(nil).GetAll))
 }
 
 // GetById mocks base method.
-func (m *MockISkillService) GetById(ctx context.Context, id uuid.UUID) (*domain.Skill, error) {
+func (m *MockISkillService) GetById(id uuid.UUID) (*domain.Skill, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetById", ctx, id)
+	ret := m.ctrl.Call(m, "GetById", id)
 	ret0, _ := ret[0].(*domain.Skill)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetById indicates an expected call of GetById.
-func (mr *MockISkillServiceMockRecorder) GetById(ctx, id any) *gomock.Call {
+func (mr *MockISkillServiceMockRecorder) GetById(id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetById", reflect.TypeOf((*MockISkillService)(nil).GetById), ctx, id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetById", reflect.TypeOf((*MockISkillService)(nil).GetById), id)
 }
 
 // Update mocks base method.
-func (m *MockISkillService) Update(ctx context.Context, skill *domain.Skill) error {
+func (m *MockISkillService) Update(skill *domain.Skill) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Update", ctx, skill)
+	ret := m.ctrl.Call(m, "Update", skill)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Update indicates an expected call of Update.
-func (mr *MockISkillServiceMockRecorder) Update(ctx, skill any) *gomock.Call {
+func (mr *MockISkillServiceMockRecorder) Update(skill any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockISkillService)(nil).Update), ctx, skill)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockISkillService)(nil).Update), skill)
 }

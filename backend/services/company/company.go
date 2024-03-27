@@ -29,7 +29,7 @@ func (s *Service) Create(company *domain.Company) (err error) {
 		return fmt.Errorf("должно быть указано название города")
 	}
 
-	var ctx context.Context
+	ctx := context.Background()
 
 	err = s.companyRepo.Create(ctx, company)
 	if err != nil {
@@ -40,7 +40,7 @@ func (s *Service) Create(company *domain.Company) (err error) {
 }
 
 func (s *Service) GetById(id uuid.UUID) (company *domain.Company, err error) {
-	var ctx context.Context
+	ctx := context.Background()
 
 	company, err = s.companyRepo.GetById(ctx, id)
 	if err != nil {
@@ -51,7 +51,7 @@ func (s *Service) GetById(id uuid.UUID) (company *domain.Company, err error) {
 }
 
 func (s *Service) GetByOwnerId(id uuid.UUID) (companies []*domain.Company, err error) {
-	var ctx context.Context
+	ctx := context.Background()
 
 	companies, err = s.companyRepo.GetByOwnerId(ctx, id)
 	if err != nil {
@@ -63,7 +63,7 @@ func (s *Service) GetByOwnerId(id uuid.UUID) (companies []*domain.Company, err e
 
 // TODO: pagination
 func (s *Service) GetAll(filters utils.Filters) (companies []*domain.Company, err error) {
-	var ctx context.Context
+	ctx := context.Background()
 
 	companies, err = s.companyRepo.GetAll(ctx, filters)
 	if err != nil {
@@ -74,7 +74,7 @@ func (s *Service) GetAll(filters utils.Filters) (companies []*domain.Company, er
 }
 
 func (s *Service) Update(company *domain.Company) (err error) {
-	var ctx context.Context
+	ctx := context.Background()
 
 	err = s.companyRepo.Update(ctx, company)
 	if err != nil {
@@ -85,7 +85,7 @@ func (s *Service) Update(company *domain.Company) (err error) {
 }
 
 func (s *Service) DeleteById(id uuid.UUID) (err error) {
-	var ctx context.Context
+	ctx := context.Background()
 
 	err = s.companyRepo.DeleteById(ctx, id)
 	if err != nil {

@@ -123,59 +123,73 @@ func (m *MockIUserSkillService) EXPECT() *MockIUserSkillServiceMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockIUserSkillService) Create(ctx context.Context, pair *domain.UserSkill) error {
+func (m *MockIUserSkillService) Create(pair *domain.UserSkill) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create", ctx, pair)
+	ret := m.ctrl.Call(m, "Create", pair)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Create indicates an expected call of Create.
-func (mr *MockIUserSkillServiceMockRecorder) Create(ctx, pair any) *gomock.Call {
+func (mr *MockIUserSkillServiceMockRecorder) Create(pair any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockIUserSkillService)(nil).Create), ctx, pair)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockIUserSkillService)(nil).Create), pair)
 }
 
 // Delete mocks base method.
-func (m *MockIUserSkillService) Delete(ctx context.Context, pair *domain.UserSkill) error {
+func (m *MockIUserSkillService) Delete(pair *domain.UserSkill) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Delete", ctx, pair)
+	ret := m.ctrl.Call(m, "Delete", pair)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Delete indicates an expected call of Delete.
-func (mr *MockIUserSkillServiceMockRecorder) Delete(ctx, pair any) *gomock.Call {
+func (mr *MockIUserSkillServiceMockRecorder) Delete(pair any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockIUserSkillService)(nil).Delete), ctx, pair)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockIUserSkillService)(nil).Delete), pair)
+}
+
+// DeleteSkillsForUser mocks base method.
+func (m *MockIUserSkillService) DeleteSkillsForUser(userId uuid.UUID) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteSkillsForUser", userId)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteSkillsForUser indicates an expected call of DeleteSkillsForUser.
+func (mr *MockIUserSkillServiceMockRecorder) DeleteSkillsForUser(userId any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteSkillsForUser", reflect.TypeOf((*MockIUserSkillService)(nil).DeleteSkillsForUser), userId)
 }
 
 // GetSkillsForUser mocks base method.
-func (m *MockIUserSkillService) GetSkillsForUser(ctx context.Context, userId uuid.UUID) ([]*domain.Skill, error) {
+func (m *MockIUserSkillService) GetSkillsForUser(userId uuid.UUID) ([]*domain.Skill, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetSkillsForUser", ctx, userId)
+	ret := m.ctrl.Call(m, "GetSkillsForUser", userId)
 	ret0, _ := ret[0].([]*domain.Skill)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetSkillsForUser indicates an expected call of GetSkillsForUser.
-func (mr *MockIUserSkillServiceMockRecorder) GetSkillsForUser(ctx, userId any) *gomock.Call {
+func (mr *MockIUserSkillServiceMockRecorder) GetSkillsForUser(userId any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSkillsForUser", reflect.TypeOf((*MockIUserSkillService)(nil).GetSkillsForUser), ctx, userId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSkillsForUser", reflect.TypeOf((*MockIUserSkillService)(nil).GetSkillsForUser), userId)
 }
 
 // GetUsersForSkill mocks base method.
-func (m *MockIUserSkillService) GetUsersForSkill(ctx context.Context, skillId uuid.UUID) ([]*domain.User, error) {
+func (m *MockIUserSkillService) GetUsersForSkill(skillId uuid.UUID) ([]*domain.User, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetUsersForSkill", ctx, skillId)
+	ret := m.ctrl.Call(m, "GetUsersForSkill", skillId)
 	ret0, _ := ret[0].([]*domain.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetUsersForSkill indicates an expected call of GetUsersForSkill.
-func (mr *MockIUserSkillServiceMockRecorder) GetUsersForSkill(ctx, skillId any) *gomock.Call {
+func (mr *MockIUserSkillServiceMockRecorder) GetUsersForSkill(skillId any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUsersForSkill", reflect.TypeOf((*MockIUserSkillService)(nil).GetUsersForSkill), ctx, skillId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUsersForSkill", reflect.TypeOf((*MockIUserSkillService)(nil).GetUsersForSkill), skillId)
 }

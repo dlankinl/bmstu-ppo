@@ -1,10 +1,8 @@
 package user_activity_field
 
 import (
-	"context"
 	"fmt"
 	"github.com/google/uuid"
-	"math"
 	"ppo/domain"
 	"time"
 )
@@ -37,33 +35,16 @@ func NewInteractor(
 	}
 }
 
-//func calculateTaxes(report *domain.FinancialReportByPeriod) (err error) {
-//	if len(report.Reports) == quartersInYear {
-//		totalProfit := report.Profit()
-//		var taxFare int
-//		switch true {
-//		case totalProfit < 10000000:
-//			taxFare = 4
-//		case totalProfit < 50000000:
-//			taxFare = 7
-//		case totalProfit < 150000000:
-//			taxFare = 13
-//		case totalProfit < 500000000:
-//			taxFare = 20
-//		default:
-//			taxFare = 30
-//		}
-//
-//		report.Taxes = totalProfit * (float32(taxFare) / 100)
-//
-//		rep.Taxes += v.Taxes
-//		rep.TaxLoad += v.Taxes / report.Revenue() * 100
-//	}
-//}
+type taxes struct {
+	Sum  float32
+	Load float32
+}
 
-func calculateTaxes(reports map[int]domain.FinancialReportByPeriod) (err error) {
+func calculateTaxes(reports map[int]domain.FinancialReportByPeriod) (tax *taxes) {
+	tax = new(taxes)
+
 	for _, v := range reports {
-		if len(report.Reports) == quartersInYear {
+		if len(v.Reports) == quartersInYear {
 			totalProfit := v.Profit()
 			var taxFare int
 			switch true {
@@ -81,20 +62,79 @@ func calculateTaxes(reports map[int]domain.FinancialReportByPeriod) (err error) 
 
 			v.Taxes = totalProfit * (float32(taxFare) / 100)
 
-			rep.Taxes += v.Taxes
-			rep.TaxLoad += v.Taxes / v.Revenue() * 100
+			tax.Sum += v.Taxes
+			tax.Load += v.Taxes / v.Revenue() * 100
 		}
 	}
+
+	return tax
 }
 
-func (i *Interactor) CalculateUserRating(ctx context.Context, id uuid.UUID) (rating float32, err error) {
+func findFullYearReports(rep *domain.FinancialReportByPeriod, period *domain.Period) (fullYearReports map[int]domain.FinancialReportByPeriod) {
+	fullYearReports = make(map[int]domain.FinancialReportByPeriod)
+
+	var j int
+	for year := period.StartYear; year <= period.EndYear; year++ {
+		startQtr := firstQuarter
+		endQtr := lastQuarter
+
+		if year == period.StartYear {
+			startQtr = period.StartQuarter
+		}
+		if year == period.EndYear {
+			endQtr = period.EndQuarter
+		}
+
+		var totalFinReport domain.FinancialReportByPeriod
+		for quarter := startQtr; quarter <= endQtr; quarter++ {
+			totalFinReport.Reports = append(totalFinReport.Reports, rep.Reports[j])
+			j++
+		}
+
+		if endQtr-startQtr == quartersInYear-1 {
+			per := &domain.Period{
+				StartYear:    year,
+				EndYear:      year,
+				StartQuarter: startQtr,
+				EndQuarter:   endQtr,
+			}
+
+			totalFinReport.Period = per
+			fullYearReports[year] = totalFinReport
+		}
+	}
+
+	return fullYearReports
+}
+
+func calcRating(profit, revenue, cost, maxCost float32) float32 {
+	return (cost/maxCost + profit/revenue) / 2.0
+}
+
+func (i *Interactor) GetMostProfitableCompany(period *domain.Period, companies []*domain.Company) (company *domain.Company, err error) {
+	var maxProfit float32
+
+	for _, comp := range companies {
+		rep, err := i.finService.GetByCompany(comp.ID, period)
+		if err != nil {
+			return nil, fmt.Errorf("получение отчета компании: %w", err)
+		}
+
+		if rep.Profit() > maxProfit {
+			company = comp
+			maxProfit = rep.Profit()
+		}
+	}
+
+	return company, nil
+}
+
+func (i *Interactor) CalculateUserRating(id uuid.UUID) (rating float32, err error) {
 	companies, err := i.compService.GetByOwnerId(id)
 	if err != nil {
 		return 0, fmt.Errorf("получение списка компаний: %w", err)
 	}
 
-	var maxProfit float32
-	var mostProfitableCompId uuid.UUID
 	prevYear := time.Now().AddDate(-1, 0, 0).Year()
 	period := &domain.Period{
 		StartYear:    prevYear,
@@ -110,73 +150,25 @@ func (i *Interactor) CalculateUserRating(ctx context.Context, id uuid.UUID) (rat
 			return 0, fmt.Errorf("получение отчета компании: %w", err)
 		}
 
-		if rep.Profit() > maxProfit {
-			mostProfitableCompId = comp.ID
-			maxProfit = rep.Profit()
-		}
+		fullYearReports := findFullYearReports(rep, period)
 
-		yearReports := make(map[int]domain.FinancialReportByPeriod)
-
-		var i int
-		for year := period.StartYear; year <= period.EndYear; year++ {
-			startQtr := firstQuarter
-			endQtr := lastQuarter
-
-			if year == period.StartYear {
-				startQtr = period.StartQuarter
-			}
-			if year == period.EndYear {
-				endQtr = period.EndQuarter
-			}
-
-			var totalFinReport domain.FinancialReportByPeriod
-			for quarter := startQtr; quarter <= endQtr; quarter++ {
-				totalFinReport.Reports = append(totalFinReport.Reports, rep.Reports[i])
-				i++
-			}
-
-			per := &domain.Period{
-				StartYear:    year,
-				EndYear:      year,
-				StartQuarter: startQtr,
-				EndQuarter:   endQtr,
-			}
-			totalFinReport.Period = per
-			yearReports[year] = totalFinReport
-		}
-
-		err = calculateTaxes(yearReports)
-
-		//for _, v := range yearReports {
-		//	if len(v.Reports) == quartersInYear {
-		//		totalProfit := v.Profit()
-		//		var taxFare int
-		//		switch true {
-		//		case totalProfit < 10000000:
-		//			taxFare = 4
-		//		case totalProfit < 50000000:
-		//			taxFare = 7
-		//		case totalProfit < 150000000:
-		//			taxFare = 13
-		//		case totalProfit < 500000000:
-		//			taxFare = 20
-		//		default:
-		//			taxFare = 30
-		//		}
-		//
-		//		v.Taxes = totalProfit * (float32(taxFare) / 100)
-		//
-		//		rep.Taxes += v.Taxes
-		//		rep.TaxLoad += v.Taxes / v.Revenue() * 100
-		//	}
-		//}
+		taxes := calculateTaxes(fullYearReports)
+		rep.Taxes = taxes.Sum
+		rep.TaxLoad = taxes.Load
 
 		reports = append(reports, rep)
 	}
 
-	cost, err := i.actFieldService.GetCostByCompanyId(mostProfitableCompId)
+	mostProfitableCompany, err := i.GetMostProfitableCompany(period, companies)
 	if err != nil {
-		return 0, fmt.Errorf("%w", err)
+		return 0, fmt.Errorf("поиск наиболее прибыльной компании: %w", err)
+	}
+
+	maxCost, err := i.actFieldService.GetMaxCost()
+
+	cost, err := i.actFieldService.GetCostByCompanyId(mostProfitableCompany.ID)
+	if err != nil {
+		return 0, fmt.Errorf("получение веса сферы деятельности компании: %w", err)
 	}
 
 	var totalRevenue, totalProfit float32
@@ -185,7 +177,14 @@ func (i *Interactor) CalculateUserRating(ctx context.Context, id uuid.UUID) (rat
 		totalProfit += rep.Profit()
 	}
 
-	rating = (1.2*cost*cost + 0.35*totalRevenue + 0.9*float32(math.Pow(float64(totalProfit), 1.5))) * coef
+	fmt.Println(totalProfit, totalRevenue, totalProfit-totalRevenue)
+	fmt.Println(32532513-5436438+6743634-9876967+4675424-2436653+14385253-7546424+3253251-543643+6743634-9876967+4675412-2436765+1438525-754642, 32532513+6743634+4675424+14385253+3253251+6743634+4675412+1438525, 5436438+9876967+2436653+7546424+543643+9876967+2436765+754642)
+	rating = calcRating(totalProfit, totalRevenue, cost, maxCost)
 
 	return rating, nil
+}
+
+func (i *Interactor) GetUserFinancialReport(id uuid.UUID) (report *domain.FinancialReportByPeriod, err error) {
+
+	return report, nil
 }

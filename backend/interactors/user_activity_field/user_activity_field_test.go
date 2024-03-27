@@ -12,6 +12,7 @@ import (
 	"ppo/services/company"
 	"ppo/services/fin_report"
 	"ppo/services/user"
+	"reflect"
 	"testing"
 )
 
@@ -183,7 +184,7 @@ func TestInteractor_CalculateUserRating(t *testing.T) {
 				tc.beforeTest(*userRepo, *finRepo, *compRepo, *actFieldRepo)
 			}
 
-			val, err := interactor.CalculateUserRating(context.Background(), tc.userId)
+			val, err := interactor.CalculateUserRating(tc.userId)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -191,6 +192,474 @@ func TestInteractor_CalculateUserRating(t *testing.T) {
 				require.Nil(t, err)
 				require.Equal(t, tc.expected, val)
 			}
+		})
+	}
+}
+
+func TestInteractor_GetMostProfitableCompany(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	userRepo := mocks.NewMockIUserRepository(ctrl)
+	finRepo := mocks.NewMockIFinancialReportRepository(ctrl)
+	compRepo := mocks.NewMockICompanyRepository(ctrl)
+	actFieldRepo := mocks.NewMockIActivityFieldRepository(ctrl)
+
+	userSvc := user.NewService(userRepo, compRepo, finRepo, actFieldRepo)
+	actFieldSvc := activity_field.NewService(actFieldRepo)
+	compSvc := company.NewService(compRepo, finRepo)
+	finSvc := fin_report.NewService(finRepo)
+
+	interactor := NewInteractor(userSvc, actFieldSvc, compSvc, finSvc)
+
+	testCases := []struct {
+		name       string
+		period     *domain.Period
+		companies  []*domain.Company
+		beforeTest func(finRepo mocks.MockIFinancialReportRepository)
+		expected   *domain.Company
+		wantErr    bool
+		errStr     error
+	}{
+		{
+			name: "успешный случай",
+			period: &domain.Period{
+				StartYear:    2023,
+				EndYear:      2024,
+				StartQuarter: 1,
+				EndQuarter:   1,
+			},
+			companies: []*domain.Company{
+				{
+					ID: uuid.UUID{1},
+				},
+				{
+					ID: uuid.UUID{2},
+				},
+			},
+			beforeTest: func(finRepo mocks.MockIFinancialReportRepository) {
+				finRepo.EXPECT().
+					GetByCompany(
+						context.Background(),
+						uuid.UUID{1},
+						&domain.Period{
+							StartYear:    2023,
+							EndYear:      2023,
+							StartQuarter: 1,
+							EndQuarter:   4,
+						},
+					).Return(
+					&domain.FinancialReportByPeriod{
+						Reports: []domain.FinancialReport{
+							{
+								ID:        uuid.UUID{1},
+								CompanyID: uuid.UUID{1},
+								Revenue:   100,
+								Costs:     50,
+								Year:      2023,
+								Quarter:   1,
+							},
+							{
+								ID:        uuid.UUID{2},
+								CompanyID: uuid.UUID{1},
+								Revenue:   100,
+								Costs:     50,
+								Year:      2023,
+								Quarter:   2,
+							},
+							{
+								ID:        uuid.UUID{3},
+								CompanyID: uuid.UUID{1},
+								Revenue:   100,
+								Costs:     50,
+								Year:      2023,
+								Quarter:   3,
+							},
+							{
+								ID:        uuid.UUID{4},
+								CompanyID: uuid.UUID{1},
+								Revenue:   100,
+								Costs:     50,
+								Year:      2023,
+								Quarter:   4,
+							},
+						},
+					}, nil)
+
+				finRepo.EXPECT().
+					GetByCompany(
+						context.Background(),
+						uuid.UUID{2},
+						&domain.Period{
+							StartYear:    2023,
+							EndYear:      2023,
+							StartQuarter: 1,
+							EndQuarter:   4,
+						},
+					).Return(
+					&domain.FinancialReportByPeriod{
+						Reports: []domain.FinancialReport{
+							{
+								ID:        uuid.UUID{5},
+								CompanyID: uuid.UUID{2},
+								Revenue:   75,
+								Costs:     50,
+								Year:      2023,
+								Quarter:   1,
+							},
+							{
+								ID:        uuid.UUID{6},
+								CompanyID: uuid.UUID{2},
+								Revenue:   75,
+								Costs:     50,
+								Year:      2023,
+								Quarter:   2,
+							},
+							{
+								ID:        uuid.UUID{7},
+								CompanyID: uuid.UUID{2},
+								Revenue:   75,
+								Costs:     50,
+								Year:      2023,
+								Quarter:   3,
+							},
+							{
+								ID:        uuid.UUID{8},
+								CompanyID: uuid.UUID{2},
+								Revenue:   75,
+								Costs:     50,
+								Year:      2023,
+								Quarter:   4,
+							},
+						},
+					}, nil)
+			},
+			expected: &domain.Company{
+				ID: uuid.UUID{1},
+			},
+			wantErr: false,
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.beforeTest != nil {
+				tc.beforeTest(*finRepo)
+			}
+
+			company, err := interactor.GetMostProfitableCompany(tc.period, tc.companies)
+
+			if tc.wantErr {
+				require.Equal(t, tc.errStr.Error(), err.Error())
+			} else {
+				require.Nil(t, err)
+				require.Equal(t, tc.expected, company)
+			}
+		})
+	}
+}
+
+func TestInteractor_GetUserFinancialReport(t *testing.T) {
+	type fields struct {
+		userService     domain.IUserService
+		actFieldService domain.IActivityFieldService
+		compService     domain.ICompanyService
+		finService      domain.IFinancialReportService
+	}
+	type args struct {
+		id uuid.UUID
+	}
+	tests := []struct {
+		name       string
+		fields     fields
+		args       args
+		wantReport *domain.FinancialReportByPeriod
+		wantErr    bool
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			i := &Interactor{
+				userService:     tt.fields.userService,
+				actFieldService: tt.fields.actFieldService,
+				compService:     tt.fields.compService,
+				finService:      tt.fields.finService,
+			}
+			gotReport, err := i.GetUserFinancialReport(tt.args.id)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetUserFinancialReport() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(gotReport, tt.wantReport) {
+				t.Errorf("GetUserFinancialReport() gotReport = %v, want %v", gotReport, tt.wantReport)
+			}
+		})
+	}
+}
+
+func Test_calcRating(t *testing.T) {
+	testCases := []struct {
+		name     string
+		profit   float32
+		revenue  float32
+		cost     float32
+		maxCost  float32
+		expected float32
+	}{
+		{
+			name:     "успешное вычисление",
+			profit:   100,
+			revenue:  1000,
+			cost:     5.0,
+			maxCost:  13.5,
+			expected: (5.0/13.5 + 100.0/1000.0) / 2.0,
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			rating := calcRating(tc.profit, tc.revenue, tc.cost, tc.maxCost)
+
+			require.InEpsilon(t, tc.expected, rating, 1e-7)
+		})
+	}
+}
+
+func Test_calculateTaxes(t *testing.T) {
+	testCases := []struct {
+		name     string
+		reports  map[int]domain.FinancialReportByPeriod
+		expected *taxes
+		wantErr  bool
+		errStr   error
+	}{
+		{
+			name: "успешное вычисление",
+			reports: map[int]domain.FinancialReportByPeriod{
+				1: {
+					Reports: []domain.FinancialReport{
+						{
+							ID:        uuid.UUID{1},
+							CompanyID: uuid.UUID{1},
+							Revenue:   12432532,
+							Costs:     3213214,
+							Year:      1,
+							Quarter:   2,
+						},
+						{
+							ID:        uuid.UUID{2},
+							CompanyID: uuid.UUID{1},
+							Revenue:   12432532,
+							Costs:     3213214,
+							Year:      1,
+							Quarter:   3,
+						},
+						{
+							ID:        uuid.UUID{3},
+							CompanyID: uuid.UUID{1},
+							Revenue:   12432532,
+							Costs:     3213214,
+							Year:      1,
+							Quarter:   4,
+						},
+					},
+					Period: &domain.Period{
+						StartYear:    1,
+						EndYear:      1,
+						StartQuarter: 2,
+						EndQuarter:   4,
+					},
+				},
+				2: {
+					Reports: []domain.FinancialReport{
+						{
+							ID:        uuid.UUID{4},
+							CompanyID: uuid.UUID{1},
+							Revenue:   12432532,
+							Costs:     3213214,
+							Year:      2,
+							Quarter:   1,
+						},
+						{
+							ID:        uuid.UUID{5},
+							CompanyID: uuid.UUID{1},
+							Revenue:   12432532,
+							Costs:     3213214,
+							Year:      2,
+							Quarter:   2,
+						},
+						{
+							ID:        uuid.UUID{6},
+							CompanyID: uuid.UUID{1},
+							Revenue:   12432532,
+							Costs:     3213214,
+							Year:      2,
+							Quarter:   3,
+						},
+						{
+							ID:        uuid.UUID{7},
+							CompanyID: uuid.UUID{1},
+							Revenue:   12432532,
+							Costs:     3213214,
+							Year:      2,
+							Quarter:   4,
+						},
+					},
+					Period: &domain.Period{
+						StartYear:    2,
+						EndYear:      2,
+						StartQuarter: 1,
+						EndQuarter:   4,
+					},
+				},
+			},
+			expected: &taxes{
+				Sum:  (12432532 - 3213214) * 4.0 * 0.07,
+				Load: ((12432532 - 3213214) * 4.0 * 0.07) / (12432532 * 4) * 100,
+			},
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			tax := calculateTaxes(tc.reports)
+
+			require.InEpsilon(t, tc.expected.Sum, tax.Sum, 1e-7)
+			require.InEpsilon(t, tc.expected.Load, tax.Load, 1e-7)
+		})
+	}
+}
+
+func Test_findFullYearReports(t *testing.T) {
+	testCases := []struct {
+		name     string
+		reports  *domain.FinancialReportByPeriod
+		period   *domain.Period
+		expected map[int]domain.FinancialReportByPeriod
+	}{
+		{
+			name: "успешное получение отчетов за полные годы",
+			reports: &domain.FinancialReportByPeriod{
+				Reports: []domain.FinancialReport{
+					{
+						ID:        uuid.UUID{1},
+						CompanyID: uuid.UUID{1},
+						Revenue:   12432532,
+						Costs:     3213214,
+						Year:      1,
+						Quarter:   2,
+					},
+					{
+						ID:        uuid.UUID{2},
+						CompanyID: uuid.UUID{1},
+						Revenue:   12432532,
+						Costs:     3213214,
+						Year:      1,
+						Quarter:   3,
+					},
+					{
+						ID:        uuid.UUID{3},
+						CompanyID: uuid.UUID{1},
+						Revenue:   12432532,
+						Costs:     3213214,
+						Year:      1,
+						Quarter:   4,
+					},
+					{
+						ID:        uuid.UUID{4},
+						CompanyID: uuid.UUID{1},
+						Revenue:   12432532,
+						Costs:     3213214,
+						Year:      2,
+						Quarter:   1,
+					},
+					{
+						ID:        uuid.UUID{5},
+						CompanyID: uuid.UUID{1},
+						Revenue:   12432532,
+						Costs:     3213214,
+						Year:      2,
+						Quarter:   2,
+					},
+					{
+						ID:        uuid.UUID{6},
+						CompanyID: uuid.UUID{1},
+						Revenue:   12432532,
+						Costs:     3213214,
+						Year:      2,
+						Quarter:   3,
+					},
+					{
+						ID:        uuid.UUID{7},
+						CompanyID: uuid.UUID{1},
+						Revenue:   12432532,
+						Costs:     3213214,
+						Year:      2,
+						Quarter:   4,
+					},
+				},
+				Period: &domain.Period{
+					StartYear:    1,
+					EndYear:      2,
+					StartQuarter: 2,
+					EndQuarter:   4,
+				},
+			},
+			period: &domain.Period{
+				StartYear:    1,
+				EndYear:      2,
+				StartQuarter: 2,
+				EndQuarter:   4,
+			},
+			expected: map[int]domain.FinancialReportByPeriod{
+				2: {
+					Reports: []domain.FinancialReport{
+						{
+							ID:        uuid.UUID{4},
+							CompanyID: uuid.UUID{1},
+							Revenue:   12432532,
+							Costs:     3213214,
+							Year:      2,
+							Quarter:   1,
+						},
+						{
+							ID:        uuid.UUID{5},
+							CompanyID: uuid.UUID{1},
+							Revenue:   12432532,
+							Costs:     3213214,
+							Year:      2,
+							Quarter:   2,
+						},
+						{
+							ID:        uuid.UUID{6},
+							CompanyID: uuid.UUID{1},
+							Revenue:   12432532,
+							Costs:     3213214,
+							Year:      2,
+							Quarter:   3,
+						},
+						{
+							ID:        uuid.UUID{7},
+							CompanyID: uuid.UUID{1},
+							Revenue:   12432532,
+							Costs:     3213214,
+							Year:      2,
+							Quarter:   4,
+						},
+					},
+					Period: &domain.Period{
+						StartYear:    2,
+						EndYear:      2,
+						StartQuarter: 1,
+						EndQuarter:   4,
+					},
+				},
+			},
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			reports := findFullYearReports(tc.reports, tc.period)
+
+			require.Equal(t, tc.expected, reports)
 		})
 	}
 }

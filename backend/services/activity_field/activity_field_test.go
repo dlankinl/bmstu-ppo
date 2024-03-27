@@ -137,7 +137,7 @@ func TestService_Create(t *testing.T) {
 				tc.beforeTest(*repo)
 			}
 
-			err := svc.Create(context.Background(), tc.data)
+			err := svc.Create(tc.data)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -192,7 +192,7 @@ func TestService_DeleteById(t *testing.T) {
 				tc.beforeTest(*repo)
 			}
 
-			err := svc.DeleteById(context.Background(), tc.id)
+			err := svc.DeleteById(tc.id)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -261,7 +261,7 @@ func TestService_GetById(t *testing.T) {
 				tc.beforeTest(*repo)
 			}
 
-			company, err := svc.GetById(context.Background(), tc.id)
+			company, err := svc.GetById(tc.id)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -331,7 +331,7 @@ func TestService_Update(t *testing.T) {
 				tc.beforeTest(*repo)
 			}
 
-			err := svc.Update(context.Background(), tc.data)
+			err := svc.Update(tc.data)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())

@@ -21,14 +21,14 @@ func TestSkillService_Create(t *testing.T) {
 
 	testCases := []struct {
 		name       string
-		skill      domain.Skill
+		skill      *domain.Skill
 		beforeTest func(skillRepo mocks.MockISkillRepository)
 		wantErr    bool
 		errStr     error
 	}{
 		{
 			name: "успешное добавление",
-			skill: domain.Skill{
+			skill: &domain.Skill{
 				Name:        "aaa",
 				Description: "bbb",
 			},
@@ -46,7 +46,7 @@ func TestSkillService_Create(t *testing.T) {
 		},
 		{
 			name: "пустое название навыка",
-			skill: domain.Skill{
+			skill: &domain.Skill{
 				Name:        "",
 				Description: "aaa",
 			},
@@ -66,7 +66,7 @@ func TestSkillService_Create(t *testing.T) {
 		},
 		{
 			name: "пустое описание навыка",
-			skill: domain.Skill{
+			skill: &domain.Skill{
 				Name:        "aaa",
 				Description: "",
 			},
@@ -86,7 +86,7 @@ func TestSkillService_Create(t *testing.T) {
 		},
 		{
 			name: "ошибка выполнения запроса в репозитории",
-			skill: domain.Skill{
+			skill: &domain.Skill{
 				Name:        "aaa",
 				Description: "bbb",
 			},
@@ -111,7 +111,7 @@ func TestSkillService_Create(t *testing.T) {
 				tc.beforeTest(*skillRepo)
 			}
 
-			err := svc.Create(context.Background(), &tc.skill)
+			err := svc.Create(tc.skill)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -166,7 +166,7 @@ func TestSkillService_DeleteById(t *testing.T) {
 				tc.beforeTest(*skillRepo)
 			}
 
-			err := svc.DeleteById(context.Background(), tc.id)
+			err := svc.DeleteById(tc.id)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -250,7 +250,7 @@ func TestSkillService_GetAll(t *testing.T) {
 				tc.beforeTest(*skillRepo)
 			}
 
-			skills, err := svc.GetAll(context.Background())
+			skills, err := svc.GetAll()
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -320,7 +320,7 @@ func TestSkillService_GetById(t *testing.T) {
 				tc.beforeTest(*skillRepo)
 			}
 
-			company, err := svc.GetById(context.Background(), tc.id)
+			company, err := svc.GetById(tc.id)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -341,14 +341,14 @@ func TestSkillService_Update(t *testing.T) {
 
 	testCases := []struct {
 		name       string
-		skill      domain.Skill
+		skill      *domain.Skill
 		beforeTest func(skillRepo mocks.MockISkillRepository)
 		wantErr    bool
 		errStr     error
 	}{
 		{
 			name: "успешное обновление",
-			skill: domain.Skill{
+			skill: &domain.Skill{
 				ID:   uuid.UUID{1},
 				Name: "aaa",
 			},
@@ -366,7 +366,7 @@ func TestSkillService_Update(t *testing.T) {
 		},
 		{
 			name: "ошибка выполнения запроса в репозитории",
-			skill: domain.Skill{
+			skill: &domain.Skill{
 				ID:   uuid.UUID{1},
 				Name: "aaa",
 			},
@@ -390,7 +390,7 @@ func TestSkillService_Update(t *testing.T) {
 				tc.beforeTest(*skillRepo)
 			}
 
-			err := svc.Update(context.Background(), &tc.skill)
+			err := svc.Update(tc.skill)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())

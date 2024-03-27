@@ -26,7 +26,7 @@ func (s *Service) Create(contact *domain.Contact) (err error) {
 		return fmt.Errorf("должно быть указано значение средства связи")
 	}
 
-	var ctx context.Context
+	ctx := context.Background()
 
 	err = s.contactRepo.Create(ctx, contact)
 	if err != nil {
@@ -37,7 +37,7 @@ func (s *Service) Create(contact *domain.Contact) (err error) {
 }
 
 func (s *Service) GetById(id uuid.UUID) (contact *domain.Contact, err error) {
-	var ctx context.Context
+	ctx := context.Background()
 
 	contact, err = s.contactRepo.GetById(ctx, id)
 	if err != nil {
@@ -48,7 +48,7 @@ func (s *Service) GetById(id uuid.UUID) (contact *domain.Contact, err error) {
 }
 
 func (s *Service) GetByOwnerId(id uuid.UUID) (contacts []*domain.Contact, err error) {
-	var ctx context.Context
+	ctx := context.Background()
 
 	contacts, err = s.contactRepo.GetByOwnerId(ctx, id)
 	if err != nil {
@@ -59,7 +59,7 @@ func (s *Service) GetByOwnerId(id uuid.UUID) (contacts []*domain.Contact, err er
 }
 
 func (s *Service) Update(contact *domain.Contact) (err error) {
-	var ctx context.Context
+	ctx := context.Background()
 
 	err = s.contactRepo.Update(ctx, contact)
 	if err != nil {
@@ -70,7 +70,7 @@ func (s *Service) Update(contact *domain.Contact) (err error) {
 }
 
 func (s *Service) DeleteById(id uuid.UUID) (err error) {
-	var ctx context.Context
+	ctx := context.Background()
 
 	err = s.contactRepo.DeleteById(ctx, id)
 	if err != nil {

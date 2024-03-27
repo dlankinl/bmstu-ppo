@@ -111,7 +111,7 @@ func TestContactService_Create(t *testing.T) {
 				tc.beforeTest(*conRepo)
 			}
 
-			err := svc.Create(context.Background(), tc.data)
+			err := svc.Create(tc.data)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -166,7 +166,7 @@ func TestContactService_DeleteById(t *testing.T) {
 				tc.beforeTest(*conRepo)
 			}
 
-			err := svc.DeleteById(context.Background(), tc.id)
+			err := svc.DeleteById(tc.id)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -265,7 +265,7 @@ func TestContactService_GetByOwnerId(t *testing.T) {
 				tc.beforeTest(*conRepo)
 			}
 
-			companies, err := svc.GetByOwnerId(context.Background(), tc.id)
+			companies, err := svc.GetByOwnerId(tc.id)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -335,7 +335,7 @@ func TestContactService_GetById(t *testing.T) {
 				tc.beforeTest(*conRepo)
 			}
 
-			company, err := svc.GetById(context.Background(), tc.id)
+			company, err := svc.GetById(tc.id)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -405,7 +405,7 @@ func TestContactService_Update(t *testing.T) {
 				tc.beforeTest(*conRepo)
 			}
 
-			err := svc.Update(context.Background(), tc.data)
+			err := svc.Update(tc.data)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())

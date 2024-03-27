@@ -26,7 +26,7 @@ func (s *Service) Create(skill *domain.Skill) (err error) {
 		return fmt.Errorf("должно быть указано описание навыка")
 	}
 
-	var ctx context.Context
+	ctx := context.Background()
 
 	err = s.skillRepo.Create(ctx, skill)
 	if err != nil {
@@ -37,7 +37,7 @@ func (s *Service) Create(skill *domain.Skill) (err error) {
 }
 
 func (s *Service) GetById(id uuid.UUID) (skill *domain.Skill, err error) {
-	var ctx context.Context
+	ctx := context.Background()
 
 	skill, err = s.skillRepo.GetById(ctx, id)
 	if err != nil {
@@ -48,7 +48,7 @@ func (s *Service) GetById(id uuid.UUID) (skill *domain.Skill, err error) {
 }
 
 func (s *Service) GetAll() (skills []*domain.Skill, err error) {
-	var ctx context.Context
+	ctx := context.Background()
 
 	skills, err = s.skillRepo.GetAll(ctx)
 	if err != nil {
@@ -59,7 +59,7 @@ func (s *Service) GetAll() (skills []*domain.Skill, err error) {
 }
 
 func (s *Service) Update(skill *domain.Skill) (err error) {
-	var ctx context.Context
+	ctx := context.Background()
 
 	err = s.skillRepo.Update(ctx, skill)
 	if err != nil {
@@ -70,7 +70,7 @@ func (s *Service) Update(skill *domain.Skill) (err error) {
 }
 
 func (s *Service) DeleteById(id uuid.UUID) (err error) {
-	var ctx context.Context
+	ctx := context.Background()
 
 	err = s.skillRepo.DeleteById(ctx, id)
 	if err != nil {
