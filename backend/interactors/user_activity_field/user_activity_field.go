@@ -143,20 +143,9 @@ func (i *Interactor) CalculateUserRating(id uuid.UUID) (rating float32, err erro
 		EndQuarter:   lastQuarter,
 	}
 
-	reports := make([]*domain.FinancialReportByPeriod, 0)
-	for _, comp := range companies {
-		rep, err := i.finService.GetByCompany(comp.ID, period)
-		if err != nil {
-			return 0, fmt.Errorf("получение отчета компании: %w", err)
-		}
-
-		fullYearReports := findFullYearReports(rep, period)
-
-		taxes := calculateTaxes(fullYearReports)
-		rep.Taxes = taxes.Sum
-		rep.TaxLoad = taxes.Load
-
-		reports = append(reports, rep)
+	report, err := i.GetUserFinancialReport(id, period)
+	if err != nil {
+		return 0, fmt.Errorf("получение финансового отчета пользователя: %w", err)
 	}
 
 	mostProfitableCompany, err := i.GetMostProfitableCompany(period, companies)
@@ -172,19 +161,36 @@ func (i *Interactor) CalculateUserRating(id uuid.UUID) (rating float32, err erro
 	}
 
 	var totalRevenue, totalProfit float32
-	for _, rep := range reports {
-		totalRevenue += rep.Revenue()
-		totalProfit += rep.Profit()
-	}
+	totalRevenue = report.Revenue()
+	totalProfit = report.Profit()
 
-	fmt.Println(totalProfit, totalRevenue, totalProfit-totalRevenue)
-	fmt.Println(32532513-5436438+6743634-9876967+4675424-2436653+14385253-7546424+3253251-543643+6743634-9876967+4675412-2436765+1438525-754642, 32532513+6743634+4675424+14385253+3253251+6743634+4675412+1438525, 5436438+9876967+2436653+7546424+543643+9876967+2436765+754642)
 	rating = calcRating(totalProfit, totalRevenue, cost, maxCost)
 
 	return rating, nil
 }
 
-func (i *Interactor) GetUserFinancialReport(id uuid.UUID) (report *domain.FinancialReportByPeriod, err error) {
+func (i *Interactor) GetUserFinancialReport(id uuid.UUID, period *domain.Period) (report *domain.FinancialReportByPeriod, err error) {
+	report = new(domain.FinancialReportByPeriod)
 
+	companies, err := i.compService.GetByOwnerId(id)
+	if err != nil {
+		return nil, fmt.Errorf("получение списка компаний: %w", err)
+	}
+
+	var profit, revenue float32
+	report.Reports = make([]domain.FinancialReport, 0)
+	for _, comp := range companies {
+		rep, err := i.finService.GetByCompany(comp.ID, period)
+		if err != nil {
+			return nil, fmt.Errorf("получение отчета компании: %w", err)
+		}
+
+		profit += rep.Profit()
+		revenue += rep.Revenue()
+
+		report.Reports = append(report.Reports, rep.Reports...)
+	}
+
+	report.Period = period
 	return report, nil
 }

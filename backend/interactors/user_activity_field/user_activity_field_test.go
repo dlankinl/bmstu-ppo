@@ -5,14 +5,12 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
-	"math"
 	"ppo/domain"
 	"ppo/mocks"
 	"ppo/services/activity_field"
 	"ppo/services/company"
 	"ppo/services/fin_report"
 	"ppo/services/user"
-	"reflect"
 	"testing"
 )
 
@@ -65,7 +63,7 @@ func TestInteractor_CalculateUserRating(t *testing.T) {
 								Name:    "b",
 								City:    "b",
 							},
-						}, nil)
+						}, nil).AnyTimes()
 
 				actFieldRepo.EXPECT().
 					GetByCompanyId(
@@ -73,6 +71,10 @@ func TestInteractor_CalculateUserRating(t *testing.T) {
 						uuid.UUID{1},
 					).
 					Return(float32(5.0), nil)
+
+				actFieldRepo.EXPECT().
+					GetMaxCost(context.Background()).
+					Return(float32(13.5), nil)
 
 				finRepo.EXPECT().
 					GetByCompany(
@@ -88,32 +90,36 @@ func TestInteractor_CalculateUserRating(t *testing.T) {
 					Return(&domain.FinancialReportByPeriod{
 						Reports: []domain.FinancialReport{
 							{
-								ID:      uuid.UUID{8},
-								Year:    2023,
-								Quarter: 1,
-								Revenue: 32532513,
-								Costs:   5436438,
+								ID:        uuid.UUID{8},
+								Year:      2023,
+								Quarter:   1,
+								Revenue:   32532513,
+								Costs:     5436438,
+								CompanyID: uuid.UUID{1},
 							},
 							{
-								ID:      uuid.UUID{9},
-								Year:    2023,
-								Quarter: 2,
-								Revenue: 6743634,
-								Costs:   9876967,
+								ID:        uuid.UUID{9},
+								Year:      2023,
+								Quarter:   2,
+								Revenue:   6743634,
+								Costs:     9876967,
+								CompanyID: uuid.UUID{1},
 							},
 							{
-								ID:      uuid.UUID{10},
-								Year:    2023,
-								Quarter: 3,
-								Revenue: 4675424,
-								Costs:   2436653,
+								ID:        uuid.UUID{10},
+								Year:      2023,
+								Quarter:   3,
+								Revenue:   4675424,
+								Costs:     2436653,
+								CompanyID: uuid.UUID{1},
 							},
 							{
-								ID:      uuid.UUID{11},
-								Year:    2023,
-								Quarter: 4,
-								Revenue: 14385253,
-								Costs:   7546424,
+								ID:        uuid.UUID{11},
+								Year:      2023,
+								Quarter:   4,
+								Revenue:   14385253,
+								Costs:     7546424,
+								CompanyID: uuid.UUID{1},
 							},
 						},
 						Period: &domain.Period{
@@ -122,7 +128,7 @@ func TestInteractor_CalculateUserRating(t *testing.T) {
 							StartQuarter: 1,
 							EndQuarter:   4,
 						},
-					}, nil)
+					}, nil).AnyTimes()
 
 				finRepo.EXPECT().
 					GetByCompany(
@@ -138,32 +144,36 @@ func TestInteractor_CalculateUserRating(t *testing.T) {
 					Return(&domain.FinancialReportByPeriod{
 						Reports: []domain.FinancialReport{
 							{
-								ID:      uuid.UUID{8},
-								Year:    2023,
-								Quarter: 1,
-								Revenue: 3253251,
-								Costs:   543643,
+								ID:        uuid.UUID{8},
+								Year:      2023,
+								Quarter:   1,
+								Revenue:   3253251,
+								Costs:     543643,
+								CompanyID: uuid.UUID{2},
 							},
 							{
-								ID:      uuid.UUID{9},
-								Year:    2023,
-								Quarter: 2,
-								Revenue: 6743634,
-								Costs:   9876967,
+								ID:        uuid.UUID{9},
+								Year:      2023,
+								Quarter:   2,
+								Revenue:   6743634,
+								Costs:     9876967,
+								CompanyID: uuid.UUID{2},
 							},
 							{
-								ID:      uuid.UUID{10},
-								Year:    2023,
-								Quarter: 3,
-								Revenue: 4675412,
-								Costs:   2436765,
+								ID:        uuid.UUID{10},
+								Year:      2023,
+								Quarter:   3,
+								Revenue:   4675412,
+								Costs:     2436765,
+								CompanyID: uuid.UUID{2},
 							},
 							{
-								ID:      uuid.UUID{11},
-								Year:    2023,
-								Quarter: 4,
-								Revenue: 1438525,
-								Costs:   754642,
+								ID:        uuid.UUID{11},
+								Year:      2023,
+								Quarter:   4,
+								Revenue:   1438525,
+								Costs:     754642,
+								CompanyID: uuid.UUID{2},
 							},
 						},
 						Period: &domain.Period{
@@ -172,10 +182,9 @@ func TestInteractor_CalculateUserRating(t *testing.T) {
 							StartQuarter: 1,
 							EndQuarter:   4,
 						},
-					}, nil)
+					}, nil).AnyTimes()
 			},
-			//expected: 1e-9 * (float32(math.Pow(float64(32532513-5436438+6743634-9876967+4675424-2436653+14385253-7546424), 0.5))*0.9 + 1.2*5*5 + 0.35*(32532513+6743634+4675424+14385253)),
-			expected: 1e-9 * (float32(math.Pow(float64(32532513-5436438+6743634-9876967+4675424-2436653+14385253-7546424+3253251-543643+6743634-9876967+4675412-2436765+1438525-754642), 0.5))*0.9 + 1.2*5*5 + 0.35*(32532513+6743634+4675424+14385253+3253251+6743634+4675412+1438525)),
+			expected: (5.0/13.5 + float32(32532513+6743634+4675424+14385253+3253251+6743634+4675412+1438525-5436438-9876967-2436653-7546424-543643-9876967-2436765-754642)/float32(32532513+6743634+4675424+14385253+3253251+6743634+4675412+1438525)) / 2.0,
 		},
 	}
 	for _, tc := range testCases {
@@ -190,7 +199,7 @@ func TestInteractor_CalculateUserRating(t *testing.T) {
 				require.Equal(t, tc.errStr.Error(), err.Error())
 			} else {
 				require.Nil(t, err)
-				require.Equal(t, tc.expected, val)
+				require.InEpsilon(t, tc.expected, val, 1e-7)
 			}
 		})
 	}
@@ -359,39 +368,293 @@ func TestInteractor_GetMostProfitableCompany(t *testing.T) {
 }
 
 func TestInteractor_GetUserFinancialReport(t *testing.T) {
-	type fields struct {
-		userService     domain.IUserService
-		actFieldService domain.IActivityFieldService
-		compService     domain.ICompanyService
-		finService      domain.IFinancialReportService
-	}
-	type args struct {
-		id uuid.UUID
-	}
-	tests := []struct {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	userRepo := mocks.NewMockIUserRepository(ctrl)
+	finRepo := mocks.NewMockIFinancialReportRepository(ctrl)
+	compRepo := mocks.NewMockICompanyRepository(ctrl)
+	actFieldRepo := mocks.NewMockIActivityFieldRepository(ctrl)
+
+	userSvc := user.NewService(userRepo, compRepo, finRepo, actFieldRepo)
+	actFieldSvc := activity_field.NewService(actFieldRepo)
+	compSvc := company.NewService(compRepo, finRepo)
+	finSvc := fin_report.NewService(finRepo)
+
+	interactor := NewInteractor(userSvc, actFieldSvc, compSvc, finSvc)
+
+	testCases := []struct {
 		name       string
-		fields     fields
-		args       args
-		wantReport *domain.FinancialReportByPeriod
-		wantErr    bool
+		userId     uuid.UUID
+		beforeTest func(
+			userRepo mocks.MockIUserRepository,
+			finRepo mocks.MockIFinancialReportRepository,
+			compRepo mocks.MockICompanyRepository,
+			actFieldRepo mocks.MockIActivityFieldRepository,
+		)
+		period   *domain.Period
+		expected *domain.FinancialReportByPeriod
+		wantErr  bool
+		errStr   error
 	}{
-		// TODO: Add test cases.
+		{
+			name:   "успешный тест",
+			userId: uuid.UUID{1},
+			beforeTest: func(userRepo mocks.MockIUserRepository, finRepo mocks.MockIFinancialReportRepository, compRepo mocks.MockICompanyRepository, actFieldRepo mocks.MockIActivityFieldRepository) {
+				compRepo.EXPECT().
+					GetByOwnerId(context.Background(), uuid.UUID{1}).
+					Return(
+						[]*domain.Company{
+							{
+								ID:      uuid.UUID{1},
+								OwnerID: uuid.UUID{1},
+								Name:    "a",
+								City:    "a",
+							},
+							{
+								ID:      uuid.UUID{2},
+								OwnerID: uuid.UUID{1},
+								Name:    "b",
+								City:    "b",
+							},
+						}, nil)
+
+				finRepo.EXPECT().
+					GetByCompany(
+						context.Background(),
+						uuid.UUID{1},
+						&domain.Period{
+							StartYear:    2023,
+							EndYear:      2024,
+							StartQuarter: 1,
+							EndQuarter:   1,
+						},
+					).Return(
+					&domain.FinancialReportByPeriod{
+						Reports: []domain.FinancialReport{
+							{
+								ID:        uuid.UUID{1},
+								CompanyID: uuid.UUID{1},
+								Revenue:   100,
+								Costs:     50,
+								Year:      2023,
+								Quarter:   1,
+							},
+							{
+								ID:        uuid.UUID{2},
+								CompanyID: uuid.UUID{1},
+								Revenue:   100,
+								Costs:     50,
+								Year:      2023,
+								Quarter:   2,
+							},
+							{
+								ID:        uuid.UUID{3},
+								CompanyID: uuid.UUID{1},
+								Revenue:   100,
+								Costs:     50,
+								Year:      2023,
+								Quarter:   3,
+							},
+							{
+								ID:        uuid.UUID{4},
+								CompanyID: uuid.UUID{1},
+								Revenue:   100,
+								Costs:     50,
+								Year:      2023,
+								Quarter:   4,
+							},
+							{
+								ID:        uuid.UUID{5},
+								CompanyID: uuid.UUID{1},
+								Revenue:   100,
+								Costs:     50,
+								Year:      2024,
+								Quarter:   1,
+							},
+						},
+						Period: &domain.Period{
+							StartYear:    2023,
+							EndYear:      2024,
+							StartQuarter: 1,
+							EndQuarter:   1,
+						},
+					}, nil)
+
+				finRepo.EXPECT().
+					GetByCompany(
+						context.Background(),
+						uuid.UUID{2},
+						&domain.Period{
+							StartYear:    2023,
+							EndYear:      2024,
+							StartQuarter: 1,
+							EndQuarter:   1,
+						},
+					).Return(
+					&domain.FinancialReportByPeriod{
+						Reports: []domain.FinancialReport{
+							{
+								ID:        uuid.UUID{6},
+								CompanyID: uuid.UUID{2},
+								Revenue:   75,
+								Costs:     50,
+								Year:      2023,
+								Quarter:   1,
+							},
+							{
+								ID:        uuid.UUID{7},
+								CompanyID: uuid.UUID{2},
+								Revenue:   75,
+								Costs:     50,
+								Year:      2023,
+								Quarter:   2,
+							},
+							{
+								ID:        uuid.UUID{8},
+								CompanyID: uuid.UUID{2},
+								Revenue:   75,
+								Costs:     50,
+								Year:      2023,
+								Quarter:   3,
+							},
+							{
+								ID:        uuid.UUID{9},
+								CompanyID: uuid.UUID{2},
+								Revenue:   75,
+								Costs:     50,
+								Year:      2023,
+								Quarter:   4,
+							},
+							{
+								ID:        uuid.UUID{10},
+								CompanyID: uuid.UUID{2},
+								Revenue:   75,
+								Costs:     50,
+								Year:      2024,
+								Quarter:   1,
+							},
+						},
+						Period: &domain.Period{
+							StartYear:    2023,
+							EndYear:      2024,
+							StartQuarter: 1,
+							EndQuarter:   1,
+						},
+					}, nil)
+			},
+			period: &domain.Period{
+				StartYear:    2023,
+				EndYear:      2024,
+				StartQuarter: 1,
+				EndQuarter:   1,
+			},
+			expected: &domain.FinancialReportByPeriod{
+				Reports: []domain.FinancialReport{
+					{
+						ID:        uuid.UUID{1},
+						CompanyID: uuid.UUID{1},
+						Revenue:   100,
+						Costs:     50,
+						Year:      2023,
+						Quarter:   1,
+					},
+					{
+						ID:        uuid.UUID{2},
+						CompanyID: uuid.UUID{1},
+						Revenue:   100,
+						Costs:     50,
+						Year:      2023,
+						Quarter:   2,
+					},
+					{
+						ID:        uuid.UUID{3},
+						CompanyID: uuid.UUID{1},
+						Revenue:   100,
+						Costs:     50,
+						Year:      2023,
+						Quarter:   3,
+					},
+					{
+						ID:        uuid.UUID{4},
+						CompanyID: uuid.UUID{1},
+						Revenue:   100,
+						Costs:     50,
+						Year:      2023,
+						Quarter:   4,
+					},
+					{
+						ID:        uuid.UUID{5},
+						CompanyID: uuid.UUID{1},
+						Revenue:   100,
+						Costs:     50,
+						Year:      2024,
+						Quarter:   1,
+					},
+					{
+						ID:        uuid.UUID{6},
+						CompanyID: uuid.UUID{2},
+						Revenue:   75,
+						Costs:     50,
+						Year:      2023,
+						Quarter:   1,
+					},
+					{
+						ID:        uuid.UUID{7},
+						CompanyID: uuid.UUID{2},
+						Revenue:   75,
+						Costs:     50,
+						Year:      2023,
+						Quarter:   2,
+					},
+					{
+						ID:        uuid.UUID{8},
+						CompanyID: uuid.UUID{2},
+						Revenue:   75,
+						Costs:     50,
+						Year:      2023,
+						Quarter:   3,
+					},
+					{
+						ID:        uuid.UUID{9},
+						CompanyID: uuid.UUID{2},
+						Revenue:   75,
+						Costs:     50,
+						Year:      2023,
+						Quarter:   4,
+					},
+					{
+						ID:        uuid.UUID{10},
+						CompanyID: uuid.UUID{2},
+						Revenue:   75,
+						Costs:     50,
+						Year:      2024,
+						Quarter:   1,
+					},
+				},
+				Period: &domain.Period{
+					StartYear:    2023,
+					EndYear:      2024,
+					StartQuarter: 1,
+					EndQuarter:   1,
+				},
+			},
+			wantErr: false,
+		},
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			i := &Interactor{
-				userService:     tt.fields.userService,
-				actFieldService: tt.fields.actFieldService,
-				compService:     tt.fields.compService,
-				finService:      tt.fields.finService,
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.beforeTest != nil {
+				tc.beforeTest(*userRepo, *finRepo, *compRepo, *actFieldRepo)
 			}
-			gotReport, err := i.GetUserFinancialReport(tt.args.id)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("GetUserFinancialReport() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(gotReport, tt.wantReport) {
-				t.Errorf("GetUserFinancialReport() gotReport = %v, want %v", gotReport, tt.wantReport)
+
+			report, err := interactor.GetUserFinancialReport(tc.userId, tc.period)
+
+			if tc.wantErr {
+				require.Equal(t, tc.errStr.Error(), err.Error())
+			} else {
+				require.Nil(t, err)
+				require.Equal(t, tc.expected, report)
 			}
 		})
 	}

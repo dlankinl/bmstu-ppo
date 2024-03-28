@@ -91,7 +91,7 @@ func (s *Service) GetMaxCost() (maxCost float32, err error) {
 
 	maxCost, err = s.repo.GetMaxCost(ctx)
 	if err != nil {
-		return 0, fmt.Errorf("получение максимального веса сфееры деятельности: %w", err)
+		return 0, fmt.Errorf("получение максимального веса сферы деятельности: %w", err)
 	}
 
 	return maxCost, nil
