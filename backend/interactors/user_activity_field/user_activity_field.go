@@ -12,7 +12,6 @@ const (
 	firstQuarter   = 1
 	lastQuarter    = 4
 )
-const coef = 1e-9
 
 type Interactor struct {
 	userService     domain.IUserService
@@ -35,13 +34,13 @@ func NewInteractor(
 	}
 }
 
-type taxes struct {
-	Sum  float32
-	Load float32
+type taxesData struct {
+	taxes   float32
+	revenue float32
 }
 
-func calculateTaxes(reports map[int]domain.FinancialReportByPeriod) (tax *taxes) {
-	tax = new(taxes)
+func calculateTaxes(reports map[int]*domain.FinancialReportByPeriod) (taxes *taxesData) {
+	taxes = new(taxesData)
 
 	for _, v := range reports {
 		if len(v.Reports) == quartersInYear {
@@ -62,16 +61,16 @@ func calculateTaxes(reports map[int]domain.FinancialReportByPeriod) (tax *taxes)
 
 			v.Taxes = totalProfit * (float32(taxFare) / 100)
 
-			tax.Sum += v.Taxes
-			tax.Load += v.Taxes / v.Revenue() * 100
+			taxes.taxes += v.Taxes
+			taxes.revenue += v.Revenue()
 		}
 	}
 
-	return tax
+	return taxes
 }
 
-func findFullYearReports(rep *domain.FinancialReportByPeriod, period *domain.Period) (fullYearReports map[int]domain.FinancialReportByPeriod) {
-	fullYearReports = make(map[int]domain.FinancialReportByPeriod)
+func findFullYearReports(rep *domain.FinancialReportByPeriod, period *domain.Period) (fullYearReports map[int]*domain.FinancialReportByPeriod) {
+	fullYearReports = make(map[int]*domain.FinancialReportByPeriod)
 
 	var j int
 	for year := period.StartYear; year <= period.EndYear; year++ {
@@ -100,7 +99,7 @@ func findFullYearReports(rep *domain.FinancialReportByPeriod, period *domain.Per
 			}
 
 			totalFinReport.Period = per
-			fullYearReports[year] = totalFinReport
+			fullYearReports[year] = &totalFinReport
 		}
 	}
 
@@ -177,7 +176,7 @@ func (i *Interactor) GetUserFinancialReport(id uuid.UUID, period *domain.Period)
 		return nil, fmt.Errorf("получение списка компаний: %w", err)
 	}
 
-	var profit, revenue float32
+	var revenueForTaxLoad float32
 	report.Reports = make([]domain.FinancialReport, 0)
 	for _, comp := range companies {
 		rep, err := i.finService.GetByCompany(comp.ID, period)
@@ -185,12 +184,17 @@ func (i *Interactor) GetUserFinancialReport(id uuid.UUID, period *domain.Period)
 			return nil, fmt.Errorf("получение отчета компании: %w", err)
 		}
 
-		profit += rep.Profit()
-		revenue += rep.Revenue()
+		fullYears := findFullYearReports(rep, period)
+
+		tax := calculateTaxes(fullYears)
+		report.Taxes += tax.taxes
+		revenueForTaxLoad += tax.revenue
 
 		report.Reports = append(report.Reports, rep.Reports...)
 	}
 
 	report.Period = period
+	report.TaxLoad = report.Taxes / revenueForTaxLoad * 100
+
 	return report, nil
 }

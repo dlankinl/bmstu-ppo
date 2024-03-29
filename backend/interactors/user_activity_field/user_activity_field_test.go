@@ -14,6 +14,8 @@ import (
 	"testing"
 )
 
+const eps = 1e-7
+
 func TestInteractor_CalculateUserRating(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -199,7 +201,7 @@ func TestInteractor_CalculateUserRating(t *testing.T) {
 				require.Equal(t, tc.errStr.Error(), err.Error())
 			} else {
 				require.Nil(t, err)
-				require.InEpsilon(t, tc.expected, val, 1e-7)
+				require.InEpsilon(t, tc.expected, val, eps)
 			}
 		})
 	}
@@ -638,6 +640,8 @@ func TestInteractor_GetUserFinancialReport(t *testing.T) {
 					StartQuarter: 1,
 					EndQuarter:   1,
 				},
+				Taxes:   float32(((100 - 50) + (75 - 50)) * 4 * 0.04),
+				TaxLoad: float32((((100 - 50) + (75 - 50)) * 4 * 0.04) / ((100 + 75) * 4) * 100),
 			},
 			wantErr: false,
 		},
@@ -654,7 +658,10 @@ func TestInteractor_GetUserFinancialReport(t *testing.T) {
 				require.Equal(t, tc.errStr.Error(), err.Error())
 			} else {
 				require.Nil(t, err)
-				require.Equal(t, tc.expected, report)
+				require.Equal(t, tc.expected.Reports, report.Reports)
+				require.Equal(t, tc.expected.Period, report.Period)
+				require.InEpsilon(t, tc.expected.Taxes, report.Taxes, eps)
+				require.InEpsilon(t, tc.expected.TaxLoad, report.TaxLoad, eps)
 			}
 		})
 	}
@@ -682,7 +689,7 @@ func Test_calcRating(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			rating := calcRating(tc.profit, tc.revenue, tc.cost, tc.maxCost)
 
-			require.InEpsilon(t, tc.expected, rating, 1e-7)
+			require.InEpsilon(t, tc.expected, rating, eps)
 		})
 	}
 }
@@ -690,14 +697,15 @@ func Test_calcRating(t *testing.T) {
 func Test_calculateTaxes(t *testing.T) {
 	testCases := []struct {
 		name     string
-		reports  map[int]domain.FinancialReportByPeriod
-		expected *taxes
-		wantErr  bool
-		errStr   error
+		reports  map[int]*domain.FinancialReportByPeriod
+		expected *taxesData
+		//expected float32
+		wantErr bool
+		errStr  error
 	}{
 		{
 			name: "успешное вычисление",
-			reports: map[int]domain.FinancialReportByPeriod{
+			reports: map[int]*domain.FinancialReportByPeriod{
 				1: {
 					Reports: []domain.FinancialReport{
 						{
@@ -775,9 +783,9 @@ func Test_calculateTaxes(t *testing.T) {
 					},
 				},
 			},
-			expected: &taxes{
-				Sum:  (12432532 - 3213214) * 4.0 * 0.07,
-				Load: ((12432532 - 3213214) * 4.0 * 0.07) / (12432532 * 4) * 100,
+			expected: &taxesData{
+				taxes:   (12432532 - 3213214) * 4.0 * 0.07,
+				revenue: 12432532 * 4,
 			},
 		},
 	}
@@ -785,8 +793,8 @@ func Test_calculateTaxes(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			tax := calculateTaxes(tc.reports)
 
-			require.InEpsilon(t, tc.expected.Sum, tax.Sum, 1e-7)
-			require.InEpsilon(t, tc.expected.Load, tax.Load, 1e-7)
+			require.InEpsilon(t, tc.expected.taxes, tax.taxes, eps)
+			require.InEpsilon(t, tc.expected.revenue, tax.revenue, eps)
 		})
 	}
 }
@@ -796,7 +804,7 @@ func Test_findFullYearReports(t *testing.T) {
 		name     string
 		reports  *domain.FinancialReportByPeriod
 		period   *domain.Period
-		expected map[int]domain.FinancialReportByPeriod
+		expected map[int]*domain.FinancialReportByPeriod
 	}{
 		{
 			name: "успешное получение отчетов за полные годы",
@@ -872,7 +880,7 @@ func Test_findFullYearReports(t *testing.T) {
 				StartQuarter: 2,
 				EndQuarter:   4,
 			},
-			expected: map[int]domain.FinancialReportByPeriod{
+			expected: map[int]*domain.FinancialReportByPeriod{
 				2: {
 					Reports: []domain.FinancialReport{
 						{
