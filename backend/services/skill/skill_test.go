@@ -195,7 +195,7 @@ func TestSkillService_GetAll(t *testing.T) {
 			name: "успешное получение списка всех навыков",
 			beforeTest: func(skillRepo mocks.MockISkillRepository) {
 				skillRepo.EXPECT().
-					GetAll(context.Background()).
+					GetAll(context.Background(), 1).
 					Return([]*domain.Skill{
 						{
 							ID:          uuid.UUID{1},
@@ -237,7 +237,7 @@ func TestSkillService_GetAll(t *testing.T) {
 			name: "ошибка получения данных в репозитории",
 			beforeTest: func(skillRepo mocks.MockISkillRepository) {
 				skillRepo.EXPECT().
-					GetAll(context.Background()).
+					GetAll(context.Background(), 1).
 					Return(nil, fmt.Errorf("sql error"))
 			},
 			wantErr: true,
@@ -250,7 +250,7 @@ func TestSkillService_GetAll(t *testing.T) {
 				tc.beforeTest(*skillRepo)
 			}
 
-			skills, err := svc.GetAll()
+			skills, err := svc.GetAll(1)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())

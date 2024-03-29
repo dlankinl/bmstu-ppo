@@ -47,10 +47,10 @@ func (s *Service) GetById(id uuid.UUID) (skill *domain.Skill, err error) {
 	return skill, nil
 }
 
-func (s *Service) GetAll() (skills []*domain.Skill, err error) {
+func (s *Service) GetAll(page int) (skills []*domain.Skill, err error) {
 	ctx := context.Background()
 
-	skills, err = s.skillRepo.GetAll(ctx)
+	skills, err = s.skillRepo.GetAll(ctx, page)
 	if err != nil {
 		return nil, fmt.Errorf("получение списка всех навыков: %w", err)
 	}

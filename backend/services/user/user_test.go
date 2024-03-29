@@ -92,7 +92,7 @@ func TestUserService_GetAll(t *testing.T) {
 			name: "успешное получение списка всех компаний",
 			beforeTest: func(userRepo mocks.MockIUserRepository) {
 				userRepo.EXPECT().
-					GetAll(context.Background(), nil).
+					GetAll(context.Background(), nil, 1).
 					Return([]*domain.User{
 						{
 							ID:       uuid.UUID{1},
@@ -152,7 +152,7 @@ func TestUserService_GetAll(t *testing.T) {
 			name: "ошибка получения данных в репозитории",
 			beforeTest: func(userRepo mocks.MockIUserRepository) {
 				userRepo.EXPECT().
-					GetAll(context.Background(), nil).
+					GetAll(context.Background(), nil, 1).
 					Return(nil, fmt.Errorf("sql error"))
 			},
 			wantErr: true,
@@ -165,7 +165,7 @@ func TestUserService_GetAll(t *testing.T) {
 				tc.beforeTest(*userRepo)
 			}
 
-			users, err := svc.GetAll(nil)
+			users, err := svc.GetAll(nil, 1)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())

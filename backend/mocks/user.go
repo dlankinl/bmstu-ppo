@@ -71,18 +71,18 @@ func (mr *MockIUserRepositoryMockRecorder) DeleteById(ctx, id any) *gomock.Call 
 }
 
 // GetAll mocks base method.
-func (m *MockIUserRepository) GetAll(ctx context.Context, filters utils.Filters) ([]*domain.User, error) {
+func (m *MockIUserRepository) GetAll(ctx context.Context, filters utils.Filters, page int) ([]*domain.User, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAll", ctx, filters)
+	ret := m.ctrl.Call(m, "GetAll", ctx, filters, page)
 	ret0, _ := ret[0].([]*domain.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetAll indicates an expected call of GetAll.
-func (mr *MockIUserRepositoryMockRecorder) GetAll(ctx, filters any) *gomock.Call {
+func (mr *MockIUserRepositoryMockRecorder) GetAll(ctx, filters, page any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockIUserRepository)(nil).GetAll), ctx, filters)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockIUserRepository)(nil).GetAll), ctx, filters, page)
 }
 
 // GetById mocks base method.
@@ -166,18 +166,18 @@ func (mr *MockIUserServiceMockRecorder) DeleteById(id any) *gomock.Call {
 }
 
 // GetAll mocks base method.
-func (m *MockIUserService) GetAll(filters utils.Filters) ([]*domain.User, error) {
+func (m *MockIUserService) GetAll(filters utils.Filters, page int) ([]*domain.User, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAll", filters)
+	ret := m.ctrl.Call(m, "GetAll", filters, page)
 	ret0, _ := ret[0].([]*domain.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetAll indicates an expected call of GetAll.
-func (mr *MockIUserServiceMockRecorder) GetAll(filters any) *gomock.Call {
+func (mr *MockIUserServiceMockRecorder) GetAll(filters, page any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockIUserService)(nil).GetAll), filters)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockIUserService)(nil).GetAll), filters, page)
 }
 
 // GetById mocks base method.

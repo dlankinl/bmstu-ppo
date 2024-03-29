@@ -73,10 +73,10 @@ func (s *Service) GetById(id uuid.UUID) (user *domain.User, err error) {
 }
 
 // TODO: pagination
-func (s *Service) GetAll(filters utils.Filters) (users []*domain.User, err error) {
+func (s *Service) GetAll(filters utils.Filters, page int) (users []*domain.User, err error) {
 	ctx := context.Background()
 
-	users, err = s.userRepo.GetAll(ctx, filters)
+	users, err = s.userRepo.GetAll(ctx, filters, page)
 	if err != nil {
 		return nil, fmt.Errorf("получение списка всех пользователей: %w", err)
 	}
