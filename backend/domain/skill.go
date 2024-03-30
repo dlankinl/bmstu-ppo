@@ -3,6 +3,7 @@ package domain
 import (
 	"context"
 	"github.com/google/uuid"
+	"ppo/pkg/utils"
 )
 
 type Skill struct {
@@ -22,7 +23,7 @@ type ISkillRepository interface {
 type ISkillService interface {
 	Create(skill *Skill) error
 	GetById(id uuid.UUID) (*Skill, error)
-	GetAll(page int) ([]*Skill, error)
+	GetAll(filters utils.Filters, page int) ([]*Skill, error)
 	Update(skill *Skill) error
 	DeleteById(id uuid.UUID) error
 }

@@ -64,8 +64,12 @@ func (s *Service) GetByOwnerId(id uuid.UUID) (companies []*domain.Company, err e
 	return companies, nil
 }
 
-// TODO: pagination
 func (s *Service) GetAll(filters utils.Filters, page int) (companies []*domain.Company, err error) {
+	err = filters.Validate()
+	if err != nil {
+		return nil, fmt.Errorf("валидация фильтров: %w", err)
+	}
+
 	ctx := context.Background()
 
 	companies, err = s.companyRepo.GetAll(ctx, filters, page)

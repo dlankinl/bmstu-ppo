@@ -250,7 +250,7 @@ func TestSkillService_GetAll(t *testing.T) {
 				tc.beforeTest(*skillRepo)
 			}
 
-			skills, err := svc.GetAll(1)
+			skills, err := svc.GetAll(nil, 1)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())

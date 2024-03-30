@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"ppo/domain"
+	"ppo/pkg/utils"
 )
 
 type Service struct {
@@ -47,7 +48,12 @@ func (s *Service) GetById(id uuid.UUID) (skill *domain.Skill, err error) {
 	return skill, nil
 }
 
-func (s *Service) GetAll(page int) (skills []*domain.Skill, err error) {
+func (s *Service) GetAll(filters utils.Filters, page int) (skills []*domain.Skill, err error) {
+	err = filters.Validate()
+	if err != nil {
+		return nil, fmt.Errorf("валидация фильтров: %w", err)
+	}
+
 	ctx := context.Background()
 
 	skills, err = s.skillRepo.GetAll(ctx, page)
