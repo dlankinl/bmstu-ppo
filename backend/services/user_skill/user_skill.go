@@ -8,7 +8,6 @@ import (
 )
 
 type Service struct {
-	//transactor    transactor.Transactor
 	userSkillRepo domain.IUserSkillRepository
 	userRepo      domain.IUserRepository
 	skillRepo     domain.ISkillRepository
@@ -18,13 +17,11 @@ func NewService(
 	userSkillRepo domain.IUserSkillRepository,
 	userRepo domain.IUserRepository,
 	skillRepo domain.ISkillRepository,
-	// transactor transactor.Transactor,
 ) domain.IUserSkillService {
 	return &Service{
 		userSkillRepo: userSkillRepo,
 		userRepo:      userRepo,
 		skillRepo:     skillRepo,
-		//transactor:    transactor,
 	}
 }
 
@@ -53,28 +50,6 @@ func (s *Service) Delete(pair *domain.UserSkill) (err error) {
 func (s *Service) GetSkillsForUser(userId uuid.UUID) (skills []*domain.Skill, err error) {
 	ctx := context.Background()
 
-	//err = s.transactor.WithinTransaction(ctx, func(ctx context.Context) error {
-	//	userSkills, err := s.userSkillRepo.GetUserSkillsByUserId(ctx, userId)
-	//	if err != nil {
-	//		return fmt.Errorf("получение связок пользователь-навык по userId: %w", err)
-	//	}
-	//
-	//	skills = make([]*domain.Skill, len(userSkills))
-	//	for i, userSkill := range userSkills {
-	//		skill, err := s.skillRepo.GetById(ctx, userSkill.SkillId)
-	//		if err != nil {
-	//			return fmt.Errorf("получение скилла по skillId: %w", err)
-	//		}
-	//
-	//		skills[i] = skill
-	//	}
-	//
-	//	return nil
-	//})
-	//
-	//if err != nil {
-	//	return nil, fmt.Errorf("ошибка выполнения транзакции: %w", err)
-	//}
 	userSkills, err := s.userSkillRepo.GetUserSkillsByUserId(ctx, userId)
 	if err != nil {
 		return nil, fmt.Errorf("получение связок пользователь-навык по userId: %w", err)
@@ -96,28 +71,6 @@ func (s *Service) GetSkillsForUser(userId uuid.UUID) (skills []*domain.Skill, er
 func (s *Service) GetUsersForSkill(skillId uuid.UUID) (users []*domain.User, err error) {
 	ctx := context.Background()
 
-	//err = s.transactor.WithinTransaction(ctx, func(ctx context.Context) error {
-	//	userSkills, err := s.userSkillRepo.GetUserSkillsBySkillId(ctx, skillId)
-	//	if err != nil {
-	//		return fmt.Errorf("получение связок пользователь-навык по skillId: %w", err)
-	//	}
-	//
-	//	users = make([]*domain.User, len(userSkills))
-	//	for i, userSkill := range userSkills {
-	//		user, err := s.userRepo.GetById(ctx, userSkill.UserId)
-	//		if err != nil {
-	//			return fmt.Errorf("получение пользователя по userId: %w", err)
-	//		}
-	//
-	//		users[i] = user
-	//	}
-	//
-	//	return nil
-	//})
-	//
-	//if err != nil {
-	//	return nil, fmt.Errorf("ошибка выполнения транзакции: %w", err)
-	//}
 	userSkills, err := s.userSkillRepo.GetUserSkillsBySkillId(ctx, skillId)
 	if err != nil {
 		return nil, fmt.Errorf("получение связок пользователь-навык по skillId: %w", err)
@@ -139,25 +92,6 @@ func (s *Service) GetUsersForSkill(skillId uuid.UUID) (users []*domain.User, err
 func (s *Service) DeleteSkillsForUser(userId uuid.UUID) (err error) {
 	ctx := context.Background()
 
-	//err = s.transactor.WithinTransaction(ctx, func(ctx context.Context) error {
-	//	userSkills, err := s.userSkillRepo.GetUserSkillsByUserId(ctx, userId)
-	//	if err != nil {
-	//		return fmt.Errorf("получение связок пользователь-навык по userId: %w", err)
-	//	}
-	//
-	//	for _, userSkill := range userSkills {
-	//		err = s.userSkillRepo.Delete(ctx, userSkill)
-	//		if err != nil {
-	//			return fmt.Errorf("удаление пары пользователь-навык: %w", err)
-	//		}
-	//	}
-	//
-	//	return nil
-	//})
-	//
-	//if err != nil {
-	//	return fmt.Errorf("ошибка выполнения транзакции: %w", err)
-	//}
 	userSkills, err := s.userSkillRepo.GetUserSkillsByUserId(ctx, userId)
 	if err != nil {
 		return fmt.Errorf("получение связок пользователь-навык по userId: %w", err)
