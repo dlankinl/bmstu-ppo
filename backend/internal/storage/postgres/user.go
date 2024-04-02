@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"fmt"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx"
 	"ppo/domain"
@@ -12,25 +13,118 @@ type UserRepository struct {
 }
 
 func (r *UserRepository) Create(ctx context.Context, user *domain.User) (err error) {
-	query := `insert into ppo.`
+	query := `insert into ppo.users(full_name, birthday, gender, city) 
+	values ($1, $2, $3, $4)`
 
-	r.db.ExecEx(ctx)
+	_, err = r.db.ExecEx(
+		ctx,
+		query,
+		nil,
+		user.FullName,
+		user.Birthday,
+		user.Gender,
+		user.City,
+	)
+	if err != nil {
+		return fmt.Errorf("создание пользователя: %w", err)
+	}
 
 	return nil
 }
 
 func (r *UserRepository) GetById(ctx context.Context, id uuid.UUID) (user *domain.User, err error) {
+	query := `select username, full_name, birthday, gender, city from ppo.users where id = $1`
+
+	user = new(domain.User)
+	err = r.db.QueryRowEx(
+		ctx,
+		query,
+		nil,
+		id,
+	).Scan(
+		&user.Username,
+		&user.FullName,
+		&user.Birthday,
+		&user.Gender,
+		&user.City,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("получение пользователя по id: %w", err)
+	}
+
 	return user, nil
 }
 
 func (r *UserRepository) GetAll(ctx context.Context, page int) (users []*domain.User, err error) {
+	query := `select username, full_name, birthday, gender, city from ppo.users offset $1 limit $2`
+
+	rows, err := r.db.QueryEx(
+		ctx,
+		query,
+		nil,
+		(page-1)*pageSize,
+		pageSize,
+	)
+
+	users = make([]*domain.User, 0)
+	for rows.Next() {
+		tmp := new(domain.User)
+
+		err = rows.Scan(
+			&tmp.Username,
+			&tmp.FullName,
+			&tmp.Birthday,
+			&tmp.Gender,
+			&tmp.City,
+		)
+
+		if err != nil {
+			return nil, fmt.Errorf("сканирование полученных строк: %w", err)
+		}
+	}
+
 	return users, nil
 }
 
 func (r *UserRepository) Update(ctx context.Context, user *domain.User) (err error) {
+	query := `
+			update ppo.users
+			set 
+			    full_name = $1, 
+			    birthday = $2, 
+			    gender = $3, 
+			    city = $4
+			where id = $5`
+
+	_, err = r.db.ExecEx(
+		ctx,
+		query,
+		nil,
+		user.FullName,
+		user.Birthday,
+		user.Gender,
+		user.City,
+		user.ID,
+	)
+	if err != nil {
+		return fmt.Errorf("обновление информации о пользователе: %w", err)
+	}
+
 	return nil
 }
 
 func (r *UserRepository) DeleteById(ctx context.Context, id uuid.UUID) (err error) {
+	query := `delete from ppo.users where id = $1`
+
+	_, err = r.db.ExecEx(
+		ctx,
+		query,
+		nil,
+		id,
+	)
+	if err != nil {
+		return fmt.Errorf("удаление пользователя по id: %w", err)
+	}
+
 	return nil
 }
