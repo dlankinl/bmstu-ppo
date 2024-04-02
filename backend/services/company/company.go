@@ -10,16 +10,16 @@ import (
 
 type Service struct {
 	companyRepo domain.ICompanyRepository
-	finRepo     domain.IFinancialReportRepository
+	//finRepo     domain.IFinancialReportRepository
 }
 
 func NewService(
 	companyRepo domain.ICompanyRepository,
-	finRepo domain.IFinancialReportRepository,
+	// finRepo domain.IFinancialReportRepository,
 ) domain.ICompanyService {
 	return &Service{
 		companyRepo: companyRepo,
-		finRepo:     finRepo,
+		//finRepo:     finRepo,
 	}
 }
 

@@ -17,13 +17,12 @@ func TestCompanyService_Create(t *testing.T) {
 	defer ctrl.Finish()
 
 	compRepo := mocks.NewMockICompanyRepository(ctrl)
-	finRepo := mocks.NewMockIFinancialReportRepository(ctrl)
-	svc := NewService(compRepo, finRepo)
+	svc := NewService(compRepo)
 
 	testCases := []struct {
 		name       string
 		company    *domain.Company
-		beforeTest func(compRepo mocks.MockICompanyRepository, finRepo mocks.MockIFinancialReportRepository)
+		beforeTest func(compRepo mocks.MockICompanyRepository)
 		wantErr    bool
 		errStr     error
 	}{
@@ -33,7 +32,7 @@ func TestCompanyService_Create(t *testing.T) {
 				Name: "aaa",
 				City: "ccc",
 			},
-			beforeTest: func(compRepo mocks.MockICompanyRepository, finRepo mocks.MockIFinancialReportRepository) {
+			beforeTest: func(compRepo mocks.MockICompanyRepository) {
 				compRepo.EXPECT().
 					Create(
 						context.Background(),
@@ -51,7 +50,7 @@ func TestCompanyService_Create(t *testing.T) {
 				Name: "",
 				City: "ccc",
 			},
-			beforeTest: func(compRepo mocks.MockICompanyRepository, finRepo mocks.MockIFinancialReportRepository) {
+			beforeTest: func(compRepo mocks.MockICompanyRepository) {
 				compRepo.EXPECT().
 					Create(
 						context.Background(),
@@ -71,7 +70,7 @@ func TestCompanyService_Create(t *testing.T) {
 				Name: "aaa",
 				City: "",
 			},
-			beforeTest: func(compRepo mocks.MockICompanyRepository, finRepo mocks.MockIFinancialReportRepository) {
+			beforeTest: func(compRepo mocks.MockICompanyRepository) {
 				compRepo.EXPECT().
 					Create(
 						context.Background(),
@@ -91,7 +90,7 @@ func TestCompanyService_Create(t *testing.T) {
 				Name: "aaa",
 				City: "ccc",
 			},
-			beforeTest: func(compRepo mocks.MockICompanyRepository, finRepo mocks.MockIFinancialReportRepository) {
+			beforeTest: func(compRepo mocks.MockICompanyRepository) {
 				compRepo.EXPECT().
 					Create(
 						context.Background(),
@@ -109,7 +108,7 @@ func TestCompanyService_Create(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			if tc.beforeTest != nil {
-				tc.beforeTest(*compRepo, *finRepo)
+				tc.beforeTest(*compRepo)
 			}
 
 			err := svc.Create(tc.company)
@@ -128,22 +127,21 @@ func TestCompanyService_DeleteById(t *testing.T) {
 	defer ctrl.Finish()
 
 	compRepo := mocks.NewMockICompanyRepository(ctrl)
-	finRepo := mocks.NewMockIFinancialReportRepository(ctrl)
-	svc := NewService(compRepo, finRepo)
+	svc := NewService(compRepo)
 
 	curUuid := uuid.New()
 
 	testCases := []struct {
 		name       string
 		id         uuid.UUID
-		beforeTest func(compRepo mocks.MockICompanyRepository, finRepo mocks.MockIFinancialReportRepository)
+		beforeTest func(compRepo mocks.MockICompanyRepository)
 		wantErr    bool
 		errStr     error
 	}{
 		{
 			name: "успешное удаление",
 			id:   curUuid,
-			beforeTest: func(compRepo mocks.MockICompanyRepository, finRepo mocks.MockIFinancialReportRepository) {
+			beforeTest: func(compRepo mocks.MockICompanyRepository) {
 				compRepo.EXPECT().
 					DeleteById(context.Background(), curUuid).
 					Return(nil)
@@ -153,7 +151,7 @@ func TestCompanyService_DeleteById(t *testing.T) {
 		{
 			name: "ошибка выполнения запроса в репозитории",
 			id:   curUuid,
-			beforeTest: func(compRepo mocks.MockICompanyRepository, finRepo mocks.MockIFinancialReportRepository) {
+			beforeTest: func(compRepo mocks.MockICompanyRepository) {
 				compRepo.EXPECT().
 					DeleteById(context.Background(), curUuid).
 					Return(fmt.Errorf("sql error"))
@@ -165,7 +163,7 @@ func TestCompanyService_DeleteById(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			if tc.beforeTest != nil {
-				tc.beforeTest(*compRepo, *finRepo)
+				tc.beforeTest(*compRepo)
 			}
 
 			err := svc.DeleteById(tc.id)
@@ -184,8 +182,7 @@ func TestCompanyService_GetAll(t *testing.T) {
 	defer ctrl.Finish()
 
 	compRepo := mocks.NewMockICompanyRepository(ctrl)
-	finRepo := mocks.NewMockIFinancialReportRepository(ctrl)
-	svc := NewService(compRepo, finRepo)
+	svc := NewService(compRepo)
 
 	testCases := []struct {
 		name       string
@@ -270,8 +267,7 @@ func TestCompanyService_GetById(t *testing.T) {
 	defer ctrl.Finish()
 
 	compRepo := mocks.NewMockICompanyRepository(ctrl)
-	finRepo := mocks.NewMockIFinancialReportRepository(ctrl)
-	svc := NewService(compRepo, finRepo)
+	svc := NewService(compRepo)
 
 	testCases := []struct {
 		name       string
@@ -341,8 +337,7 @@ func TestCompanyService_GetByOwnerId(t *testing.T) {
 	defer ctrl.Finish()
 
 	compRepo := mocks.NewMockICompanyRepository(ctrl)
-	finRepo := mocks.NewMockIFinancialReportRepository(ctrl)
-	svc := NewService(compRepo, finRepo)
+	svc := NewService(compRepo)
 
 	testCases := []struct {
 		name       string
@@ -442,13 +437,12 @@ func TestCompanyService_Update(t *testing.T) {
 	defer ctrl.Finish()
 
 	compRepo := mocks.NewMockICompanyRepository(ctrl)
-	finRepo := mocks.NewMockIFinancialReportRepository(ctrl)
-	svc := NewService(compRepo, finRepo)
+	svc := NewService(compRepo)
 
 	testCases := []struct {
 		name       string
 		company    *domain.Company
-		beforeTest func(compRepo mocks.MockICompanyRepository, finRepo mocks.MockIFinancialReportRepository)
+		beforeTest func(compRepo mocks.MockICompanyRepository)
 		wantErr    bool
 		errStr     error
 	}{
@@ -458,7 +452,7 @@ func TestCompanyService_Update(t *testing.T) {
 				ID:   uuid.UUID{1},
 				Name: "aaa",
 			},
-			beforeTest: func(compRepo mocks.MockICompanyRepository, finRepo mocks.MockIFinancialReportRepository) {
+			beforeTest: func(compRepo mocks.MockICompanyRepository) {
 				compRepo.EXPECT().
 					Update(
 						context.Background(),
@@ -476,7 +470,7 @@ func TestCompanyService_Update(t *testing.T) {
 				ID:   uuid.UUID{1},
 				Name: "aaa",
 			},
-			beforeTest: func(compRepo mocks.MockICompanyRepository, finRepo mocks.MockIFinancialReportRepository) {
+			beforeTest: func(compRepo mocks.MockICompanyRepository) {
 				compRepo.EXPECT().
 					Update(
 						context.Background(),
@@ -493,7 +487,7 @@ func TestCompanyService_Update(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			if tc.beforeTest != nil {
-				tc.beforeTest(*compRepo, *finRepo)
+				tc.beforeTest(*compRepo)
 			}
 
 			err := svc.Update(tc.company)

@@ -9,8 +9,7 @@ import (
 )
 
 type Service struct {
-	repo        domain.IActivityFieldRepository
-	companyRepo domain.ICompanyRepository
+	repo domain.IActivityFieldRepository
 }
 
 func NewService(repo domain.IActivityFieldRepository) domain.IActivityFieldService {

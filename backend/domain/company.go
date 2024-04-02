@@ -14,7 +14,7 @@ type Company struct {
 	City            string
 }
 
-type ICompanyRepository interface { // FIXME: разобраться с сущностями
+type ICompanyRepository interface {
 	Create(ctx context.Context, company *Company) error
 	GetById(ctx context.Context, id uuid.UUID) (*Company, error)
 	GetByOwnerId(ctx context.Context, id uuid.UUID) ([]*Company, error)
@@ -31,5 +31,3 @@ type ICompanyService interface {
 	Update(company *Company) error
 	DeleteById(id uuid.UUID) error
 }
-
-// разобраться с фильтрами

@@ -12,20 +12,17 @@ import (
 type Service struct {
 	userRepo     domain.IUserRepository
 	companyRepo  domain.ICompanyRepository
-	finRepo      domain.IFinancialReportRepository
 	actFieldRepo domain.IActivityFieldRepository
 }
 
 func NewService(
 	userRepo domain.IUserRepository,
 	companyRepo domain.ICompanyRepository,
-	finRepo domain.IFinancialReportRepository,
 	actFieldRepo domain.IActivityFieldRepository,
 ) domain.IUserService {
 	return &Service{
 		userRepo:     userRepo,
 		companyRepo:  companyRepo,
-		finRepo:      finRepo,
 		actFieldRepo: actFieldRepo,
 	}
 }

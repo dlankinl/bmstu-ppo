@@ -19,9 +19,8 @@ func TestUserService_DeleteById(t *testing.T) {
 
 	userRepo := mocks.NewMockIUserRepository(ctrl)
 	compRepo := mocks.NewMockICompanyRepository(ctrl)
-	finRepo := mocks.NewMockIFinancialReportRepository(ctrl)
 	actFieldRepo := mocks.NewMockIActivityFieldRepository(ctrl)
-	svc := NewService(userRepo, compRepo, finRepo, actFieldRepo)
+	svc := NewService(userRepo, compRepo, actFieldRepo)
 
 	curUuid := uuid.New()
 
@@ -77,9 +76,8 @@ func TestUserService_GetAll(t *testing.T) {
 
 	userRepo := mocks.NewMockIUserRepository(ctrl)
 	compRepo := mocks.NewMockICompanyRepository(ctrl)
-	finRepo := mocks.NewMockIFinancialReportRepository(ctrl)
 	actFieldRepo := mocks.NewMockIActivityFieldRepository(ctrl)
-	svc := NewService(userRepo, compRepo, finRepo, actFieldRepo)
+	svc := NewService(userRepo, compRepo, actFieldRepo)
 
 	testCases := []struct {
 		name       string
@@ -183,9 +181,8 @@ func TestUserService_Create(t *testing.T) {
 
 	userRepo := mocks.NewMockIUserRepository(ctrl)
 	compRepo := mocks.NewMockICompanyRepository(ctrl)
-	finRepo := mocks.NewMockIFinancialReportRepository(ctrl)
 	actFieldRepo := mocks.NewMockIActivityFieldRepository(ctrl)
-	svc := NewService(userRepo, compRepo, finRepo, actFieldRepo)
+	svc := NewService(userRepo, compRepo, actFieldRepo)
 
 	testCases := []struct {
 		name       string
@@ -384,9 +381,8 @@ func TestUserService_GetById(t *testing.T) {
 
 	userRepo := mocks.NewMockIUserRepository(ctrl)
 	compRepo := mocks.NewMockICompanyRepository(ctrl)
-	finRepo := mocks.NewMockIFinancialReportRepository(ctrl)
 	actFieldRepo := mocks.NewMockIActivityFieldRepository(ctrl)
-	svc := NewService(userRepo, compRepo, finRepo, actFieldRepo)
+	svc := NewService(userRepo, compRepo, actFieldRepo)
 
 	testCases := []struct {
 		name       string
@@ -463,9 +459,8 @@ func TestUserService_Update(t *testing.T) {
 
 	userRepo := mocks.NewMockIUserRepository(ctrl)
 	compRepo := mocks.NewMockICompanyRepository(ctrl)
-	finRepo := mocks.NewMockIFinancialReportRepository(ctrl)
 	actFieldRepo := mocks.NewMockIActivityFieldRepository(ctrl)
-	svc := NewService(userRepo, compRepo, finRepo, actFieldRepo)
+	svc := NewService(userRepo, compRepo, actFieldRepo)
 
 	testCases := []struct {
 		name       string
