@@ -12,7 +12,6 @@ package mocks
 import (
 	context "context"
 	domain "ppo/domain"
-	utils "ppo/pkg/utils"
 	reflect "reflect"
 
 	uuid "github.com/google/uuid"
@@ -71,18 +70,18 @@ func (mr *MockICompanyRepositoryMockRecorder) DeleteById(ctx, id any) *gomock.Ca
 }
 
 // GetAll mocks base method.
-func (m *MockICompanyRepository) GetAll(ctx context.Context, filters utils.Filters, page int) ([]*domain.Company, error) {
+func (m *MockICompanyRepository) GetAll(ctx context.Context, page int) ([]*domain.Company, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAll", ctx, filters, page)
+	ret := m.ctrl.Call(m, "GetAll", ctx, page)
 	ret0, _ := ret[0].([]*domain.Company)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetAll indicates an expected call of GetAll.
-func (mr *MockICompanyRepositoryMockRecorder) GetAll(ctx, filters, page any) *gomock.Call {
+func (mr *MockICompanyRepositoryMockRecorder) GetAll(ctx, page any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockICompanyRepository)(nil).GetAll), ctx, filters, page)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockICompanyRepository)(nil).GetAll), ctx, page)
 }
 
 // GetById mocks base method.
@@ -181,18 +180,18 @@ func (mr *MockICompanyServiceMockRecorder) DeleteById(id any) *gomock.Call {
 }
 
 // GetAll mocks base method.
-func (m *MockICompanyService) GetAll(filters utils.Filters, page int) ([]*domain.Company, error) {
+func (m *MockICompanyService) GetAll(page int) ([]*domain.Company, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAll", filters, page)
+	ret := m.ctrl.Call(m, "GetAll", page)
 	ret0, _ := ret[0].([]*domain.Company)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetAll indicates an expected call of GetAll.
-func (mr *MockICompanyServiceMockRecorder) GetAll(filters, page any) *gomock.Call {
+func (mr *MockICompanyServiceMockRecorder) GetAll(page any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockICompanyService)(nil).GetAll), filters, page)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockICompanyService)(nil).GetAll), page)
 }
 
 // GetById mocks base method.

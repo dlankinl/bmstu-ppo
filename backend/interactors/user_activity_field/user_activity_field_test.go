@@ -25,9 +25,9 @@ func TestInteractor_CalculateUserRating(t *testing.T) {
 	compRepo := mocks.NewMockICompanyRepository(ctrl)
 	actFieldRepo := mocks.NewMockIActivityFieldRepository(ctrl)
 
-	userSvc := user.NewService(userRepo, compRepo, finRepo, actFieldRepo)
+	userSvc := user.NewService(userRepo, compRepo, actFieldRepo)
 	actFieldSvc := activity_field.NewService(actFieldRepo)
-	compSvc := company.NewService(compRepo, finRepo)
+	compSvc := company.NewService(compRepo)
 	finSvc := fin_report.NewService(finRepo)
 
 	interactor := NewInteractor(userSvc, actFieldSvc, compSvc, finSvc)
@@ -216,9 +216,9 @@ func TestInteractor_GetMostProfitableCompany(t *testing.T) {
 	compRepo := mocks.NewMockICompanyRepository(ctrl)
 	actFieldRepo := mocks.NewMockIActivityFieldRepository(ctrl)
 
-	userSvc := user.NewService(userRepo, compRepo, finRepo, actFieldRepo)
+	userSvc := user.NewService(userRepo, compRepo, actFieldRepo)
 	actFieldSvc := activity_field.NewService(actFieldRepo)
-	compSvc := company.NewService(compRepo, finRepo)
+	compSvc := company.NewService(compRepo)
 	finSvc := fin_report.NewService(finRepo)
 
 	interactor := NewInteractor(userSvc, actFieldSvc, compSvc, finSvc)
@@ -378,9 +378,9 @@ func TestInteractor_GetUserFinancialReport(t *testing.T) {
 	compRepo := mocks.NewMockICompanyRepository(ctrl)
 	actFieldRepo := mocks.NewMockIActivityFieldRepository(ctrl)
 
-	userSvc := user.NewService(userRepo, compRepo, finRepo, actFieldRepo)
+	userSvc := user.NewService(userRepo, compRepo, actFieldRepo)
 	actFieldSvc := activity_field.NewService(actFieldRepo)
-	compSvc := company.NewService(compRepo, finRepo)
+	compSvc := company.NewService(compRepo)
 	finSvc := fin_report.NewService(finRepo)
 
 	interactor := NewInteractor(userSvc, actFieldSvc, compSvc, finSvc)

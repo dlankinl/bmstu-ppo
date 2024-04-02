@@ -12,7 +12,6 @@ package mocks
 import (
 	context "context"
 	domain "ppo/domain"
-	utils "ppo/pkg/utils"
 	reflect "reflect"
 
 	uuid "github.com/google/uuid"
@@ -166,18 +165,18 @@ func (mr *MockISkillServiceMockRecorder) DeleteById(id any) *gomock.Call {
 }
 
 // GetAll mocks base method.
-func (m *MockISkillService) GetAll(filters utils.Filters, page int) ([]*domain.Skill, error) {
+func (m *MockISkillService) GetAll(page int) ([]*domain.Skill, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAll", filters, page)
+	ret := m.ctrl.Call(m, "GetAll", page)
 	ret0, _ := ret[0].([]*domain.Skill)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetAll indicates an expected call of GetAll.
-func (mr *MockISkillServiceMockRecorder) GetAll(filters, page any) *gomock.Call {
+func (mr *MockISkillServiceMockRecorder) GetAll(page any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockISkillService)(nil).GetAll), filters, page)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockISkillService)(nil).GetAll), page)
 }
 
 // GetById mocks base method.

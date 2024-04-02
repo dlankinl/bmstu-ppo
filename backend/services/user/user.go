@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"ppo/domain"
-	"ppo/pkg/utils"
 	"strings"
 )
 
@@ -69,16 +68,10 @@ func (s *Service) GetById(id uuid.UUID) (user *domain.User, err error) {
 	return user, nil
 }
 
-// TODO: pagination
-func (s *Service) GetAll(filters utils.Filters, page int) (users []*domain.User, err error) {
-	err = filters.Validate()
-	if err != nil {
-		return nil, fmt.Errorf("валидация фильтров: %w", err)
-	}
-
+func (s *Service) GetAll(page int) (users []*domain.User, err error) {
 	ctx := context.Background()
 
-	users, err = s.userRepo.GetAll(ctx, filters, page)
+	users, err = s.userRepo.GetAll(ctx, page)
 	if err != nil {
 		return nil, fmt.Errorf("получение списка всех пользователей: %w", err)
 	}

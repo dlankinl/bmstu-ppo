@@ -195,7 +195,7 @@ func TestCompanyService_GetAll(t *testing.T) {
 			name: "успешное получение списка всех компаний",
 			beforeTest: func(compRepo mocks.MockICompanyRepository) {
 				compRepo.EXPECT().
-					GetAll(context.Background(), nil, 1).
+					GetAll(context.Background(), 1).
 					Return([]*domain.Company{
 						{
 							ID:   uuid.UUID{1},
@@ -237,7 +237,7 @@ func TestCompanyService_GetAll(t *testing.T) {
 			name: "ошибка получения данных в репозитории",
 			beforeTest: func(compRepo mocks.MockICompanyRepository) {
 				compRepo.EXPECT().
-					GetAll(context.Background(), nil, 1).
+					GetAll(context.Background(), 1).
 					Return(nil, fmt.Errorf("sql error"))
 			},
 			wantErr: true,
@@ -250,7 +250,7 @@ func TestCompanyService_GetAll(t *testing.T) {
 				tc.beforeTest(*compRepo)
 			}
 
-			companies, err := svc.GetAll(nil, 1)
+			companies, err := svc.GetAll(1)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())

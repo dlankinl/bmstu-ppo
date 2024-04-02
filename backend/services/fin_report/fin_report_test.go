@@ -165,7 +165,7 @@ func TestFinReportService_Create(t *testing.T) {
 				Revenue:   1,
 				Costs:     1,
 				Year:      2024,
-				Quarter:   1,
+				Quarter:   2,
 			},
 			beforeTest: func(finRepo mocks.MockIFinancialReportRepository) {
 				finRepo.EXPECT().
@@ -176,7 +176,7 @@ func TestFinReportService_Create(t *testing.T) {
 							Revenue:   1,
 							Costs:     1,
 							Year:      2024,
-							Quarter:   1,
+							Quarter:   2,
 						},
 					).
 					Return(nil).

@@ -5,21 +5,17 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"ppo/domain"
-	"ppo/pkg/utils"
 )
 
 type Service struct {
 	companyRepo domain.ICompanyRepository
-	//finRepo     domain.IFinancialReportRepository
 }
 
 func NewService(
 	companyRepo domain.ICompanyRepository,
-	// finRepo domain.IFinancialReportRepository,
 ) domain.ICompanyService {
 	return &Service{
 		companyRepo: companyRepo,
-		//finRepo:     finRepo,
 	}
 }
 
@@ -64,15 +60,10 @@ func (s *Service) GetByOwnerId(id uuid.UUID) (companies []*domain.Company, err e
 	return companies, nil
 }
 
-func (s *Service) GetAll(filters utils.Filters, page int) (companies []*domain.Company, err error) {
-	err = filters.Validate()
-	if err != nil {
-		return nil, fmt.Errorf("валидация фильтров: %w", err)
-	}
-
+func (s *Service) GetAll(page int) (companies []*domain.Company, err error) {
 	ctx := context.Background()
 
-	companies, err = s.companyRepo.GetAll(ctx, filters, page)
+	companies, err = s.companyRepo.GetAll(ctx, page)
 	if err != nil {
 		return nil, fmt.Errorf("получение списка всех компаний: %w", err)
 	}
