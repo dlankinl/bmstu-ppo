@@ -6,15 +6,15 @@ import (
 	"errors"
 	"fmt"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"ppo/domain"
 )
 
 type FinReportRepository struct {
-	db *pgx.ConnPool
+	db *pgxpool.Pool
 }
 
-func NewFinReportRepository(db *pgx.ConnPool) domain.IFinancialReportRepository {
+func NewFinReportRepository(db *pgxpool.Pool) domain.IFinancialReportRepository {
 	return &FinReportRepository{
 		db: db,
 	}
@@ -24,10 +24,9 @@ func (r *FinReportRepository) Create(ctx context.Context, finReport *domain.Fina
 	query := `insert into ppo.fin_reports(company_id, revenue, costs, year, quarter) 
 	values ($1, $2, $3, $4, $5)`
 
-	_, err = r.db.ExecEx(
+	_, err = r.db.Exec(
 		ctx,
 		query,
-		nil,
 		finReport.CompanyID,
 		finReport.Revenue,
 		finReport.Costs,
@@ -45,10 +44,9 @@ func (r *FinReportRepository) GetById(ctx context.Context, id uuid.UUID) (report
 	query := `select company_id, revenue, costs, year, quarter from ppo.fin_reports where id = $1`
 
 	report = new(domain.FinancialReport)
-	err = r.db.QueryRowEx(
+	err = r.db.QueryRow(
 		ctx,
 		query,
-		nil,
 		id,
 	).Scan(
 		&report.CompanyID,
@@ -86,10 +84,9 @@ func (r *FinReportRepository) GetByCompany(ctx context.Context, companyId uuid.U
 		for quarter := startQtr; quarter <= endQtr; quarter++ {
 			tmp := new(domain.FinancialReport)
 
-			err = r.db.QueryRowEx(
+			err = r.db.QueryRow(
 				ctx,
 				query,
-				nil,
 				companyId,
 				year,
 				quarter,
@@ -128,10 +125,9 @@ func (r *FinReportRepository) Update(ctx context.Context, finRep *domain.Financi
 			    quarter = $5
 			where id = $6`
 
-	_, err = r.db.ExecEx(
+	_, err = r.db.Exec(
 		ctx,
 		query,
-		nil,
 		finRep.CompanyID,
 		finRep.Revenue,
 		finRep.Costs,
@@ -148,10 +144,9 @@ func (r *FinReportRepository) Update(ctx context.Context, finRep *domain.Financi
 func (r *FinReportRepository) DeleteById(ctx context.Context, id uuid.UUID) (err error) {
 	query := `delete from ppo.fin_reports where id = $1`
 
-	_, err = r.db.ExecEx(
+	_, err = r.db.Exec(
 		ctx,
 		query,
-		nil,
 		id,
 	)
 	if err != nil {

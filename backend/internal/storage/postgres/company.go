@@ -4,15 +4,15 @@ import (
 	"context"
 	"fmt"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"ppo/domain"
 )
 
 type CompanyRepository struct {
-	db *pgx.ConnPool
+	db *pgxpool.Pool
 }
 
-func NewCompanyRepository(db *pgx.ConnPool) domain.ICompanyRepository {
+func NewCompanyRepository(db *pgxpool.Pool) domain.ICompanyRepository {
 	return &CompanyRepository{
 		db: db,
 	}
@@ -22,10 +22,9 @@ func (r *CompanyRepository) Create(ctx context.Context, company *domain.Company)
 	query := `insert into ppo.companies(owner_id, activity_field_id, name, city) 
 	values ($1, $2, $3, $4)`
 
-	_, err = r.db.ExecEx(
+	_, err = r.db.Exec(
 		ctx,
 		query,
-		nil,
 		company.OwnerID,
 		company.ActivityFieldId,
 		company.Name,
@@ -42,10 +41,9 @@ func (r *CompanyRepository) GetById(ctx context.Context, id uuid.UUID) (company 
 	query := `select owner_id, activity_field_id, name, city from ppo.companies where id = $1`
 
 	company = new(domain.Company)
-	err = r.db.QueryRowEx(
+	err = r.db.QueryRow(
 		ctx,
 		query,
-		nil,
 		id,
 	).Scan(
 		&company.OwnerID,
@@ -63,10 +61,9 @@ func (r *CompanyRepository) GetById(ctx context.Context, id uuid.UUID) (company 
 func (r *CompanyRepository) GetByOwnerId(ctx context.Context, id uuid.UUID) (companies []*domain.Company, err error) {
 	query := `select id, activity_field_id, name, city from ppo.companies where owner_id = $1 `
 
-	rows, err := r.db.QueryEx(
+	rows, err := r.db.Query(
 		ctx,
 		query,
-		nil,
 		id,
 	)
 
@@ -100,10 +97,9 @@ func (r *CompanyRepository) Update(ctx context.Context, company *domain.Company)
 			    city = $4
 			where id = $5`
 
-	_, err = r.db.ExecEx(
+	_, err = r.db.Exec(
 		ctx,
 		query,
-		nil,
 		company.OwnerID,
 		company.ActivityFieldId,
 		company.Name,
@@ -120,10 +116,9 @@ func (r *CompanyRepository) Update(ctx context.Context, company *domain.Company)
 func (r *CompanyRepository) DeleteById(ctx context.Context, id uuid.UUID) (err error) {
 	query := `delete from ppo.companies where id = $1`
 
-	_, err = r.db.ExecEx(
+	_, err = r.db.Exec(
 		ctx,
 		query,
-		nil,
 		id,
 	)
 	if err != nil {
@@ -136,10 +131,9 @@ func (r *CompanyRepository) DeleteById(ctx context.Context, id uuid.UUID) (err e
 func (r *CompanyRepository) GetAll(ctx context.Context, page int) (companies []*domain.Company, err error) {
 	query := `select id, owner_id, activity_field_id, name, city from ppo.companies offset $1 limit $2`
 
-	rows, err := r.db.QueryEx(
+	rows, err := r.db.Query(
 		ctx,
 		query,
-		nil,
 		(page-1)*pageSize,
 		pageSize,
 	)

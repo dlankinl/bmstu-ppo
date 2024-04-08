@@ -3,14 +3,11 @@ package postgres
 import (
 	"context"
 	"errors"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/stretchr/testify/require"
 	"os"
 	"ppo/domain"
 	"testing"
 )
-
-var testDbInstance *pgxpool.Pool
 
 func TestMain(m *testing.M) {
 	testDB := SetupTestDatabase()

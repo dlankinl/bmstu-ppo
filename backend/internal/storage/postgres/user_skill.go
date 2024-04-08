@@ -4,15 +4,15 @@ import (
 	"context"
 	"fmt"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"ppo/domain"
 )
 
 type UserSkillRepository struct {
-	db *pgx.ConnPool
+	db *pgxpool.Pool
 }
 
-func NewUserSkillRepository(db *pgx.ConnPool) domain.IUserSkillRepository {
+func NewUserSkillRepository(db *pgxpool.Pool) domain.IUserSkillRepository {
 	return &UserSkillRepository{
 		db: db,
 	}
@@ -22,10 +22,9 @@ func (r *UserSkillRepository) Create(ctx context.Context, pair *domain.UserSkill
 	query := `insert into ppo.user_skills(user_id, skill_id) 
 	values ($1, $2)`
 
-	_, err = r.db.ExecEx(
+	_, err = r.db.Exec(
 		ctx,
 		query,
-		nil,
 		pair.UserId,
 		pair.SkillId,
 	)
@@ -39,10 +38,9 @@ func (r *UserSkillRepository) Create(ctx context.Context, pair *domain.UserSkill
 func (r *UserSkillRepository) Delete(ctx context.Context, pair *domain.UserSkill) (err error) {
 	query := `delete from ppo.user_skills where user_id = $1 and skill_id = $2`
 
-	_, err = r.db.ExecEx(
+	_, err = r.db.Exec(
 		ctx,
 		query,
-		nil,
 		pair.UserId,
 		pair.SkillId,
 	)
@@ -56,10 +54,9 @@ func (r *UserSkillRepository) Delete(ctx context.Context, pair *domain.UserSkill
 func (r *UserSkillRepository) GetUserSkillsByUserId(ctx context.Context, userId uuid.UUID) (pairs []*domain.UserSkill, err error) {
 	query := `select skill_id from ppo.user_skills where user_id = $1`
 
-	rows, err := r.db.QueryEx(
+	rows, err := r.db.Query(
 		ctx,
 		query,
-		nil,
 		userId,
 	)
 	if err != nil {
@@ -87,10 +84,9 @@ func (r *UserSkillRepository) GetUserSkillsByUserId(ctx context.Context, userId 
 func (r *UserSkillRepository) GetUserSkillsBySkillId(ctx context.Context, skillId uuid.UUID) (pairs []*domain.UserSkill, err error) {
 	query := `select user_id from ppo.user_skills where skill_id = $1`
 
-	rows, err := r.db.QueryEx(
+	rows, err := r.db.Query(
 		ctx,
 		query,
-		nil,
 		skillId,
 	)
 	if err != nil {

@@ -4,15 +4,15 @@ import (
 	"context"
 	"fmt"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"ppo/domain"
 )
 
 type UserRepository struct {
-	db *pgx.ConnPool
+	db *pgxpool.Pool
 }
 
-func NewUserRepository(db *pgx.ConnPool) domain.IUserRepository {
+func NewUserRepository(db *pgxpool.Pool) domain.IUserRepository {
 	return &UserRepository{
 		db: db,
 	}
@@ -28,10 +28,9 @@ func (r *UserRepository) Create(ctx context.Context, user *domain.User) (err err
 		    city = $4
 		where id = $5`
 
-	_, err = r.db.ExecEx(
+	_, err = r.db.Exec(
 		ctx,
 		query,
-		nil,
 		user.FullName,
 		user.Birthday,
 		user.Gender,
@@ -49,10 +48,9 @@ func (r *UserRepository) GetById(ctx context.Context, id uuid.UUID) (user *domai
 	query := `select username, full_name, birthday, gender, city from ppo.users where id = $1`
 
 	user = new(domain.User)
-	err = r.db.QueryRowEx(
+	err = r.db.QueryRow(
 		ctx,
 		query,
-		nil,
 		id,
 	).Scan(
 		&user.Username,
@@ -71,10 +69,9 @@ func (r *UserRepository) GetById(ctx context.Context, id uuid.UUID) (user *domai
 func (r *UserRepository) GetAll(ctx context.Context, page int) (users []*domain.User, err error) {
 	query := `select username, full_name, birthday, gender, city from ppo.users offset $1 limit $2`
 
-	rows, err := r.db.QueryEx(
+	rows, err := r.db.Query(
 		ctx,
 		query,
-		nil,
 		(page-1)*pageSize,
 		pageSize,
 	)
@@ -109,10 +106,9 @@ func (r *UserRepository) Update(ctx context.Context, user *domain.User) (err err
 			    city = $4
 			where id = $5`
 
-	_, err = r.db.ExecEx(
+	_, err = r.db.Exec(
 		ctx,
 		query,
-		nil,
 		user.FullName,
 		user.Birthday,
 		user.Gender,
@@ -129,10 +125,9 @@ func (r *UserRepository) Update(ctx context.Context, user *domain.User) (err err
 func (r *UserRepository) DeleteById(ctx context.Context, id uuid.UUID) (err error) {
 	query := `delete from ppo.users where id = $1`
 
-	_, err = r.db.ExecEx(
+	_, err = r.db.Exec(
 		ctx,
 		query,
-		nil,
 		id,
 	)
 	if err != nil {

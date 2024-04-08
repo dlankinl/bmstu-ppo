@@ -4,15 +4,15 @@ import (
 	"context"
 	"fmt"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"ppo/domain"
 )
 
 type SkillRepository struct {
-	db *pgx.ConnPool
+	db *pgxpool.Pool
 }
 
-func NewSkillRepository(db *pgx.ConnPool) domain.ISkillRepository {
+func NewSkillRepository(db *pgxpool.Pool) domain.ISkillRepository {
 	return &SkillRepository{
 		db: db,
 	}
@@ -22,10 +22,9 @@ func (r *SkillRepository) Create(ctx context.Context, skill *domain.Skill) (err 
 	query := `insert into ppo.skills(name, description) 
 	values ($1, $2)`
 
-	_, err = r.db.ExecEx(
+	_, err = r.db.Exec(
 		ctx,
 		query,
-		nil,
 		skill.Name,
 		skill.Description,
 	)
@@ -40,10 +39,9 @@ func (r *SkillRepository) GetById(ctx context.Context, id uuid.UUID) (skill *dom
 	query := `select name, description from ppo.skills where id = $1`
 
 	skill = new(domain.Skill)
-	err = r.db.QueryRowEx(
+	err = r.db.QueryRow(
 		ctx,
 		query,
-		nil,
 		id,
 	).Scan(
 		&skill.Name,
@@ -59,10 +57,9 @@ func (r *SkillRepository) GetById(ctx context.Context, id uuid.UUID) (skill *dom
 func (r *SkillRepository) GetAll(ctx context.Context, page int) (skills []*domain.Skill, err error) {
 	query := `select name, description from ppo.skills offset $1 limit $2`
 
-	rows, err := r.db.QueryEx(
+	rows, err := r.db.Query(
 		ctx,
 		query,
-		nil,
 		(page-1)*pageSize,
 		pageSize,
 	)
@@ -92,10 +89,9 @@ func (r *SkillRepository) Update(ctx context.Context, skill *domain.Skill) (err 
 			    description = $2 
 			where id = $3`
 
-	_, err = r.db.ExecEx(
+	_, err = r.db.Exec(
 		ctx,
 		query,
-		nil,
 		skill.Name,
 		skill.Description,
 		skill.ID,
@@ -110,10 +106,9 @@ func (r *SkillRepository) Update(ctx context.Context, skill *domain.Skill) (err 
 func (r *SkillRepository) DeleteById(ctx context.Context, id uuid.UUID) (err error) {
 	query := `delete from ppo.skills where id = $1`
 
-	_, err = r.db.ExecEx(
+	_, err = r.db.Exec(
 		ctx,
 		query,
-		nil,
 		id,
 	)
 	if err != nil {

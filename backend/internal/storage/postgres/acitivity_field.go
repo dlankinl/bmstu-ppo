@@ -4,15 +4,15 @@ import (
 	"context"
 	"fmt"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"ppo/domain"
 )
 
 type ActivityFieldRepository struct {
-	db *pgx.ConnPool
+	db *pgxpool.Pool
 }
 
-func NewActivityField(db *pgx.ConnPool) domain.IActivityFieldRepository {
+func NewActivityFieldRepository(db *pgxpool.Pool) domain.IActivityFieldRepository {
 	return &ActivityFieldRepository{
 		db: db,
 	}
@@ -22,10 +22,9 @@ func (r *ActivityFieldRepository) Create(ctx context.Context, data *domain.Activ
 	query := `insert into ppo.activity_fields(name, description, cost) 
 	values ($1, $2, $3)`
 
-	_, err = r.db.ExecEx(
+	_, err = r.db.Exec(
 		ctx,
 		query,
-		nil,
 		data.Name,
 		data.Description,
 		data.Cost,
@@ -40,10 +39,9 @@ func (r *ActivityFieldRepository) Create(ctx context.Context, data *domain.Activ
 func (r *ActivityFieldRepository) DeleteById(ctx context.Context, id uuid.UUID) (err error) {
 	query := `delete from ppo.activity_fields where id = $1`
 
-	_, err = r.db.ExecEx(
+	_, err = r.db.Exec(
 		ctx,
 		query,
-		nil,
 		id,
 	)
 	if err != nil {
@@ -62,10 +60,9 @@ func (r *ActivityFieldRepository) Update(ctx context.Context, data *domain.Activ
 			    cost = $3
 			where id = $4`
 
-	_, err = r.db.ExecEx(
+	_, err = r.db.Exec(
 		ctx,
 		query,
-		nil,
 		data.Name,
 		data.Description,
 		data.Cost,
@@ -82,10 +79,9 @@ func (r *ActivityFieldRepository) GetById(ctx context.Context, id uuid.UUID) (fi
 	query := `select name, description, cost from ppo.activity_fields where id = $1`
 
 	field = new(domain.ActivityField)
-	err = r.db.QueryRowEx(
+	err = r.db.QueryRow(
 		ctx,
 		query,
-		nil,
 		id,
 	).Scan(
 		&field.Name,
@@ -103,7 +99,7 @@ func (r *ActivityFieldRepository) GetById(ctx context.Context, id uuid.UUID) (fi
 func (r *ActivityFieldRepository) GetByCompanyId(ctx context.Context, id uuid.UUID) (cost float32, err error) {
 	// query := `select id, name, description, cost from ppo.activity_fields where owner_id = $1 `
 
-	// rows, err := r.db.QueryEx(
+	// rows, err := r.db.Query(
 	// 	ctx,
 	// 	query,
 	// 	nil,
@@ -134,10 +130,9 @@ func (r *ActivityFieldRepository) GetMaxCost(ctx context.Context) (cost float32,
 		from ppo.activity_fields`
 
 	var maxVal float32
-	err = r.db.QueryRowEx(
+	err = r.db.QueryRow(
 		ctx,
 		query,
-		nil,
 	).Scan(&maxVal)
 
 	if err != nil {

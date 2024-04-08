@@ -102,7 +102,7 @@ func migrateDb(dbAddr string) error {
 	_ = path
 	//pathToMigrationFiles := filepath.Dir(path) + "/migration"
 	//fmt.Println(filepath.Dir(path) + "/migration")
-	pathToMigrationFiles := "/Users/dmitry/Desktop/bmstu/6sem/ppo/backend/sql"
+	pathToMigrationFiles := "/home/lankin/GolandProjects/ppo/bmstu-ppo/backend/sql"
 
 	databaseURL := fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=disable", DbUser, DbPass, dbAddr, DbName)
 	m, err := migrate.New(fmt.Sprintf("file:%s", pathToMigrationFiles), databaseURL)

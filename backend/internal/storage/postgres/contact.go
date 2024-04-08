@@ -4,15 +4,15 @@ import (
 	"context"
 	"fmt"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"ppo/domain"
 )
 
 type ContactRepository struct {
-	db *pgx.ConnPool
+	db *pgxpool.Pool
 }
 
-func NewContactRepository(db *pgx.ConnPool) domain.IContactsRepository {
+func NewContactRepository(db *pgxpool.Pool) domain.IContactsRepository {
 	return &ContactRepository{
 		db: db,
 	}
@@ -22,10 +22,9 @@ func (r *ContactRepository) Create(ctx context.Context, contact *domain.Contact)
 	query := `insert into ppo.contacts(owner_id, name, value) 
 	values ($1, $2)`
 
-	_, err = r.db.ExecEx(
+	_, err = r.db.Exec(
 		ctx,
 		query,
-		nil,
 		contact.OwnerID,
 		contact.Name,
 		contact.Value,
@@ -41,10 +40,9 @@ func (r *ContactRepository) GetById(ctx context.Context, id uuid.UUID) (contact 
 	query := `select owner_id, name, value from ppo.contacts where id = $1`
 
 	contact = new(domain.Contact)
-	err = r.db.QueryRowEx(
+	err = r.db.QueryRow(
 		ctx,
 		query,
-		nil,
 		id,
 	).Scan(
 		&contact.OwnerID,
@@ -61,10 +59,9 @@ func (r *ContactRepository) GetById(ctx context.Context, id uuid.UUID) (contact 
 func (r *ContactRepository) GetByOwnerId(ctx context.Context, id uuid.UUID) (contacts []*domain.Contact, err error) {
 	query := `select id, name, value from ppo.contacts where owner_id = $1 `
 
-	rows, err := r.db.QueryEx(
+	rows, err := r.db.Query(
 		ctx,
 		query,
-		nil,
 		id,
 	)
 
@@ -96,10 +93,9 @@ func (r *ContactRepository) Update(ctx context.Context, contact *domain.Contact)
 			    value = $3
 			where id = $4`
 
-	_, err = r.db.ExecEx(
+	_, err = r.db.Exec(
 		ctx,
 		query,
-		nil,
 		contact.OwnerID,
 		contact.Name,
 		contact.Value,
@@ -115,10 +111,9 @@ func (r *ContactRepository) Update(ctx context.Context, contact *domain.Contact)
 func (r *ContactRepository) DeleteById(ctx context.Context, id uuid.UUID) (err error) {
 	query := `delete from ppo.contacts where id = $1`
 
-	_, err = r.db.ExecEx(
+	_, err = r.db.Exec(
 		ctx,
 		query,
-		nil,
 		id,
 	)
 	if err != nil {
