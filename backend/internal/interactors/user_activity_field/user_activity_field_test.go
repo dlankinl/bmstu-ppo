@@ -6,11 +6,11 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 	"ppo/domain"
+	"ppo/internal/services/activity_field"
+	"ppo/internal/services/company"
+	"ppo/internal/services/fin_report"
+	"ppo/internal/services/user"
 	"ppo/mocks"
-	"ppo/services/activity_field"
-	"ppo/services/company"
-	"ppo/services/fin_report"
-	"ppo/services/user"
 	"testing"
 )
 

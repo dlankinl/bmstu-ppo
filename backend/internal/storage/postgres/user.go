@@ -9,12 +9,24 @@ import (
 )
 
 type UserRepository struct {
-	db *pgx.Conn
+	db *pgx.ConnPool
 }
 
+func NewUserRepository(db *pgx.ConnPool) domain.IUserRepository {
+	return &UserRepository{
+		db: db,
+	}
+}
+
+// FIXME: не нужен получается
 func (r *UserRepository) Create(ctx context.Context, user *domain.User) (err error) {
-	query := `insert into ppo.users(full_name, birthday, gender, city) 
-	values ($1, $2, $3, $4)`
+	query := `update ppo.users
+		set 
+		    full_name = $1,
+		    birthday = $2,
+		    gender = $3,
+		    city = $4
+		where id = $5`
 
 	_, err = r.db.ExecEx(
 		ctx,
@@ -24,6 +36,7 @@ func (r *UserRepository) Create(ctx context.Context, user *domain.User) (err err
 		user.Birthday,
 		user.Gender,
 		user.City,
+		user.ID,
 	)
 	if err != nil {
 		return fmt.Errorf("создание пользователя: %w", err)

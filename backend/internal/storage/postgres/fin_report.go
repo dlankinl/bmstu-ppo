@@ -11,10 +11,10 @@ import (
 )
 
 type FinReportRepository struct {
-	db *pgx.Conn
+	db *pgx.ConnPool
 }
 
-func NewFinReportRepository(db *pgx.Conn) domain.IFinancialReportRepository {
+func NewFinReportRepository(db *pgx.ConnPool) domain.IFinancialReportRepository {
 	return &FinReportRepository{
 		db: db,
 	}

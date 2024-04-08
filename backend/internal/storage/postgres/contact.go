@@ -9,7 +9,13 @@ import (
 )
 
 type ContactRepository struct {
-	db *pgx.Conn
+	db *pgx.ConnPool
+}
+
+func NewContactRepository(db *pgx.ConnPool) domain.IContactsRepository {
+	return &ContactRepository{
+		db: db,
+	}
 }
 
 func (r *ContactRepository) Create(ctx context.Context, contact *domain.Contact) (err error) {

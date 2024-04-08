@@ -9,7 +9,13 @@ import (
 )
 
 type ActivityFieldRepository struct {
-	db *pgx.Conn
+	db *pgx.ConnPool
+}
+
+func NewActivityField(db *pgx.ConnPool) domain.IActivityFieldRepository {
+	return &ActivityFieldRepository{
+		db: db,
+	}
 }
 
 func (r *ActivityFieldRepository) Create(ctx context.Context, data *domain.ActivityField) (err error) {
@@ -75,16 +81,16 @@ func (r *ActivityFieldRepository) Update(ctx context.Context, data *domain.Activ
 func (r *ActivityFieldRepository) GetById(ctx context.Context, id uuid.UUID) (field *domain.ActivityField, err error) {
 	query := `select name, description, cost from ppo.activity_fields where id = $1`
 
-	data = new(domain.ActivityField)
+	field = new(domain.ActivityField)
 	err = r.db.QueryRowEx(
 		ctx,
 		query,
 		nil,
 		id,
 	).Scan(
-		&data.Name,
-		&data.Description,
-		&data.Cost,
+		&field.Name,
+		&field.Description,
+		&field.Cost,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("получение сферы деятельности по id: %w", err)

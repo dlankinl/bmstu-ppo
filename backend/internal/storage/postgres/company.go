@@ -9,7 +9,13 @@ import (
 )
 
 type CompanyRepository struct {
-	db *pgx.Conn
+	db *pgx.ConnPool
+}
+
+func NewCompanyRepository(db *pgx.ConnPool) domain.ICompanyRepository {
+	return &CompanyRepository{
+		db: db,
+	}
 }
 
 func (r *CompanyRepository) Create(ctx context.Context, company *domain.Company) (err error) {

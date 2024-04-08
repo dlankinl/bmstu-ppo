@@ -2,11 +2,12 @@ create schema if not exists ppo;
 
 create table if not exists ppo.users(
     id uuid primary key default gen_random_uuid(),
-    username varchar(256) not null,
-    full_name varchar(256) not null,
-    birthday date not null,
-    gender varchar(1) not null,
-    city varchar(128)
+    username varchar(256) unique,
+    full_name varchar(256),
+    birthday date,
+    gender varchar(1),
+    city varchar(128),
+    password varchar(256)
 );
 
 create table if not exists ppo.skills(

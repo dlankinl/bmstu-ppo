@@ -9,10 +9,10 @@ import (
 )
 
 type UserSkillRepository struct {
-	db *pgx.Conn
+	db *pgx.ConnPool
 }
 
-func NewUserSkillRepository(db *pgx.Conn) domain.IUserSkillRepository {
+func NewUserSkillRepository(db *pgx.ConnPool) domain.IUserSkillRepository {
 	return &UserSkillRepository{
 		db: db,
 	}
