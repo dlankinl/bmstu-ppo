@@ -4,17 +4,16 @@ import (
 	"context"
 	"errors"
 	"github.com/stretchr/testify/require"
-	"os"
 	"ppo/domain"
 	"testing"
 )
 
-func TestMain(m *testing.M) {
-	testDB := SetupTestDatabase()
-	testDbInstance = testDB.DbInstance
-	defer testDB.TearDown()
-	os.Exit(m.Run())
-}
+//func TestMain(m *testing.M) {
+//	testDB := SetupTestDatabase()
+//	testDbInstance = testDB.DbInstance
+//	defer testDB.TearDown()
+//	os.Exit(m.Run())
+//}
 
 func TestAuthRepository_Register(t *testing.T) {
 	repo := NewAuthRepository(testDbInstance)
@@ -69,10 +68,10 @@ func TestAuthRepository_GetByUsername(t *testing.T) {
 	}{
 		{
 			name:     "пользователь найден",
-			username: "test123",
+			username: "user3",
 			expected: &domain.UserAuth{
-				Username:   "test123",
-				HashedPass: "test123",
+				Username:   "user3",
+				HashedPass: "user3hehe",
 			},
 			wantErr: false,
 		},

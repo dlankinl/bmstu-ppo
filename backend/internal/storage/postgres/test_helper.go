@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"os"
+	"path/filepath"
 	"runtime"
 	"time"
 
@@ -102,7 +104,7 @@ func migrateDb(dbAddr string) error {
 	_ = path
 	//pathToMigrationFiles := filepath.Dir(path) + "/migration"
 	//fmt.Println(filepath.Dir(path) + "/migration")
-	pathToMigrationFiles := "/home/lankin/GolandProjects/ppo/bmstu-ppo/backend/sql"
+	pathToMigrationFiles := "/home/lankin/GolandProjects/ppo/bmstu-ppo/backend/migrations"
 
 	databaseURL := fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=disable", DbUser, DbPass, dbAddr, DbName)
 	m, err := migrate.New(fmt.Sprintf("file:%s", pathToMigrationFiles), databaseURL)
@@ -114,6 +116,40 @@ func migrateDb(dbAddr string) error {
 	err = m.Up()
 	if err != nil && !errors.Is(err, migrate.ErrNoChange) {
 		return err
+	}
+
+	return nil
+}
+
+func SeedTestData(db *pgxpool.Pool) error {
+	testDataDir := "../../../sql/test_data/"
+	files, err := os.ReadDir(testDataDir)
+	if err != nil {
+		return fmt.Errorf("ошибка при чтении директории с тестовыми данными: %w", err)
+	}
+
+	for _, file := range files {
+		if !file.IsDir() {
+			filePath := filepath.Join(testDataDir, file.Name())
+			err = executeTestDataScript(db, filePath)
+			if err != nil {
+				return fmt.Errorf("выполнение sql скрипта %s: %w", file.Name(), err)
+			}
+		}
+	}
+
+	return nil
+}
+
+func executeTestDataScript(db *pgxpool.Pool, filePath string) error {
+	scriptContent, err := os.ReadFile(filePath)
+	if err != nil {
+		return fmt.Errorf("чтение sql скрипта: %w", err)
+	}
+
+	_, err = db.Exec(context.Background(), string(scriptContent))
+	if err != nil {
+		return fmt.Errorf("выполнение sql скрипта: %w", err)
 	}
 
 	return nil

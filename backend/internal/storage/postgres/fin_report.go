@@ -133,6 +133,7 @@ func (r *FinReportRepository) Update(ctx context.Context, finRep *domain.Financi
 		finRep.Costs,
 		finRep.Year,
 		finRep.Quarter,
+		finRep.ID,
 	)
 	if err != nil {
 		return fmt.Errorf("обновление информации о финансовом отчете: %w", err)
