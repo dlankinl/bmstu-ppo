@@ -95,36 +95,6 @@ func (r *ActivityFieldRepository) GetById(ctx context.Context, id uuid.UUID) (fi
 	return nil, nil
 }
 
-// TODO: FIX
-func (r *ActivityFieldRepository) GetByCompanyId(ctx context.Context, id uuid.UUID) (cost float32, err error) {
-	// query := `select id, name, description, cost from ppo.activity_fields where owner_id = $1 `
-
-	// rows, err := r.db.Query(
-	// 	ctx,
-	// 	query,
-	// 	nil,
-	// 	id,
-	// )
-
-	// contacts = make([]*domain.Contact, 0)
-	// for rows.Next() {
-	// 	tmp := new(domain.Contact)
-
-	// 	err = rows.Scan(
-	// 		&tmp.ID,
-	// 		&tmp.Name,
-	// 		&tmp.Value,
-	// 	)
-	// 	tmp.OwnerID = id
-
-	// 	if err != nil {
-	// 		return nil, fmt.Errorf("сканирование полученных строк: %w", err)
-	// 	}
-	// }
-
-	return 0, nil
-}
-
 func (r *ActivityFieldRepository) GetMaxCost(ctx context.Context) (cost float32, err error) {
 	query := `select max(cost)
 		from ppo.activity_fields`
