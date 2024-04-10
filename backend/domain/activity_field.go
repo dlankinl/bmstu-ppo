@@ -17,7 +17,6 @@ type IActivityFieldRepository interface {
 	DeleteById(context.Context, uuid.UUID) error
 	Update(context.Context, *ActivityField) error
 	GetById(context.Context, uuid.UUID) (*ActivityField, error)
-	GetByCompanyId(context.Context, uuid.UUID) (float32, error)
 	GetMaxCost(context.Context) (float32, error)
 }
 
