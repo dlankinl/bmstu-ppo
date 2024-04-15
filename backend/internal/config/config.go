@@ -5,6 +5,8 @@ import (
 	"os"
 )
 
+const PageSize = 20
+
 type DBConfig struct {
 	User     string
 	Password string

@@ -44,16 +44,16 @@ func (r *UserRepository) Create(ctx context.Context, user *domain.User) (err err
 	return nil
 }
 
-func (r *UserRepository) GetById(ctx context.Context, id uuid.UUID) (user *domain.User, err error) {
-	query := `select username, full_name, birthday, gender, city from ppo.users where id = $1`
+func (r *UserRepository) GetByUsername(ctx context.Context, username string) (user *domain.User, err error) {
+	query := `select id, full_name, birthday, gender, city from ppo.users where username = $1`
 
 	user = new(domain.User)
 	err = r.db.QueryRow(
 		ctx,
 		query,
-		id,
+		username,
 	).Scan(
-		&user.Username,
+		&user.ID,
 		&user.FullName,
 		&user.Birthday,
 		&user.Gender,
@@ -63,17 +63,22 @@ func (r *UserRepository) GetById(ctx context.Context, id uuid.UUID) (user *domai
 		return nil, fmt.Errorf("получение пользователя по id: %w", err)
 	}
 
+	user.Username = username
 	return user, nil
 }
 
 func (r *UserRepository) GetAll(ctx context.Context, page int) (users []*domain.User, err error) {
-	query := `select username, full_name, birthday, gender, city from ppo.users offset $1 limit $2`
+	query := `select username, full_name, birthday, gender, city from ppo.users offset $1 limit $2
+	where full_name not null 
+	    and birthday not null
+	    and gender not null
+	    and city not null`
 
 	rows, err := r.db.Query(
 		ctx,
 		query,
-		(page-1)*pageSize,
-		pageSize,
+		(page-1)*PageSize,
+		PageSize,
 	)
 
 	users = make([]*domain.User, 0)
@@ -104,7 +109,7 @@ func (r *UserRepository) Update(ctx context.Context, user *domain.User) (err err
 			    birthday = $2, 
 			    gender = $3, 
 			    city = $4
-			where id = $5`
+			where username = $5`
 
 	_, err = r.db.Exec(
 		ctx,
@@ -113,7 +118,7 @@ func (r *UserRepository) Update(ctx context.Context, user *domain.User) (err err
 		user.Birthday,
 		user.Gender,
 		user.City,
-		user.ID,
+		user.Username,
 	)
 	if err != nil {
 		return fmt.Errorf("обновление информации о пользователе: %w", err)

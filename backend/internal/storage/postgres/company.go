@@ -134,8 +134,8 @@ func (r *CompanyRepository) GetAll(ctx context.Context, page int) (companies []*
 	rows, err := r.db.Query(
 		ctx,
 		query,
-		(page-1)*pageSize,
-		pageSize,
+		(page-1)*PageSize,
+		PageSize,
 	)
 
 	companies = make([]*domain.Company, 0)

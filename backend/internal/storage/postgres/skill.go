@@ -60,8 +60,8 @@ func (r *SkillRepository) GetAll(ctx context.Context, page int) (skills []*domai
 	rows, err := r.db.Query(
 		ctx,
 		query,
-		(page-1)*pageSize,
-		pageSize,
+		(page-1)*PageSize,
+		PageSize,
 	)
 
 	skills = make([]*domain.Skill, 0)
