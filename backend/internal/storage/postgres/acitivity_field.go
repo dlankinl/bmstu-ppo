@@ -99,7 +99,6 @@ func (r *ActivityFieldRepository) GetMaxCost(ctx context.Context) (cost float32,
 	query := `select max(cost)
 		from ppo.activity_fields`
 
-	//var maxVal float32
 	err = r.db.QueryRow(
 		ctx,
 		query,
