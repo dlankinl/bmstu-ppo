@@ -1,7 +1,9 @@
 package tui
 
 import (
+	"bufio"
 	"fmt"
+	"os"
 	"ppo/domain"
 	"ppo/internal/app"
 	"ppo/internal/config"
@@ -152,6 +154,7 @@ func guestMenu(a *app.App) (err error) {
 }
 
 func adminMenu(a *app.App) (err error) {
+	reader := bufio.NewReader(os.Stdin)
 	var choice int
 	for {
 		fmt.Println(adminPrompt)
@@ -193,7 +196,7 @@ func adminMenu(a *app.App) (err error) {
 			fmt.Printf("Введите дату рождения (ГГГГ-ММ-ДД): ")
 			_, err = fmt.Scanf("%s", &birthdayStr)
 			if err != nil {
-				return fmt.Errorf("ошибка ввода пароля")
+				return fmt.Errorf("ошибка ввода даты рождения")
 			}
 
 			bday, err := time.Parse("2006-01-02", birthdayStr)
@@ -226,38 +229,66 @@ func adminMenu(a *app.App) (err error) {
 			} else {
 				fmt.Println("Карточка предпринимателя заполнена успешно")
 			}
-		// TODO: сделать возможность оставить текущее значение (как в утилитах "y/N")
 		case 2:
-			page := 1
-			for {
-				users, err := a.UserSvc.GetAll(page)
+			var username, fullName, gender, birthdayStr, city string
+			fmt.Printf("Введите имя пользователя: ")
+			_, err = fmt.Scanf("%s", &username)
+			if err != nil {
+				return fmt.Errorf("ошибка ввода имени пользователя: %w", err)
+			}
+
+			user, err := a.UserSvc.GetByUsername(username)
+			if err != nil {
+				return fmt.Errorf("пользователь не найден")
+			}
+
+			fmt.Printf("Введите полное имя (%s): ", user.FullName)
+			fullName, _ = reader.ReadString('\n')
+			if err != nil {
+				return fmt.Errorf("ошибка ввода полного имени: %w", err)
+			}
+			fullName = strings.TrimSpace(fullName)
+			if fullName != "" {
+				user.FullName = fullName
+			}
+
+			fmt.Printf("Введите дату рождения в формате ГГГГ-ММ-ДД (%s): ", user.Birthday.Format("2006-01-02"))
+			birthdayStr, _ = reader.ReadString('\n')
+			if err != nil {
+				return fmt.Errorf("ошибка ввода даты рождения")
+			}
+			birthdayStr = strings.TrimSpace(birthdayStr)
+			if birthdayStr != "" {
+				bday, err := time.Parse("2006-01-02", birthdayStr)
 				if err != nil {
-					return fmt.Errorf("получение пользователей: %w, err")
+					return fmt.Errorf("ошибка перевода даты рождения в time.Time: %w", err)
 				}
+				user.Birthday = bday
+			}
 
-				if len(users) < config.PageSize {
-					break
-				} else {
-					fmt.Println("Выберите действие:\n1. Следующая страница.\n2. Предыдущая страница.\n0. Назад.")
-					var option int
-					_, err = fmt.Scanf("%d", &option)
-					if err != nil {
-						return fmt.Errorf("ошибка ввода следующего действия: %w", err)
-					}
+			fmt.Printf("Введите пол (%s): ", user.Gender)
+			gender, _ = reader.ReadString('\n')
+			if err != nil {
+				return fmt.Errorf("ошибка ввода пола: %w", err)
+			}
+			gender = strings.TrimSpace(gender)
+			if gender != "" {
+				user.Gender = gender
+			}
 
-					switch option {
-					case 1:
-						page++
-					case 2:
-						if page > 1 {
-							page--
-						}
-					case 0:
-						break
-					}
-				}
+			fmt.Printf("Введите город (%s): ", user.City)
+			city, _ = reader.ReadString('\n')
+			if err != nil {
+				return fmt.Errorf("ошибка ввода города: %w", err)
+			}
+			city = strings.TrimSpace(city)
+			if city != "" {
+				user.City = city
+			}
 
-				utils.PrintUsers(users)
+			err = a.UserSvc.Update(user)
+			if err != nil {
+				return fmt.Errorf("ошибка обновления карточки предпринимателя: %w", err)
 			}
 		case 0:
 			return nil
