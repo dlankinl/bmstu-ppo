@@ -6,6 +6,7 @@ import (
 	"ppo/internal/app"
 	"ppo/internal/config"
 	"ppo/internal/tui/utils"
+	"strings"
 	"time"
 )
 
@@ -49,6 +50,35 @@ func Run(a *app.App) (err error) {
 			}
 
 			fmt.Println(token)
+		case 3:
+			var login, password string
+			fmt.Printf("Введите логин: ")
+			_, err = fmt.Scanf("%s", &login)
+			if err != nil {
+				fmt.Println("Ошибка ввода логина")
+				continue
+			}
+
+			fmt.Printf("Введите пароль: ")
+			_, err = fmt.Scanf("%s", &password)
+			if err != nil {
+				fmt.Println("Ошибка ввода пароля")
+				continue
+			}
+
+			ua := &domain.UserAuth{Username: login, Password: password}
+			token, err := a.AuthSvc.Login(ua)
+			if err != nil {
+				fmt.Println("Ошибка авторизации: %v", err)
+				continue
+			}
+
+			fmt.Println("TOKEN: ", token)
+			err = adminMenu(a)
+			if err != nil {
+				fmt.Println(err)
+				continue
+			}
 		}
 	}
 }
@@ -132,7 +162,7 @@ func adminMenu(a *app.App) (err error) {
 
 		switch choice {
 		case 1:
-			var fullName, birthdayStr, city, gender, username string
+			var fullName, birthdayStr, city, gender, username, lastName, midName, firstName string
 
 			fmt.Printf("Введите имя пользователя:")
 			_, err = fmt.Scanf("%s", &username)
@@ -140,11 +170,25 @@ func adminMenu(a *app.App) (err error) {
 				return fmt.Errorf("ошибка ввода имени пользователя")
 			}
 
-			fmt.Printf("Введите ФИО через пробел:")
-			_, err = fmt.Scanf("%s", &username)
+			fmt.Printf("Введите фамилию:")
+			_, err = fmt.Scanf("%s", &lastName)
 			if err != nil {
-				return fmt.Errorf("ошибка ввода имени пользователя")
+				return fmt.Errorf("ошибка ввода фамилии")
 			}
+
+			fmt.Printf("Введите имя:")
+			_, err = fmt.Scanf("%s", &firstName)
+			if err != nil {
+				return fmt.Errorf("ошибка ввода имени")
+			}
+
+			fmt.Printf("Введите отчество:")
+			_, err = fmt.Scanf("%s", &midName)
+			if err != nil {
+				return fmt.Errorf("ошибка ввода отчества")
+			}
+
+			fullName = strings.Join([]string{lastName, firstName, midName}, " ")
 
 			fmt.Printf("Введите дату рождения (ГГГГ-ММ-ДД): ")
 			_, err = fmt.Scanf("%s", &birthdayStr)
