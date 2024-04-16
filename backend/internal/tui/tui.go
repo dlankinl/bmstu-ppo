@@ -6,9 +6,7 @@ import (
 	"os"
 	"ppo/domain"
 	"ppo/internal/app"
-	"ppo/internal/config"
 	"ppo/internal/tui/handlers"
-	"ppo/internal/tui/utils"
 	"ppo/pkg/base"
 )
 
@@ -442,37 +440,7 @@ func guestMenu(a *app.App) (err error) {
 			}
 			return nil
 		case 2:
-			page := 1
-			for {
-				users, err := a.UserSvc.GetAll(page)
-				if err != nil {
-					return fmt.Errorf("получение пользователей: %w, err")
-				}
 
-				if len(users) < config.PageSize {
-					break
-				} else {
-					fmt.Println("Выберите действие:\n1. Следующая страница.\n2. Предыдущая страница.\n0. Назад.")
-					var option int
-					_, err = fmt.Scanf("%d", &option)
-					if err != nil {
-						return fmt.Errorf("ошибка ввода следующего действия: %w", err)
-					}
-
-					switch option {
-					case 1:
-						page++
-					case 2:
-						if page > 1 {
-							page--
-						}
-					case 0:
-						break
-					}
-				}
-
-				utils.PrintUsers(users)
-			}
 		case 0:
 			return nil
 		}
