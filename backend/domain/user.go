@@ -13,6 +13,7 @@ type User struct {
 	Gender   string
 	Birthday time.Time
 	City     string
+	Role     string
 }
 
 type IUserRepository interface {

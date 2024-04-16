@@ -45,30 +45,31 @@ func (r *UserRepository) Create(ctx context.Context, user *domain.User) (err err
 }
 
 func (r *UserRepository) GetByUsername(ctx context.Context, username string) (user *domain.User, err error) {
-	query := `select id, full_name, birthday, gender, city from ppo.users where username = $1`
+	query := `select id, username, full_name, birthday, gender, city, role from ppo.users where username = $1`
 
-	user = new(domain.User)
+	tmp := new(User)
 	err = r.db.QueryRow(
 		ctx,
 		query,
 		username,
 	).Scan(
-		&user.ID,
-		&user.FullName,
-		&user.Birthday,
-		&user.Gender,
-		&user.City,
+		&tmp.ID,
+		&tmp.Username,
+		&tmp.FullName,
+		&tmp.Birthday,
+		&tmp.Gender,
+		&tmp.City,
+		&tmp.Role,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("получение пользователя по id: %w", err)
+		return nil, fmt.Errorf("получение пользователя по username: %w", err)
 	}
 
-	user.Username = username
-	return user, nil
+	return UserDbToUser(tmp), nil
 }
 
 func (r *UserRepository) GetById(ctx context.Context, userId uuid.UUID) (user *domain.User, err error) {
-	query := `select username, full_name, birthday, gender, city from ppo.users where id = $1`
+	query := `select username, full_name, birthday, gender, city, role from ppo.users where id = $1`
 
 	user = new(domain.User)
 	err = r.db.QueryRow(
@@ -81,6 +82,7 @@ func (r *UserRepository) GetById(ctx context.Context, userId uuid.UUID) (user *d
 		&user.Birthday,
 		&user.Gender,
 		&user.City,
+		&user.Role,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("получение пользователя по id: %w", err)
@@ -131,9 +133,11 @@ func (r *UserRepository) Update(ctx context.Context, user *domain.User) (err err
 			    full_name = $1, 
 			    birthday = $2, 
 			    gender = $3, 
-			    city = $4
-			where username = $5`
+			    city = $4,
+			    role = $5
+			where username = $6`
 
+	fmt.Println("HERE", user.Role)
 	_, err = r.db.Exec(
 		ctx,
 		query,
@@ -141,6 +145,7 @@ func (r *UserRepository) Update(ctx context.Context, user *domain.User) (err err
 		user.Birthday,
 		user.Gender,
 		user.City,
+		user.Role,
 		user.Username,
 	)
 	if err != nil {
