@@ -67,6 +67,29 @@ func (r *UserRepository) GetByUsername(ctx context.Context, username string) (us
 	return user, nil
 }
 
+func (r *UserRepository) GetById(ctx context.Context, userId uuid.UUID) (user *domain.User, err error) {
+	query := `select username, full_name, birthday, gender, city from ppo.users where id = $1`
+
+	user = new(domain.User)
+	err = r.db.QueryRow(
+		ctx,
+		query,
+		userId,
+	).Scan(
+		&user.Username,
+		&user.FullName,
+		&user.Birthday,
+		&user.Gender,
+		&user.City,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("получение пользователя по id: %w", err)
+	}
+
+	user.ID = userId
+	return user, nil
+}
+
 func (r *UserRepository) GetAll(ctx context.Context, page int) (users []*domain.User, err error) {
 	query := `select username, full_name, birthday, gender, city from ppo.users offset $1 limit $2
 	where full_name not null 

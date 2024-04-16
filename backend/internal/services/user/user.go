@@ -68,6 +68,17 @@ func (s *Service) GetByUsername(username string) (user *domain.User, err error) 
 	return user, nil
 }
 
+func (s *Service) GetById(userId uuid.UUID) (user *domain.User, err error) {
+	ctx := context.Background()
+
+	user, err = s.userRepo.GetById(ctx, userId)
+	if err != nil {
+		return nil, fmt.Errorf("получение пользователя по id: %w", err)
+	}
+
+	return user, nil
+}
+
 func (s *Service) GetAll(page int) (users []*domain.User, err error) {
 	ctx := context.Background()
 

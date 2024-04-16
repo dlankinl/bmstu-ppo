@@ -78,7 +78,7 @@ func (s *Service) GetUsersForSkill(skillId uuid.UUID) (users []*domain.User, err
 
 	users = make([]*domain.User, len(userSkills))
 	for i, userSkill := range userSkills {
-		user, err := s.userRepo.GetByUsername(ctx, userSkill.Username)
+		user, err := s.userRepo.GetById(ctx, userSkill.UserId)
 		if err != nil {
 			return nil, fmt.Errorf("получение пользователя по userId: %w", err)
 		}

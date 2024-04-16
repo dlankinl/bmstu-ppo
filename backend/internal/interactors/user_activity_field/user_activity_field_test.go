@@ -26,7 +26,7 @@ func TestInteractor_CalculateUserRating(t *testing.T) {
 	actFieldRepo := mocks.NewMockIActivityFieldRepository(ctrl)
 
 	userSvc := user.NewService(userRepo, compRepo, actFieldRepo)
-	actFieldSvc := activity_field.NewService(actFieldRepo)
+	actFieldSvc := activity_field.NewService(actFieldRepo, compRepo)
 	compSvc := company.NewService(compRepo)
 	finSvc := fin_report.NewService(finRepo)
 
@@ -67,12 +67,36 @@ func TestInteractor_CalculateUserRating(t *testing.T) {
 							},
 						}, nil).AnyTimes()
 
-				actFieldRepo.EXPECT().
-					GetByCompanyId(
+				compRepo.EXPECT().
+					GetById(
 						context.Background(),
 						uuid.UUID{1},
 					).
-					Return(float32(5.0), nil)
+					Return(&domain.Company{
+						ID:              uuid.UUID{1},
+						OwnerID:         uuid.UUID{1},
+						ActivityFieldId: uuid.UUID{1},
+						Name:            "a",
+						City:            "a",
+					}, nil)
+
+				actFieldRepo.EXPECT().
+					GetById(
+						context.Background(),
+						uuid.UUID{1},
+					).
+					Return(
+						&domain.ActivityField{
+							ID:   uuid.UUID{1},
+							Cost: float32(5.0),
+						}, nil)
+
+				//actFieldRepo.EXPECT().
+				//	GetByCompanyId(
+				//		context.Background(),
+				//		uuid.UUID{1},
+				//	).
+				//	Return(float32(5.0), nil)
 
 				actFieldRepo.EXPECT().
 					GetMaxCost(context.Background()).
@@ -217,7 +241,7 @@ func TestInteractor_GetMostProfitableCompany(t *testing.T) {
 	actFieldRepo := mocks.NewMockIActivityFieldRepository(ctrl)
 
 	userSvc := user.NewService(userRepo, compRepo, actFieldRepo)
-	actFieldSvc := activity_field.NewService(actFieldRepo)
+	actFieldSvc := activity_field.NewService(actFieldRepo, compRepo)
 	compSvc := company.NewService(compRepo)
 	finSvc := fin_report.NewService(finRepo)
 
@@ -379,7 +403,7 @@ func TestInteractor_GetUserFinancialReport(t *testing.T) {
 	actFieldRepo := mocks.NewMockIActivityFieldRepository(ctrl)
 
 	userSvc := user.NewService(userRepo, compRepo, actFieldRepo)
-	actFieldSvc := activity_field.NewService(actFieldRepo)
+	actFieldSvc := activity_field.NewService(actFieldRepo, compRepo)
 	compSvc := company.NewService(compRepo)
 	finSvc := fin_report.NewService(finRepo)
 
