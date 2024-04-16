@@ -18,7 +18,7 @@ func NewAuthRepository(db *pgxpool.Pool) domain.IAuthRepository {
 }
 
 func (r *AuthRepository) Register(ctx context.Context, authInfo *domain.UserAuth) (err error) {
-	query := `insert into ppo.users (username, password) values ($1, $2)`
+	query := `insert into ppo.users (username, password, role) values ($1, $2, 'user')`
 
 	_, err = r.db.Exec(
 		ctx,

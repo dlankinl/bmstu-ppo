@@ -27,6 +27,7 @@ type App struct {
 	ActFieldSvc  domain.IActivityFieldService
 	CompSvc      domain.ICompanyService
 	Interactor   domain.IInteractor
+	Config       config.Config
 }
 
 func NewApp(db *pgxpool.Pool, cfg *config.Config) *App {
@@ -61,5 +62,6 @@ func NewApp(db *pgxpool.Pool, cfg *config.Config) *App {
 		ActFieldSvc:  actFieldSvc,
 		CompSvc:      compSvc,
 		Interactor:   interactor,
+		Config:       *cfg,
 	}
 }
