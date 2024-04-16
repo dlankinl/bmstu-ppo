@@ -6,12 +6,13 @@ import (
 	"time"
 )
 
-func GenerateAuthToken(username, jwtKey string) (tokenString string, err error) {
+func GenerateAuthToken(username, jwtKey, role string) (tokenString string, err error) {
 	token := jwt.NewWithClaims(
 		jwt.SigningMethodHS256,
 		jwt.MapClaims{
 			"username": username,
 			"exp":      time.Now().Add(time.Hour * 24).Unix(),
+			"role":     role,
 		})
 
 	tokenString, err = token.SignedString([]byte(jwtKey))
@@ -22,18 +23,22 @@ func GenerateAuthToken(username, jwtKey string) (tokenString string, err error) 
 	return tokenString, nil
 }
 
-func VerifyAuthToken(tokenString, jwtKey string) error {
+func VerifyAuthToken(tokenString, jwtKey string) (role string, err error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		return []byte(jwtKey), nil
 	})
 
 	if err != nil {
-		return fmt.Errorf("парсинг токена: %w", err)
+		return "", fmt.Errorf("парсинг токена: %w", err)
 	}
 
 	if !token.Valid {
-		return fmt.Errorf("токен невалидный")
+		return "", fmt.Errorf("токен невалидный")
 	}
 
-	return nil
+	if claims, ok := token.Claims.(jwt.MapClaims); ok {
+		role = fmt.Sprint(claims["role"])
+	}
+
+	return role, nil
 }

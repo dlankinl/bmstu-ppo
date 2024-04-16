@@ -34,7 +34,7 @@ func (r *AuthRepository) Register(ctx context.Context, authInfo *domain.UserAuth
 }
 
 func (r *AuthRepository) GetByUsername(ctx context.Context, username string) (data *domain.UserAuth, err error) {
-	query := `select password from ppo.users where username = $1`
+	query := `select password, role from ppo.users where username = $1`
 
 	data = new(domain.UserAuth)
 	err = r.db.QueryRow(
@@ -43,6 +43,7 @@ func (r *AuthRepository) GetByUsername(ctx context.Context, username string) (da
 		username,
 	).Scan(
 		&data.HashedPass,
+		&data.Role,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("получение пользователя по username: %w", err)

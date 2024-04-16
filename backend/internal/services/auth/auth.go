@@ -67,7 +67,7 @@ func (s *Service) Login(authInfo *domain.UserAuth) (token string, err error) {
 		return "", fmt.Errorf("неверный пароль")
 	}
 
-	token, err = base.GenerateAuthToken(authInfo.Username, s.jwtKey)
+	token, err = base.GenerateAuthToken(authInfo.Username, s.jwtKey, authInfo.Role)
 	if err != nil {
 		return "", fmt.Errorf("генерация токена: %w", err)
 	}

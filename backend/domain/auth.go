@@ -10,6 +10,7 @@ type UserAuth struct {
 	Username   string
 	Password   string
 	HashedPass string
+	Role       string
 }
 
 type IAuthRepository interface {
