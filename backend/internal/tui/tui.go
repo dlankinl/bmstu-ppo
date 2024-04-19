@@ -55,7 +55,7 @@ var actions = []Action{
 	},
 }
 
-func Run(a *app.App) (err error) {
+func (t *TUI) Run() (err error) {
 	var choice int
 	reader := bufio.NewReader(os.Stdin)
 	_ = reader
@@ -71,7 +71,7 @@ func Run(a *app.App) (err error) {
 		case 0:
 			return nil
 		case 1:
-			err = guestMenu(a)
+			err = t.guestMenu()
 			if err != nil {
 				fmt.Println(err)
 				continue
@@ -91,20 +91,22 @@ func Run(a *app.App) (err error) {
 			}
 
 			ua := &domain.UserAuth{Username: login, Password: password}
-			token, err := a.AuthSvc.Login(ua)
+			token, err := t.app.AuthSvc.Login(ua)
 			if err != nil {
 				return fmt.Errorf("ошибка авторизации: %w", err)
 			}
 
-			payload, err := base.VerifyAuthToken(token, a.Config.JwtKey)
+			payload, err := base.VerifyAuthToken(token, t.app.Config.JwtKey)
 			if err != nil {
 				return fmt.Errorf("ошибка верификации JWT токена: %w", err)
 			}
 
+			fmt.Println("PAYLOAD", payload)
+			t.userInfo = payload
 			if payload.Role == admin {
-				err = adminMenu(a, payload)
+				err = t.adminMenu()
 			} else if payload.Role == user {
-				err = userMenu(a, payload)
+				err = t.userMenu()
 			}
 			if err != nil {
 				fmt.Println(err)
@@ -119,7 +121,7 @@ func Run(a *app.App) (err error) {
 	}
 }
 
-func userMenu(a *app.App, payload *base.JwtPayload) (err error) {
+func (t *TUI) userMenu() (err error) {
 	//for {
 	//	actionsPrompt := generateActionsPrompt(role)
 	//	fmt.Print(actionsPrompt)
@@ -144,20 +146,26 @@ func userMenu(a *app.App, payload *base.JwtPayload) (err error) {
 		case 0:
 			return nil
 		case 1:
-			err = handlers.GetAllUsers(a)
+			err = handlers.GetAllUsers(t.app)
 			if err != nil {
 				return fmt.Errorf("ошибка просмотра списка предпринимателей: %w", err)
 			}
 		case 2:
-			err = handlers.CalculateRating(a)
+			err = handlers.CalculateRating(t.app)
 			if err != nil {
 				return fmt.Errorf("ошибка вычисления рейтинга предпринимателя: %w", err)
+			}
+		case 3:
+			fmt.Println(t.userInfo)
+			err = t.companiesMenu()
+			if err != nil {
+				return err
 			}
 		}
 	}
 }
 
-func guestMenu(a *app.App) (err error) {
+func (t *TUI) guestMenu() (err error) {
 	var choice int
 	for {
 		fmt.Println(guestPrompt)
@@ -183,13 +191,13 @@ func guestMenu(a *app.App) (err error) {
 			}
 
 			ua := &domain.UserAuth{Username: login, Password: password}
-			err = a.AuthSvc.Register(ua)
+			err = t.app.AuthSvc.Register(ua)
 			if err != nil {
 				return fmt.Errorf("ошибка регистрации: %w", err)
 			}
 			return nil
 		case 2:
-			err = handlers.GetAllUsers(a)
+			err = handlers.GetAllUsers(t.app)
 			if err != nil {
 				return fmt.Errorf("ошибка просмотра списка предпринимателей: %w", err)
 			}
@@ -199,7 +207,7 @@ func guestMenu(a *app.App) (err error) {
 	}
 }
 
-func adminMenu(a *app.App, payload *base.JwtPayload) (err error) {
+func (t *TUI) adminMenu() (err error) {
 	var choice int
 	for {
 		fmt.Println(adminPrompt)
@@ -210,14 +218,14 @@ func adminMenu(a *app.App, payload *base.JwtPayload) (err error) {
 
 		switch choice {
 		case 1:
-			err = handlers.CreateUser(a)
+			err = handlers.CreateUser(t.app)
 			if err != nil {
 				return fmt.Errorf("ошибка заполнения карточки предпринимателя: %w", err)
 			} else {
 				fmt.Println("Карточка предпринимателя заполнена успешно")
 			}
 		case 2:
-			err = handlers.UpdateUser(a)
+			err = handlers.UpdateUser(t.app)
 			if err != nil {
 				return err
 			}
@@ -229,7 +237,7 @@ func adminMenu(a *app.App, payload *base.JwtPayload) (err error) {
 	}
 }
 
-func companiesMenu(a *app.App, payload *base.JwtPayload) (err error) {
+func (t *TUI) companiesMenu() (err error) {
 	var choice int
 	for {
 		fmt.Println(companiesPrompt)
@@ -240,14 +248,14 @@ func companiesMenu(a *app.App, payload *base.JwtPayload) (err error) {
 
 		switch choice {
 		case 1:
-			err = handlers.CreateUser(a)
+			err = handlers.AddCompany(t.app, t.userInfo.Username)
 			if err != nil {
-				return fmt.Errorf("ошибка заполнения карточки предпринимателя: %w", err)
+				return fmt.Errorf("ошибка добавления компании: %w", err)
 			} else {
-				fmt.Println("Карточка предпринимателя заполнена успешно")
+				fmt.Println("Компания успешно добавлена")
 			}
 		case 2:
-			err = handlers.UpdateUser(a)
+			err = handlers.UpdateUser(t.app)
 			if err != nil {
 				return err
 			}

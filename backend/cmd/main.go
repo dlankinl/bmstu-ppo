@@ -38,8 +38,9 @@ func main() {
 	}
 
 	app := app.NewApp(pool, cfg)
+	termui := tui.NewTUI(app)
 
-	err = tui.Run(app)
+	err = termui.Run()
 	if err != nil {
 		log.Fatalln(err)
 	}
