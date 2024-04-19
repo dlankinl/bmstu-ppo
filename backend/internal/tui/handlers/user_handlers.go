@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-func GetAllUsers(a *app.App) (err error) {
+func GetAllUsers(a *app.App, args ...any) (err error) {
 	page := 1
 	for {
 		users, err := a.UserSvc.GetAll(page)
@@ -43,7 +43,7 @@ func GetAllUsers(a *app.App) (err error) {
 	}
 }
 
-func CalculateRating(a *app.App) (err error) {
+func CalculateRating(a *app.App, args ...any) (err error) {
 	reader := bufio.NewReader(os.Stdin)
 	var idStr string
 

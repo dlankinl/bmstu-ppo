@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func UpdateUser(a *app.App) (err error) {
+func UpdateUser(a *app.App, args ...any) (err error) {
 	reader := bufio.NewReader(os.Stdin)
 
 	var username, fullName, gender, birthdayStr, city, role string
@@ -86,7 +86,7 @@ func UpdateUser(a *app.App) (err error) {
 	return nil
 }
 
-func CreateUser(a *app.App) (err error) {
+func CreateUser(a *app.App, args ...any) (err error) {
 	reader := bufio.NewReader(os.Stdin)
 
 	var username, fullName, gender, birthdayStr, city, role string

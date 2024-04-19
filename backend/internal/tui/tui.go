@@ -18,7 +18,7 @@ const (
 type Action struct {
 	Role string
 	Name string
-	Func func(...any) any
+	Func func(*app.App, ...any) error
 }
 
 type TUI struct {
@@ -36,10 +36,17 @@ var actions = []Action{
 	{
 		Role: admin,
 		Name: "Редактировать карточку предпринимателя",
+		Func: handlers.UpdateUser,
 	},
 	{
 		Role: admin,
 		Name: "Создать карточку предпринимателя",
+		Func: handlers.CreateUser,
+	},
+	{
+		Role: user,
+		Name: "Добавить компанию",
+		Func: handlers.AddCompany,
 	},
 	{
 		Role: admin,
@@ -52,6 +59,12 @@ var actions = []Action{
 	{
 		Role: user,
 		Name: "Просмотреть список предпринимателей",
+		Func: handlers.GetAllUsers,
+	},
+	{
+		Role: admin,
+		Name: "Добавить сферу деятельности",
+		Func: handlers.AddActivityField,
 	},
 }
 
@@ -101,68 +114,59 @@ func (t *TUI) Run() (err error) {
 				return fmt.Errorf("ошибка верификации JWT токена: %w", err)
 			}
 
-			fmt.Println("PAYLOAD", payload)
 			t.userInfo = payload
-			if payload.Role == admin {
-				err = t.adminMenu()
-			} else if payload.Role == user {
-				err = t.userMenu()
-			}
+			err = t.userMenu()
 			if err != nil {
 				fmt.Println(err)
 				continue
 			}
-			//err = userMenu(a, role)
-			//if err != nil {
-			//	fmt.Println(err)
-			//	continue
-			//}
 		}
 	}
 }
 
 func (t *TUI) userMenu() (err error) {
-	//for {
-	//	actionsPrompt := generateActionsPrompt(role)
-	//	fmt.Print(actionsPrompt)
-	//
-	//	var choice int
-	//	_, err = fmt.Scanf("%d", &choice)
-	//
-	//	switch choice {
-	//	case 0:
-	//		return nil
-	//	}
-	//}
-	var choice int
 	for {
-		fmt.Println(userPrompt)
+		actions, prompt := generateActionsPrompt(t.userInfo.Role)
+		fmt.Println(prompt)
+		fmt.Println(actions)
+
+		var choice int
 		_, err = fmt.Scanf("%d", &choice)
-		if err != nil {
-			fmt.Printf("ошибка ввода: %v", err)
-		}
 
 		switch choice {
 		case 0:
 			return nil
-		case 1:
-			err = handlers.GetAllUsers(t.app)
-			if err != nil {
-				return fmt.Errorf("ошибка просмотра списка предпринимателей: %w", err)
-			}
-		case 2:
-			err = handlers.CalculateRating(t.app)
-			if err != nil {
-				return fmt.Errorf("ошибка вычисления рейтинга предпринимателя: %w", err)
-			}
-		case 3:
-			fmt.Println(t.userInfo)
-			err = t.companiesMenu()
-			if err != nil {
-				return err
-			}
 		}
 	}
+	//var choice int
+	//for {
+	//	fmt.Println(userPrompt)
+	//	_, err = fmt.Scanf("%d", &choice)
+	//	if err != nil {
+	//		fmt.Printf("ошибка ввода: %v", err)
+	//	}
+	//
+	//	switch choice {
+	//	case 0:
+	//		return nil
+	//	case 1:
+	//		err = handlers.GetAllUsers(t.app)
+	//		if err != nil {
+	//			return fmt.Errorf("ошибка просмотра списка предпринимателей: %w", err)
+	//		}
+	//	case 2:
+	//		err = handlers.CalculateRating(t.app)
+	//		if err != nil {
+	//			return fmt.Errorf("ошибка вычисления рейтинга предпринимателя: %w", err)
+	//		}
+	//	case 3:
+	//		fmt.Println(t.userInfo)
+	//		err = t.companiesMenu()
+	//		if err != nil {
+	//			return err
+	//		}
+	//	}
+	//}
 }
 
 func (t *TUI) guestMenu() (err error) {
@@ -267,18 +271,18 @@ func (t *TUI) companiesMenu() (err error) {
 	}
 }
 
-func generateActionsPrompt(role string) (actionsPrompt string) {
-	allowedActions := make([]Action, 0)
+func generateActionsPrompt(role string) (actionsList []*Action, actionsPrompt string) {
+	actionsList = make([]*Action, 0)
 
 	j := 1
 	for _, action := range actions {
 		if role == action.Role {
-			allowedActions = append(allowedActions, action)
+			actionsList = append(actionsList, &action)
 			actionsPrompt += fmt.Sprintf("\n%d. %s", j, action.Name)
 			j++
 		}
 	}
 	actionsPrompt += "\n\nВыберите действие: "
 
-	return actionsPrompt
+	return actionsList, actionsPrompt
 }

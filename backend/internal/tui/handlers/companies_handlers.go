@@ -7,45 +7,20 @@ import (
 	"os"
 	"ppo/domain"
 	"ppo/internal/app"
-	"ppo/internal/config"
-	"ppo/internal/tui/utils"
 	"strings"
 )
 
-func getAllActivityFields(a *app.App) (err error) {
-	page := 1
-	for {
-		fields, err := a.ActFieldSvc.GetAll(page)
-		if err != nil {
-			return fmt.Errorf("получение сфер деятельности: %w, err")
-		}
+func AddCompany(a *app.App, args ...any) (err error) {
+	reader := bufio.NewReader(os.Stdin)
 
-		utils.PrintActivityFields(fields)
-
-		fmt.Printf("1. Следующая страница.\n2. Предыдущая страница.\n0. Назад.\n\nВыберите действие: ")
-		var option int
-		_, err = fmt.Scanf("%d", &option)
-		if err != nil {
-			return fmt.Errorf("ошибка ввода следующего действия: %w", err)
-		}
-
-		switch option {
-		case 1:
-			if len(fields) == config.PageSize {
-				page++
-			}
-		case 2:
-			if page > 1 {
-				page--
-			}
-		case 0:
-			return nil
+	var username string
+	var ok bool
+	if len(args) > 0 {
+		username, ok = args[0].(string)
+		if !ok {
+			return fmt.Errorf("приведение аргумента к string")
 		}
 	}
-}
-
-func AddCompany(a *app.App, username string) (err error) {
-	reader := bufio.NewReader(os.Stdin)
 
 	user, err := a.UserSvc.GetByUsername(username)
 	if err != nil {
@@ -66,16 +41,15 @@ func AddCompany(a *app.App, username string) (err error) {
 	}
 	city = strings.TrimSpace(city)
 
+	err = getAllActivityFields(a)
+	if err != nil {
+		return fmt.Errorf("вывод сфер деятельности с пагинацией: %w", err)
+	}
+
 	fmt.Printf("Введите id сферы деятельности (-1 - вывести список):")
 	activityFieldId, err = reader.ReadString('\n')
 	if err != nil {
 		return fmt.Errorf("ошибка ввода сферы деятельности: %w", err)
-	}
-	if activityFieldId == "-1" {
-		err = getAllActivityFields(a)
-		if err != nil {
-			return fmt.Errorf("вывод сфер деятельности с пагинацией: %w", err)
-		}
 	}
 
 	activityFieldUuid, err := uuid.Parse(activityFieldId)
@@ -91,7 +65,7 @@ func AddCompany(a *app.App, username string) (err error) {
 
 	err = a.CompSvc.Create(&company)
 	if err != nil {
-		return fmt.Errorf("ошибка добавления информации в карточку предпринимателя: %w", err)
+		return fmt.Errorf("ошибка добавления компании: %w", err)
 	}
 
 	return nil
