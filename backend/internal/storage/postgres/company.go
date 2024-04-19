@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"ppo/domain"
+	"ppo/internal/config"
 )
 
 type CompanyRepository struct {
@@ -134,8 +135,8 @@ func (r *CompanyRepository) GetAll(ctx context.Context, page int) (companies []*
 	rows, err := r.db.Query(
 		ctx,
 		query,
-		(page-1)*PageSize,
-		PageSize,
+		(page-1)*config.PageSize,
+		config.PageSize,
 	)
 
 	companies = make([]*domain.Company, 0)

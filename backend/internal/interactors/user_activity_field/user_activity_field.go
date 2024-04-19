@@ -151,6 +151,9 @@ func (i *Interactor) CalculateUserRating(id uuid.UUID) (rating float32, err erro
 	if err != nil {
 		return 0, fmt.Errorf("поиск наиболее прибыльной компании: %w", err)
 	}
+	if mostProfitableCompany == nil {
+		return 0, fmt.Errorf("у предпринимателя не найдены компании")
+	}
 
 	maxCost, err := i.actFieldService.GetMaxCost()
 

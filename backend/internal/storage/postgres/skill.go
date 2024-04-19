@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"ppo/domain"
+	"ppo/internal/config"
 )
 
 type SkillRepository struct {
@@ -60,8 +61,8 @@ func (r *SkillRepository) GetAll(ctx context.Context, page int) (skills []*domai
 	rows, err := r.db.Query(
 		ctx,
 		query,
-		(page-1)*PageSize,
-		PageSize,
+		(page-1)*config.PageSize,
+		config.PageSize,
 	)
 
 	skills = make([]*domain.Skill, 0)

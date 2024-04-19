@@ -18,6 +18,7 @@ type IActivityFieldRepository interface {
 	Update(context.Context, *ActivityField) error
 	GetById(context.Context, uuid.UUID) (*ActivityField, error)
 	GetMaxCost(context.Context) (float32, error)
+	GetAll(context.Context, int) ([]*ActivityField, error)
 }
 
 type IActivityFieldService interface {
@@ -27,4 +28,5 @@ type IActivityFieldService interface {
 	GetById(uuid.UUID) (*ActivityField, error)
 	GetCostByCompanyId(uuid.UUID) (float32, error)
 	GetMaxCost() (float32, error)
+	GetAll(page int) ([]*ActivityField, error)
 }

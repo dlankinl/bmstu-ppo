@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"ppo/domain"
+	"ppo/internal/config"
 )
 
 type UserRepository struct {
@@ -93,17 +94,19 @@ func (r *UserRepository) GetById(ctx context.Context, userId uuid.UUID) (user *d
 }
 
 func (r *UserRepository) GetAll(ctx context.Context, page int) (users []*domain.User, err error) {
-	query := `select username, full_name, birthday, gender, city from ppo.users offset $1 limit $2
-	where full_name not null 
-	    and birthday not null
-	    and gender not null
-	    and city not null`
+	query := `select id, username, full_name, birthday, gender, city from ppo.users
+	where full_name is not null 
+	    and birthday is not null
+	    and gender is not null
+	    and city is not null
+		and role = 'user'
+	offset $1 limit $2`
 
 	rows, err := r.db.Query(
 		ctx,
 		query,
-		(page-1)*PageSize,
-		PageSize,
+		(page-1)*config.PageSize,
+		config.PageSize,
 	)
 
 	users = make([]*domain.User, 0)
@@ -111,6 +114,7 @@ func (r *UserRepository) GetAll(ctx context.Context, page int) (users []*domain.
 		tmp := new(domain.User)
 
 		err = rows.Scan(
+			&tmp.ID,
 			&tmp.Username,
 			&tmp.FullName,
 			&tmp.Birthday,
@@ -121,6 +125,7 @@ func (r *UserRepository) GetAll(ctx context.Context, page int) (users []*domain.
 		if err != nil {
 			return nil, fmt.Errorf("сканирование полученных строк: %w", err)
 		}
+		users = append(users, tmp)
 	}
 
 	return users, nil
@@ -137,7 +142,6 @@ func (r *UserRepository) Update(ctx context.Context, user *domain.User) (err err
 			    role = $5
 			where username = $6`
 
-	fmt.Println("HERE", user.Role)
 	_, err = r.db.Exec(
 		ctx,
 		query,

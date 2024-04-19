@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-const PageSize = 20
+const PageSize = 3
 
 type DBConfig struct {
 	User     string

@@ -1,45 +1,70 @@
 package handlers
 
 import (
+	"bufio"
 	"fmt"
+	"github.com/google/uuid"
+	"os"
 	"ppo/internal/app"
 	"ppo/internal/config"
 	"ppo/internal/tui/utils"
+	"strings"
 )
 
 func GetAllUsers(a *app.App) (err error) {
 	page := 1
-	flag := true
-	for flag {
+	for {
 		users, err := a.UserSvc.GetAll(page)
 		if err != nil {
 			return fmt.Errorf("получение пользователей: %w, err")
 		}
 
-		if len(users) < config.PageSize {
-			flag = false
-		} else {
-			fmt.Println("Выберите действие:\n1. Следующая страница.\n2. Предыдущая страница.\n0. Назад.")
-			var option int
-			_, err = fmt.Scanf("%d", &option)
-			if err != nil {
-				return fmt.Errorf("ошибка ввода следующего действия: %w", err)
-			}
+		utils.PrintUsers(users)
 
-			switch option {
-			case 1:
-				page++
-			case 2:
-				if page > 1 {
-					page--
-				}
-			case 0:
-				break
-			}
+		fmt.Printf("1. Следующая страница.\n2. Предыдущая страница.\n0. Назад.\n\nВыберите действие: ")
+		var option int
+		_, err = fmt.Scanf("%d", &option)
+		if err != nil {
+			return fmt.Errorf("ошибка ввода следующего действия: %w", err)
 		}
 
-		utils.PrintUsers(users)
+		switch option {
+		case 1:
+			if len(users) == config.PageSize {
+				page++
+			}
+		case 2:
+			if page > 1 {
+				page--
+			}
+		case 0:
+			return nil
+		}
 	}
+}
+
+func CalculateRating(a *app.App) (err error) {
+	reader := bufio.NewReader(os.Stdin)
+	var idStr string
+
+	fmt.Printf("Введите id: ")
+	idStr, err = reader.ReadString('\n')
+	if err != nil {
+		return fmt.Errorf("ошибка ввода id: %w", err)
+	}
+	idStr = strings.TrimSpace(idStr)
+
+	id, err := uuid.Parse(idStr)
+	if err != nil {
+		return fmt.Errorf("парсинг uuid из строки: %w", err)
+	}
+
+	rating, err := a.Interactor.CalculateUserRating(id)
+	if err != nil {
+		return fmt.Errorf("расчёт рейтинга: %w", err)
+	}
+
+	fmt.Printf("Рейтинг пользователя с id=%s равен %f\n", id, rating)
 
 	return nil
 }

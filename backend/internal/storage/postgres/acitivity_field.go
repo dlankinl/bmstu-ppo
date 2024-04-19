@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"ppo/domain"
+	"ppo/internal/config"
 )
 
 type ActivityFieldRepository struct {
@@ -109,4 +110,33 @@ func (r *ActivityFieldRepository) GetMaxCost(ctx context.Context) (cost float32,
 	}
 
 	return cost, nil
+}
+
+func (r *ActivityFieldRepository) GetAll(ctx context.Context, page int) (fields []*domain.ActivityField, err error) {
+	query := `select id, name, description, cost from ppo.activity_fields offset $1 limit $2`
+
+	rows, err := r.db.Query(
+		ctx,
+		query,
+		(page-1)*config.PageSize,
+		config.PageSize,
+	)
+
+	fields = make([]*domain.ActivityField, 0)
+	for rows.Next() {
+		tmp := new(domain.ActivityField)
+
+		err = rows.Scan(
+			&tmp.ID,
+			&tmp.Name,
+			&tmp.Description,
+			&tmp.Cost,
+		)
+
+		if err != nil {
+			return nil, fmt.Errorf("сканирование полученных строк: %w", err)
+		}
+	}
+
+	return fields, nil
 }

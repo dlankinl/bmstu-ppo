@@ -69,6 +69,21 @@ func (mr *MockIActivityFieldRepositoryMockRecorder) DeleteById(arg0, arg1 any) *
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteById", reflect.TypeOf((*MockIActivityFieldRepository)(nil).DeleteById), arg0, arg1)
 }
 
+// GetAll mocks base method.
+func (m *MockIActivityFieldRepository) GetAll(arg0 context.Context, arg1 int) ([]*domain.ActivityField, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAll", arg0, arg1)
+	ret0, _ := ret[0].([]*domain.ActivityField)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAll indicates an expected call of GetAll.
+func (mr *MockIActivityFieldRepositoryMockRecorder) GetAll(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockIActivityFieldRepository)(nil).GetAll), arg0, arg1)
+}
+
 // GetById mocks base method.
 func (m *MockIActivityFieldRepository) GetById(arg0 context.Context, arg1 uuid.UUID) (*domain.ActivityField, error) {
 	m.ctrl.T.Helper()
@@ -162,6 +177,21 @@ func (m *MockIActivityFieldService) DeleteById(arg0 uuid.UUID) error {
 func (mr *MockIActivityFieldServiceMockRecorder) DeleteById(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteById", reflect.TypeOf((*MockIActivityFieldService)(nil).DeleteById), arg0)
+}
+
+// GetAll mocks base method.
+func (m *MockIActivityFieldService) GetAll(page int) ([]*domain.ActivityField, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAll", page)
+	ret0, _ := ret[0].([]*domain.ActivityField)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAll indicates an expected call of GetAll.
+func (mr *MockIActivityFieldServiceMockRecorder) GetAll(page any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockIActivityFieldService)(nil).GetAll), page)
 }
 
 // GetById mocks base method.
