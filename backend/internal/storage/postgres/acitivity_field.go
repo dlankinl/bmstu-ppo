@@ -61,6 +61,7 @@ func (r *ActivityFieldRepository) Update(ctx context.Context, data *domain.Activ
 			    cost = $3
 			where id = $4`
 
+	fmt.Println("HERE", data.ID, data.Name, data.Description, data.Cost)
 	_, err = r.db.Exec(
 		ctx,
 		query,
@@ -93,7 +94,9 @@ func (r *ActivityFieldRepository) GetById(ctx context.Context, id uuid.UUID) (fi
 		return nil, fmt.Errorf("получение сферы деятельности по id: %w", err)
 	}
 
-	return nil, nil
+	field.ID = id
+
+	return field, nil
 }
 
 func (r *ActivityFieldRepository) GetMaxCost(ctx context.Context) (cost float32, err error) {
@@ -136,6 +139,8 @@ func (r *ActivityFieldRepository) GetAll(ctx context.Context, page int) (fields 
 		if err != nil {
 			return nil, fmt.Errorf("сканирование полученных строк: %w", err)
 		}
+
+		fields = append(fields, tmp)
 	}
 
 	return fields, nil

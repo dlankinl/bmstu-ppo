@@ -49,10 +49,10 @@ func (s *Service) GetById(id uuid.UUID) (company *domain.Company, err error) {
 	return company, nil
 }
 
-func (s *Service) GetByOwnerId(id uuid.UUID) (companies []*domain.Company, err error) {
+func (s *Service) GetByOwnerId(id uuid.UUID, page int) (companies []*domain.Company, err error) {
 	ctx := context.Background()
 
-	companies, err = s.companyRepo.GetByOwnerId(ctx, id)
+	companies, err = s.companyRepo.GetByOwnerId(ctx, id, page)
 	if err != nil {
 		return nil, fmt.Errorf("получение списка компаний по id владельца: %w", err)
 	}

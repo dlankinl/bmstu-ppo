@@ -19,9 +19,10 @@ func GetAllUsers(a *app.App, args ...any) (err error) {
 			return fmt.Errorf("получение пользователей: %w, err")
 		}
 
-		utils.PrintUsers(users)
+		utils.PrintCollection("Предприниматели", users)
+		//utils.PrintUsers(users)
 
-		fmt.Printf("1. Следующая страница.\n2. Предыдущая страница.\n0. Назад.\n\nВыберите действие: ")
+		fmt.Printf("1. Предыдущая страница.\n2. Следующая страница.\n0. Назад.\n\nВыберите действие: ")
 		var option int
 		_, err = fmt.Scanf("%d", &option)
 		if err != nil {
@@ -30,12 +31,12 @@ func GetAllUsers(a *app.App, args ...any) (err error) {
 
 		switch option {
 		case 1:
-			if len(users) == config.PageSize {
-				page++
-			}
-		case 2:
 			if page > 1 {
 				page--
+			}
+		case 2:
+			if len(users) == config.PageSize {
+				page++
 			}
 		case 0:
 			return nil

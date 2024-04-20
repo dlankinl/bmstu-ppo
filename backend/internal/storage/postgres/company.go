@@ -59,13 +59,24 @@ func (r *CompanyRepository) GetById(ctx context.Context, id uuid.UUID) (company 
 	return company, nil
 }
 
-func (r *CompanyRepository) GetByOwnerId(ctx context.Context, id uuid.UUID) (companies []*domain.Company, err error) {
-	query := `select id, activity_field_id, name, city from ppo.companies where owner_id = $1 `
+func (r *CompanyRepository) GetByOwnerId(ctx context.Context, id uuid.UUID, page int) (companies []*domain.Company, err error) {
+	query :=
+		`select 
+    		id, 
+    		activity_field_id,
+    		name,
+    		city 
+		from ppo.companies 
+		where owner_id = $1
+		offset $2 
+		limit $3`
 
 	rows, err := r.db.Query(
 		ctx,
 		query,
 		id,
+		(page-1)*config.PageSize,
+		config.PageSize,
 	)
 
 	companies = make([]*domain.Company, 0)

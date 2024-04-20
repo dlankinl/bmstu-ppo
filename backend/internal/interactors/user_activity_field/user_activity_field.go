@@ -129,9 +129,17 @@ func (i *Interactor) GetMostProfitableCompany(period *domain.Period, companies [
 }
 
 func (i *Interactor) CalculateUserRating(id uuid.UUID) (rating float32, err error) {
-	companies, err := i.compService.GetByOwnerId(id)
-	if err != nil {
-		return 0, fmt.Errorf("получение списка компаний: %w", err)
+	//companies, err := i.compService.GetByOwnerId(id)
+	companies := make([]*domain.Company, 0)
+	tmp := make([]*domain.Company, 0, 3)
+	var j int
+	for len(tmp) == 3 {
+		tmp, err = i.compService.GetByOwnerId(id, j+1)
+		if err != nil {
+			return 0, fmt.Errorf("получение списка компаний: %w", err)
+		}
+		companies = append(companies, tmp...)
+		j++
 	}
 
 	prevYear := time.Now().AddDate(-1, 0, 0).Year()
@@ -174,9 +182,20 @@ func (i *Interactor) CalculateUserRating(id uuid.UUID) (rating float32, err erro
 func (i *Interactor) GetUserFinancialReport(id uuid.UUID, period *domain.Period) (report *domain.FinancialReportByPeriod, err error) {
 	report = new(domain.FinancialReportByPeriod)
 
-	companies, err := i.compService.GetByOwnerId(id)
-	if err != nil {
-		return nil, fmt.Errorf("получение списка компаний: %w", err)
+	//companies, err := i.compService.GetByOwnerId(id)
+	//if err != nil {
+	//	return nil, fmt.Errorf("получение списка компаний: %w", err)
+	//}
+	companies := make([]*domain.Company, 0)
+	tmp := make([]*domain.Company, 0, 3)
+	var j int
+	for len(tmp) == 3 {
+		tmp, err = i.compService.GetByOwnerId(id, j+1)
+		if err != nil {
+			return nil, fmt.Errorf("получение списка компаний: %w", err)
+		}
+		companies = append(companies, tmp...)
+		j++
 	}
 
 	var revenueForTaxLoad float32

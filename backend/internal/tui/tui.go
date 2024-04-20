@@ -7,6 +7,7 @@ import (
 	"ppo/domain"
 	"ppo/internal/app"
 	"ppo/internal/tui/handlers"
+	"ppo/internal/tui/utils"
 	"ppo/pkg/base"
 )
 
@@ -49,12 +50,18 @@ var actions = []Action{
 		Func: handlers.AddCompany,
 	},
 	{
+		Role: user,
+		Name: "Посмотреть список своих предприятий",
+		Func: handlers.GetMyCompanies,
+	},
+	{
 		Role: admin,
 		Name: "Удалить карточку предпринимателя",
 	},
 	{
 		Role: admin,
 		Name: "Сменить роль пользователя",
+		Func: handlers.ChangeUserRole,
 	},
 	{
 		Role: user,
@@ -65,6 +72,16 @@ var actions = []Action{
 		Role: admin,
 		Name: "Добавить сферу деятельности",
 		Func: handlers.AddActivityField,
+	},
+	{
+		Role: admin,
+		Name: "Удалить сферу деятельности",
+		Func: handlers.DeleteActivityField,
+	},
+	{
+		Role: admin,
+		Name: "Обновить информацию о сфере деятельности",
+		Func: handlers.UpdateActivityField,
 	},
 }
 
@@ -126,17 +143,26 @@ func (t *TUI) Run() (err error) {
 
 func (t *TUI) userMenu() (err error) {
 	for {
-		actions, prompt := generateActionsPrompt(t.userInfo.Role)
+		allowedActions, prompt := generateActionsPrompt(t.userInfo.Role)
 		fmt.Println(prompt)
-		fmt.Println(actions)
 
 		var choice int
 		_, err = fmt.Scanf("%d", &choice)
 
-		switch choice {
-		case 0:
+		if choice == 0 {
 			return nil
+		} else if choice > len(allowedActions) || choice < 0 {
+			fmt.Println("Действия с таким номером нет.")
+		} else {
+			err = allowedActions[choice-1].Func(t.app, t.userInfo.Username)
+			if err != nil {
+				fmt.Println(err)
+			}
 		}
+		//switch choice {
+		//case 0:
+		//	return nil
+		//}
 	}
 	//var choice int
 	//for {
@@ -202,6 +228,7 @@ func (t *TUI) guestMenu() (err error) {
 			return nil
 		case 2:
 			err = handlers.GetAllUsers(t.app)
+			err = utils.PrintPaginatedCollection("Предприниматели", t.app.UserSvc.GetAll)
 			if err != nil {
 				return fmt.Errorf("ошибка просмотра списка предпринимателей: %w", err)
 			}
@@ -271,13 +298,13 @@ func (t *TUI) companiesMenu() (err error) {
 	}
 }
 
-func generateActionsPrompt(role string) (actionsList []*Action, actionsPrompt string) {
-	actionsList = make([]*Action, 0)
+func generateActionsPrompt(role string) (actionsList []Action, actionsPrompt string) {
+	actionsList = make([]Action, 0)
 
 	j := 1
 	for _, action := range actions {
 		if role == action.Role {
-			actionsList = append(actionsList, &action)
+			actionsList = append(actionsList, action)
 			actionsPrompt += fmt.Sprintf("\n%d. %s", j, action.Name)
 			j++
 		}

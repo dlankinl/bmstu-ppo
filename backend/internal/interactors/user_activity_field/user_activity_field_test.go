@@ -50,7 +50,7 @@ func TestInteractor_CalculateUserRating(t *testing.T) {
 			userId: uuid.UUID{1},
 			beforeTest: func(userRepo mocks.MockIUserRepository, finRepo mocks.MockIFinancialReportRepository, compRepo mocks.MockICompanyRepository, actFieldRepo mocks.MockIActivityFieldRepository) {
 				compRepo.EXPECT().
-					GetByOwnerId(context.Background(), uuid.UUID{1}).
+					GetByOwnerId(context.Background(), uuid.UUID{1}, 1).
 					Return(
 						[]*domain.Company{
 							{
@@ -428,7 +428,7 @@ func TestInteractor_GetUserFinancialReport(t *testing.T) {
 			userId: uuid.UUID{1},
 			beforeTest: func(userRepo mocks.MockIUserRepository, finRepo mocks.MockIFinancialReportRepository, compRepo mocks.MockICompanyRepository, actFieldRepo mocks.MockIActivityFieldRepository) {
 				compRepo.EXPECT().
-					GetByOwnerId(context.Background(), uuid.UUID{1}).
+					GetByOwnerId(context.Background(), uuid.UUID{1}, 1).
 					Return(
 						[]*domain.Company{
 							{

@@ -156,3 +156,35 @@ func CreateUser(a *app.App, args ...any) (err error) {
 
 	return nil
 }
+
+func ChangeUserRole(a *app.App, args ...any) (err error) {
+	reader := bufio.NewReader(os.Stdin)
+
+	var username, role string
+	fmt.Printf("Введите имя пользователя: ")
+	_, err = fmt.Scanf("%s", &username)
+	if err != nil {
+		return fmt.Errorf("ошибка ввода имени пользователя: %w", err)
+	}
+
+	user, err := a.UserSvc.GetByUsername(username)
+	if err != nil {
+		return fmt.Errorf("пользователь не найден: %w", err)
+	}
+
+	fmt.Printf("Введите роль: ")
+	role, _ = reader.ReadString('\n')
+	if err != nil {
+		return fmt.Errorf("ошибка ввода роли: %w", err)
+	}
+	role = strings.TrimSpace(role)
+
+	user.Role = role
+
+	err = a.UserSvc.Update(user)
+	if err != nil {
+		return fmt.Errorf("изменение роли пользователя: %w", err)
+	}
+
+	return nil
+}

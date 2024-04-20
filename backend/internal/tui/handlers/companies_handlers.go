@@ -7,8 +7,11 @@ import (
 	"os"
 	"ppo/domain"
 	"ppo/internal/app"
+	"ppo/internal/tui/utils"
 	"strings"
 )
+
+//func getPaginatedCompanies()
 
 func AddCompany(a *app.App, args ...any) (err error) {
 	reader := bufio.NewReader(os.Stdin)
@@ -41,16 +44,17 @@ func AddCompany(a *app.App, args ...any) (err error) {
 	}
 	city = strings.TrimSpace(city)
 
-	err = getAllActivityFields(a)
+	err = utils.PrintPaginatedCollection("Сферы деятельности", a.ActFieldSvc.GetAll)
 	if err != nil {
 		return fmt.Errorf("вывод сфер деятельности с пагинацией: %w", err)
 	}
 
-	fmt.Printf("Введите id сферы деятельности (-1 - вывести список):")
+	fmt.Printf("Введите id сферы деятельности: ")
 	activityFieldId, err = reader.ReadString('\n')
 	if err != nil {
 		return fmt.Errorf("ошибка ввода сферы деятельности: %w", err)
 	}
+	activityFieldId = strings.TrimSpace(activityFieldId)
 
 	activityFieldUuid, err := uuid.Parse(activityFieldId)
 	if err != nil {
@@ -67,6 +71,31 @@ func AddCompany(a *app.App, args ...any) (err error) {
 	if err != nil {
 		return fmt.Errorf("ошибка добавления компании: %w", err)
 	}
+
+	return nil
+}
+
+func GetMyCompanies(a *app.App, args ...any) (err error) {
+	reader := bufio.NewReader(os.Stdin)
+
+	var username string
+	var ok bool
+	if len(args) > 0 {
+		username, ok = args[0].(string)
+		if !ok {
+			return fmt.Errorf("приведение аргумента к string")
+		}
+	}
+
+	user, err := a.UserSvc.GetByUsername(username)
+	if err != nil {
+		return fmt.Errorf("пользователь не найден")
+	}
+
+	_ = user
+	_ = reader
+	companies, err := a.CompSvc.GetByOwnerId(user.ID)
+	utils.PrintPaginatedCollection("Компании", a.CompSvc.GetByOwnerId)
 
 	return nil
 }

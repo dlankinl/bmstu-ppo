@@ -100,18 +100,18 @@ func (mr *MockICompanyRepositoryMockRecorder) GetById(ctx, id any) *gomock.Call 
 }
 
 // GetByOwnerId mocks base method.
-func (m *MockICompanyRepository) GetByOwnerId(ctx context.Context, id uuid.UUID) ([]*domain.Company, error) {
+func (m *MockICompanyRepository) GetByOwnerId(ctx context.Context, id uuid.UUID, page int) ([]*domain.Company, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetByOwnerId", ctx, id)
+	ret := m.ctrl.Call(m, "GetByOwnerId", ctx, id, page)
 	ret0, _ := ret[0].([]*domain.Company)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetByOwnerId indicates an expected call of GetByOwnerId.
-func (mr *MockICompanyRepositoryMockRecorder) GetByOwnerId(ctx, id any) *gomock.Call {
+func (mr *MockICompanyRepositoryMockRecorder) GetByOwnerId(ctx, id, page any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByOwnerId", reflect.TypeOf((*MockICompanyRepository)(nil).GetByOwnerId), ctx, id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByOwnerId", reflect.TypeOf((*MockICompanyRepository)(nil).GetByOwnerId), ctx, id, page)
 }
 
 // Update mocks base method.
@@ -210,18 +210,18 @@ func (mr *MockICompanyServiceMockRecorder) GetById(id any) *gomock.Call {
 }
 
 // GetByOwnerId mocks base method.
-func (m *MockICompanyService) GetByOwnerId(id uuid.UUID) ([]*domain.Company, error) {
+func (m *MockICompanyService) GetByOwnerId(id uuid.UUID, page int) ([]*domain.Company, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetByOwnerId", id)
+	ret := m.ctrl.Call(m, "GetByOwnerId", id, page)
 	ret0, _ := ret[0].([]*domain.Company)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetByOwnerId indicates an expected call of GetByOwnerId.
-func (mr *MockICompanyServiceMockRecorder) GetByOwnerId(id any) *gomock.Call {
+func (mr *MockICompanyServiceMockRecorder) GetByOwnerId(id, page any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByOwnerId", reflect.TypeOf((*MockICompanyService)(nil).GetByOwnerId), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByOwnerId", reflect.TypeOf((*MockICompanyService)(nil).GetByOwnerId), id, page)
 }
 
 // Update mocks base method.

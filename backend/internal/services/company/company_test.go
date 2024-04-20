@@ -355,6 +355,7 @@ func TestCompanyService_GetByOwnerId(t *testing.T) {
 					GetByOwnerId(
 						context.Background(),
 						uuid.UUID{1},
+						1,
 					).
 					Return([]*domain.Company{
 						{
@@ -407,6 +408,7 @@ func TestCompanyService_GetByOwnerId(t *testing.T) {
 					GetByOwnerId(
 						context.Background(),
 						uuid.UUID{1},
+						1,
 					).
 					Return(nil, fmt.Errorf("sql error"))
 			},
@@ -420,7 +422,7 @@ func TestCompanyService_GetByOwnerId(t *testing.T) {
 				tc.beforeTest(*compRepo)
 			}
 
-			companies, err := svc.GetByOwnerId(tc.id)
+			companies, err := svc.GetByOwnerId(tc.id, 1)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
