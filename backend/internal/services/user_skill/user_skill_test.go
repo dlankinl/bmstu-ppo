@@ -194,6 +194,7 @@ func TestUserSkillService_GetSkillsForUser(t *testing.T) {
 					GetUserSkillsByUserId(
 						context.Background(),
 						uuid.UUID{1},
+						1,
 					).
 					Return([]*domain.UserSkill{
 						{
@@ -263,6 +264,7 @@ func TestUserSkillService_GetSkillsForUser(t *testing.T) {
 					GetUserSkillsByUserId(
 						context.Background(),
 						uuid.UUID{1},
+						1,
 					).
 					Return([]*domain.UserSkill{
 						{
@@ -294,6 +296,7 @@ func TestUserSkillService_GetSkillsForUser(t *testing.T) {
 					GetUserSkillsByUserId(
 						context.Background(),
 						uuid.UUID{1},
+						1,
 					).
 					Return(nil, fmt.Errorf("sql error"))
 			},
@@ -307,7 +310,7 @@ func TestUserSkillService_GetSkillsForUser(t *testing.T) {
 				tc.beforeTest(*userSkillRepo, *userRepo, *skillRepo)
 			}
 
-			skills, err := svc.GetSkillsForUser(uuid.UUID{1})
+			skills, err := svc.GetSkillsForUser(uuid.UUID{1}, 1)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -357,6 +360,7 @@ func TestUserSkillService_GetUsersForSkill(t *testing.T) {
 					GetUserSkillsBySkillId(
 						context.Background(),
 						uuid.UUID{1},
+						1,
 					).
 					Return([]*domain.UserSkill{
 						{
@@ -426,6 +430,7 @@ func TestUserSkillService_GetUsersForSkill(t *testing.T) {
 					GetUserSkillsBySkillId(
 						context.Background(),
 						uuid.UUID{1},
+						1,
 					).
 					Return([]*domain.UserSkill{
 						{
@@ -457,6 +462,7 @@ func TestUserSkillService_GetUsersForSkill(t *testing.T) {
 					GetUserSkillsBySkillId(
 						context.Background(),
 						uuid.UUID{1},
+						1,
 					).
 					Return(nil, fmt.Errorf("sql error"))
 			},
@@ -470,7 +476,7 @@ func TestUserSkillService_GetUsersForSkill(t *testing.T) {
 				tc.beforeTest(*userSkillRepo, *userRepo, *skillRepo)
 			}
 
-			users, err := svc.GetUsersForSkill(uuid.UUID{1})
+			users, err := svc.GetUsersForSkill(uuid.UUID{1}, 1)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -519,6 +525,7 @@ func TestUserSkillService_DeleteSkillsForUser(t *testing.T) {
 					GetUserSkillsByUserId(
 						context.Background(),
 						uuid.UUID{1},
+						1,
 					).
 					Return([]*domain.UserSkill{
 						{
@@ -571,6 +578,7 @@ func TestUserSkillService_DeleteSkillsForUser(t *testing.T) {
 					GetUserSkillsByUserId(
 						context.Background(),
 						uuid.UUID{1},
+						1,
 					).
 					Return([]*domain.UserSkill{
 						{
@@ -610,6 +618,7 @@ func TestUserSkillService_DeleteSkillsForUser(t *testing.T) {
 					GetUserSkillsByUserId(
 						context.Background(),
 						uuid.UUID{1},
+						1,
 					).
 					Return(nil, fmt.Errorf("sql error"))
 			},

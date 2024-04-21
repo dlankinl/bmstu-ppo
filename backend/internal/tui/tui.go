@@ -96,14 +96,27 @@ var actions = []Action{
 	{
 		Role: admin,
 		Name: "[ Навыки ] Добавить навык",
+		Func: handlers.AddSkill,
 	},
 	{
 		Role: admin,
 		Name: "[ Навыки ] Удалить навык",
+		Func: handlers.DeleteSkill,
 	},
 	{
 		Role: admin,
 		Name: "[ Навыки ] Редактировать навык",
+		Func: handlers.UpdateSkill,
+	},
+	{
+		Role: user,
+		Name: "[ Навыки ] Добавить навык",
+		Func: handlers.AddUserSkill,
+	},
+	{
+		Role: user,
+		Name: "[ Навыки ] Удалить навык",
+		Func: handlers.DeleteUserSkill,
 	},
 }
 

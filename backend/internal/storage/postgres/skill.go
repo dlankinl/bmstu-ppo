@@ -52,11 +52,12 @@ func (r *SkillRepository) GetById(ctx context.Context, id uuid.UUID) (skill *dom
 		return nil, fmt.Errorf("получение навыка по id: %w", err)
 	}
 
+	skill.ID = id
 	return skill, nil
 }
 
 func (r *SkillRepository) GetAll(ctx context.Context, page int) (skills []*domain.Skill, err error) {
-	query := `select name, description from ppo.skills offset $1 limit $2`
+	query := `select id, name, description from ppo.skills offset $1 limit $2`
 
 	rows, err := r.db.Query(
 		ctx,
@@ -70,6 +71,7 @@ func (r *SkillRepository) GetAll(ctx context.Context, page int) (skills []*domai
 		tmp := new(domain.Skill)
 
 		err = rows.Scan(
+			&tmp.ID,
 			&tmp.Name,
 			&tmp.Description,
 		)
@@ -77,6 +79,7 @@ func (r *SkillRepository) GetAll(ctx context.Context, page int) (skills []*domai
 		if err != nil {
 			return nil, fmt.Errorf("сканирование полученных строк: %w", err)
 		}
+		skills = append(skills, tmp)
 	}
 
 	return skills, nil

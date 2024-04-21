@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"ppo/domain"
+	"ppo/internal/config"
 	"time"
 )
 
@@ -129,11 +130,10 @@ func (i *Interactor) GetMostProfitableCompany(period *domain.Period, companies [
 }
 
 func (i *Interactor) CalculateUserRating(id uuid.UUID) (rating float32, err error) {
-	//companies, err := i.compService.GetByOwnerId(id)
 	companies := make([]*domain.Company, 0)
-	tmp := make([]*domain.Company, 0, 3)
+	tmp := make([]*domain.Company, 0, config.PageSize)
 	var j int
-	for len(tmp) == 3 {
+	for len(tmp) == config.PageSize {
 		tmp, err = i.compService.GetByOwnerId(id, j+1)
 		if err != nil {
 			return 0, fmt.Errorf("получение списка компаний: %w", err)

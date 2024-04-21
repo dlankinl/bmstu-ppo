@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"ppo/domain"
+	"ppo/internal/config"
 )
 
 type Service struct {
@@ -47,10 +48,10 @@ func (s *Service) Delete(pair *domain.UserSkill) (err error) {
 	return nil
 }
 
-func (s *Service) GetSkillsForUser(userId uuid.UUID) (skills []*domain.Skill, err error) {
+func (s *Service) GetSkillsForUser(userId uuid.UUID, page int) (skills []*domain.Skill, err error) {
 	ctx := context.Background()
 
-	userSkills, err := s.userSkillRepo.GetUserSkillsByUserId(ctx, userId)
+	userSkills, err := s.userSkillRepo.GetUserSkillsByUserId(ctx, userId, page)
 	if err != nil {
 		return nil, fmt.Errorf("получение связок пользователь-навык по userId: %w", err)
 	}
@@ -68,10 +69,10 @@ func (s *Service) GetSkillsForUser(userId uuid.UUID) (skills []*domain.Skill, er
 	return skills, nil
 }
 
-func (s *Service) GetUsersForSkill(skillId uuid.UUID) (users []*domain.User, err error) {
+func (s *Service) GetUsersForSkill(skillId uuid.UUID, page int) (users []*domain.User, err error) {
 	ctx := context.Background()
 
-	userSkills, err := s.userSkillRepo.GetUserSkillsBySkillId(ctx, skillId)
+	userSkills, err := s.userSkillRepo.GetUserSkillsBySkillId(ctx, skillId, page)
 	if err != nil {
 		return nil, fmt.Errorf("получение связок пользователь-навык по skillId: %w", err)
 	}
@@ -92,9 +93,16 @@ func (s *Service) GetUsersForSkill(skillId uuid.UUID) (users []*domain.User, err
 func (s *Service) DeleteSkillsForUser(userId uuid.UUID) (err error) {
 	ctx := context.Background()
 
-	userSkills, err := s.userSkillRepo.GetUserSkillsByUserId(ctx, userId)
-	if err != nil {
-		return fmt.Errorf("получение связок пользователь-навык по userId: %w", err)
+	userSkills := make([]*domain.UserSkill, 0)
+	tmp := make([]*domain.UserSkill, 0, config.PageSize)
+	var j int
+	for len(tmp) == config.PageSize {
+		tmp, err = s.userSkillRepo.GetUserSkillsByUserId(ctx, userId, j+1)
+		if err != nil {
+			return fmt.Errorf("получение списка пар навык-предприниматель: %w", err)
+		}
+		userSkills = append(userSkills, tmp...)
+		j++
 	}
 
 	for _, userSkill := range userSkills {

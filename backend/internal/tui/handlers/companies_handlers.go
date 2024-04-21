@@ -11,8 +11,6 @@ import (
 	"strings"
 )
 
-//func getPaginatedCompanies()
-
 func AddCompany(a *app.App, args ...any) (err error) {
 	reader := bufio.NewReader(os.Stdin)
 
@@ -44,11 +42,6 @@ func AddCompany(a *app.App, args ...any) (err error) {
 	}
 	city = strings.TrimSpace(city)
 
-	//// TODO: change on GetAllActivityFields
-	//err = utils.PrintPaginatedCollection("Сферы деятельности", a.ActFieldSvc.GetAll)
-	//if err != nil {
-	//	return fmt.Errorf("вывод сфер деятельности с пагинацией: %w", err)
-	//}
 	err = GetActivityFields(a, args...)
 	if err != nil {
 		return fmt.Errorf("добавление компании: %w", err)
