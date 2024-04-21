@@ -76,8 +76,6 @@ func AddCompany(a *app.App, args ...any) (err error) {
 }
 
 func GetMyCompanies(a *app.App, args ...any) (err error) {
-	reader := bufio.NewReader(os.Stdin)
-
 	var username string
 	var ok bool
 	if len(args) > 0 {
@@ -92,10 +90,10 @@ func GetMyCompanies(a *app.App, args ...any) (err error) {
 		return fmt.Errorf("пользователь не найден")
 	}
 
-	_ = user
-	_ = reader
-	companies, err := a.CompSvc.GetByOwnerId(user.ID)
-	utils.PrintPaginatedCollection("Компании", a.CompSvc.GetByOwnerId)
+	err = utils.PrintPaginatedCollectionArgs("Компании", a.CompSvc.GetByOwnerId, user.ID)
+	if err != nil {
+		return fmt.Errorf("вывод компаний предпринимателя с пагинацией: %w", err)
+	}
 
 	return nil
 }

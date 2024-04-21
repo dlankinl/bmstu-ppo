@@ -94,6 +94,8 @@ func (r *CompanyRepository) GetByOwnerId(ctx context.Context, id uuid.UUID, page
 		if err != nil {
 			return nil, fmt.Errorf("сканирование полученных строк: %w", err)
 		}
+
+		companies = append(companies, tmp)
 	}
 
 	return companies, nil
