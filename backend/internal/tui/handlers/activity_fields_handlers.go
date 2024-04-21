@@ -85,7 +85,6 @@ func AddActivityField(a *app.App, args ...any) (err error) {
 func DeleteActivityField(a *app.App, args ...any) (err error) {
 	reader := bufio.NewReader(os.Stdin)
 
-	//err = getAllActivityFields(a)
 	err = utils.PrintPaginatedCollection("Сферы деятельности", a.ActFieldSvc.GetAll)
 	if err != nil {
 		return fmt.Errorf("вывод сфер деятельности с пагинацией: %w", err)
@@ -114,7 +113,6 @@ func DeleteActivityField(a *app.App, args ...any) (err error) {
 func UpdateActivityField(a *app.App, args ...any) (err error) {
 	reader := bufio.NewReader(os.Stdin)
 
-	//err = getAllActivityFields(a)
 	err = utils.PrintPaginatedCollection("Сферы деятельности", a.ActFieldSvc.GetAll)
 	if err != nil {
 		return fmt.Errorf("вывод сфер деятельности с пагинацией: %w", err)
@@ -177,6 +175,15 @@ func UpdateActivityField(a *app.App, args ...any) (err error) {
 	err = a.ActFieldSvc.Update(field)
 	if err != nil {
 		return fmt.Errorf("ошибка обновления сферы деятельности: %w", err)
+	}
+
+	return nil
+}
+
+func GetActivityFields(a *app.App, args ...any) (err error) {
+	err = utils.PrintPaginatedCollection("Сферы деятельности", a.ActFieldSvc.GetAll)
+	if err != nil {
+		return fmt.Errorf("вывод сфер деятельности с пагинацией: %w", err)
 	}
 
 	return nil

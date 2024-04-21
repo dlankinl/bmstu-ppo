@@ -55,6 +55,7 @@ func (r *CompanyRepository) GetById(ctx context.Context, id uuid.UUID) (company 
 	if err != nil {
 		return nil, fmt.Errorf("получение компании по id: %w", err)
 	}
+	company.ID = id
 
 	return company, nil
 }

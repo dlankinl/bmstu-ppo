@@ -36,52 +36,74 @@ func NewTUI(app *app.App) *TUI {
 var actions = []Action{
 	{
 		Role: admin,
-		Name: "Редактировать карточку предпринимателя",
+		Name: "[ Предприниматели ] Редактировать карточку предпринимателя",
 		Func: handlers.UpdateUser,
 	},
 	{
 		Role: admin,
-		Name: "Создать карточку предпринимателя",
+		Name: "[ Предприниматели ] Создать карточку предпринимателя",
 		Func: handlers.CreateUser,
 	},
 	{
 		Role: user,
-		Name: "Добавить компанию",
+		Name: "[ Компании ] Добавить компанию",
 		Func: handlers.AddCompany,
 	},
 	{
 		Role: user,
-		Name: "Посмотреть список своих предприятий",
+		Name: "[ Компании ] Удалить компанию",
+		Func: handlers.DeleteCompany,
+	},
+	{
+		Role: user,
+		Name: "[ Компании ] Обновить информацию о компании",
+		Func: handlers.UpdateCompany,
+	},
+	{
+		Role: user,
+		Name: "[ Компании ] Посмотреть список своих компаний",
 		Func: handlers.GetMyCompanies,
 	},
 	{
 		Role: admin,
-		Name: "Удалить карточку предпринимателя",
+		Name: "[ Предприниматели ] Удалить карточку предпринимателя",
 	},
 	{
 		Role: admin,
-		Name: "Сменить роль пользователя",
+		Name: "[ Предприниматели ] Сменить роль пользователя",
 		Func: handlers.ChangeUserRole,
 	},
 	{
 		Role: user,
-		Name: "Просмотреть список предпринимателей",
+		Name: "[ Предприниматели ] Просмотреть список предпринимателей",
 		Func: handlers.GetAllUsers,
 	},
 	{
 		Role: admin,
-		Name: "Добавить сферу деятельности",
+		Name: "[ Сферы деятельности ] Добавить сферу деятельности",
 		Func: handlers.AddActivityField,
 	},
 	{
 		Role: admin,
-		Name: "Удалить сферу деятельности",
+		Name: "[ Сферы деятельности ] Удалить сферу деятельности",
 		Func: handlers.DeleteActivityField,
 	},
 	{
 		Role: admin,
-		Name: "Обновить информацию о сфере деятельности",
+		Name: "[ Сферы деятельности ] Редактировать сферу деятельности",
 		Func: handlers.UpdateActivityField,
+	},
+	{
+		Role: admin,
+		Name: "[ Навыки ] Добавить навык",
+	},
+	{
+		Role: admin,
+		Name: "[ Навыки ] Удалить навык",
+	},
+	{
+		Role: admin,
+		Name: "[ Навыки ] Редактировать навык",
 	},
 }
 
@@ -159,40 +181,7 @@ func (t *TUI) userMenu() (err error) {
 				fmt.Println(err)
 			}
 		}
-		//switch choice {
-		//case 0:
-		//	return nil
-		//}
 	}
-	//var choice int
-	//for {
-	//	fmt.Println(userPrompt)
-	//	_, err = fmt.Scanf("%d", &choice)
-	//	if err != nil {
-	//		fmt.Printf("ошибка ввода: %v", err)
-	//	}
-	//
-	//	switch choice {
-	//	case 0:
-	//		return nil
-	//	case 1:
-	//		err = handlers.GetAllUsers(t.app)
-	//		if err != nil {
-	//			return fmt.Errorf("ошибка просмотра списка предпринимателей: %w", err)
-	//		}
-	//	case 2:
-	//		err = handlers.CalculateRating(t.app)
-	//		if err != nil {
-	//			return fmt.Errorf("ошибка вычисления рейтинга предпринимателя: %w", err)
-	//		}
-	//	case 3:
-	//		fmt.Println(t.userInfo)
-	//		err = t.companiesMenu()
-	//		if err != nil {
-	//			return err
-	//		}
-	//	}
-	//}
 }
 
 func (t *TUI) guestMenu() (err error) {
@@ -232,66 +221,6 @@ func (t *TUI) guestMenu() (err error) {
 			if err != nil {
 				return fmt.Errorf("ошибка просмотра списка предпринимателей: %w", err)
 			}
-		case 0:
-			return nil
-		}
-	}
-}
-
-func (t *TUI) adminMenu() (err error) {
-	var choice int
-	for {
-		fmt.Println(adminPrompt)
-		_, err = fmt.Scanf("%d", &choice)
-		if err != nil {
-			fmt.Println("ошибка ввода: %w", err)
-		}
-
-		switch choice {
-		case 1:
-			err = handlers.CreateUser(t.app)
-			if err != nil {
-				return fmt.Errorf("ошибка заполнения карточки предпринимателя: %w", err)
-			} else {
-				fmt.Println("Карточка предпринимателя заполнена успешно")
-			}
-		case 2:
-			err = handlers.UpdateUser(t.app)
-			if err != nil {
-				return err
-			}
-		case 3:
-
-		case 0:
-			return nil
-		}
-	}
-}
-
-func (t *TUI) companiesMenu() (err error) {
-	var choice int
-	for {
-		fmt.Println(companiesPrompt)
-		_, err = fmt.Scanf("%d", &choice)
-		if err != nil {
-			fmt.Println("ошибка ввода: %w", err)
-		}
-
-		switch choice {
-		case 1:
-			err = handlers.AddCompany(t.app, t.userInfo.Username)
-			if err != nil {
-				return fmt.Errorf("ошибка добавления компании: %w", err)
-			} else {
-				fmt.Println("Компания успешно добавлена")
-			}
-		case 2:
-			err = handlers.UpdateUser(t.app)
-			if err != nil {
-				return err
-			}
-		case 3:
-
 		case 0:
 			return nil
 		}

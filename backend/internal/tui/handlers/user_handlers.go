@@ -16,11 +16,10 @@ func GetAllUsers(a *app.App, args ...any) (err error) {
 	for {
 		users, err := a.UserSvc.GetAll(page)
 		if err != nil {
-			return fmt.Errorf("получение пользователей: %w, err")
+			return fmt.Errorf("получение пользователей: %w", err)
 		}
 
 		utils.PrintCollection("Предприниматели", users)
-		//utils.PrintUsers(users)
 
 		fmt.Printf("1. Предыдущая страница.\n2. Следующая страница.\n0. Назад.\n\nВыберите действие: ")
 		var option int
