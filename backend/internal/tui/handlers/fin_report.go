@@ -7,7 +7,6 @@ import (
 	"os"
 	"ppo/domain"
 	"ppo/internal/app"
-	"ppo/internal/tui/utils"
 	"strings"
 )
 
@@ -74,7 +73,7 @@ func DeleteFinReport(a *app.App, args ...any) (err error) {
 
 	err = GetMyCompanies(a, args...)
 	if err != nil {
-		return fmt.Errorf("добавление финансового отчета: %w", err)
+		return fmt.Errorf("удаление финансового отчета: %w", err)
 	}
 
 	fmt.Printf("Введите id компании: ")
@@ -97,14 +96,18 @@ func DeleteFinReport(a *app.App, args ...any) (err error) {
 	return nil
 }
 
-func GetCompanyReports(a *app.App, args ...any) (err error) {
-	var compId string
-	var ok bool
-	if len(args) > 0 {
-		compId, ok = args[0].(string)
-		if !ok {
-			return fmt.Errorf("приведение аргумента к string")
-		}
+func UpdateFinReport(a *app.App, args ...any) (err error) {
+	reader := bufio.NewReader(os.Stdin)
+
+	err = GetMyCompanies(a, args...)
+	if err != nil {
+		return fmt.Errorf("обновление финансового отчета: %w", err)
+	}
+
+	fmt.Printf("Введите id компании: ")
+	compId, err := reader.ReadString('\n')
+	if err != nil {
+		return fmt.Errorf("ошибка ввода id компании: %w", err)
 	}
 	compId = strings.TrimSpace(compId)
 
@@ -113,11 +116,34 @@ func GetCompanyReports(a *app.App, args ...any) (err error) {
 		return fmt.Errorf("парсинг uuid из строки: %w", err)
 	}
 
-	fmt.Println("You are:", user.Username, user.ID)
-	err = utils.PrintPaginatedCollectionArgs("Отчёты", a.FinSvc.GetByCompany, compUuid)
+	err = a.FinSvc.DeleteById(compUuid)
 	if err != nil {
-		return fmt.Errorf("вывод навыков с пагинацией: %w", err)
+		return fmt.Errorf("ошибка удаления финансового отчета: %w", err)
 	}
 
 	return nil
 }
+
+//func GetCompanyReports(a *app.App, args ...any) (err error) {
+//	var compId string
+//	var ok bool
+//	if len(args) > 0 {
+//		compId, ok = args[0].(string)
+//		if !ok {
+//			return fmt.Errorf("приведение аргумента к string")
+//		}
+//	}
+//	compId = strings.TrimSpace(compId)
+//
+//	compUuid, err := uuid.Parse(compId)
+//	if err != nil {
+//		return fmt.Errorf("парсинг uuid из строки: %w", err)
+//	}
+//
+//	err = utils.PrintYearCollection("Отчёты", a.FinSvc.GetByCompany, compUuid)
+//	if err != nil {
+//		return fmt.Errorf("вывод навыков с пагинацией: %w", err)
+//	}
+//
+//	return nil
+//}

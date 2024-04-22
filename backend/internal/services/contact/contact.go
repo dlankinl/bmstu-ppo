@@ -47,10 +47,10 @@ func (s *Service) GetById(id uuid.UUID) (contact *domain.Contact, err error) {
 	return contact, nil
 }
 
-func (s *Service) GetByOwnerId(id uuid.UUID) (contacts []*domain.Contact, err error) {
+func (s *Service) GetByOwnerId(id uuid.UUID, page int) (contacts []*domain.Contact, err error) {
 	ctx := context.Background()
 
-	contacts, err = s.contactRepo.GetByOwnerId(ctx, id)
+	contacts, err = s.contactRepo.GetByOwnerId(ctx, id, page)
 	if err != nil {
 		return nil, fmt.Errorf("получение всех средств связи по id владельца: %w", err)
 	}

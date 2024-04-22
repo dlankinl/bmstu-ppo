@@ -118,6 +118,21 @@ var actions = []Action{
 		Name: "[ Навыки ] Удалить навык",
 		Func: handlers.DeleteUserSkill,
 	},
+	{
+		Role: user,
+		Name: "[ Средства связи ] Добавить средство связи",
+		Func: handlers.AddContact,
+	},
+	{
+		Role: user,
+		Name: "[ Средства связи ] Редактировать средство связи",
+		Func: handlers.UpdateContact,
+	},
+	{
+		Role: user,
+		Name: "[ Средства связи ] Удалить средство связи",
+		Func: handlers.DeleteContact,
+	},
 }
 
 func (t *TUI) Run() (err error) {
