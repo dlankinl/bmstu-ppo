@@ -18,7 +18,7 @@ func getAllActivityFields(a *app.App) (err error) {
 	for {
 		fields, err := a.ActFieldSvc.GetAll(page)
 		if err != nil {
-			return fmt.Errorf("получение сфер деятельности: %w, err")
+			return fmt.Errorf("получение сфер деятельности: %w", err)
 		}
 
 		utils.PrintActivityFields(fields)

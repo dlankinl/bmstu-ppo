@@ -96,13 +96,17 @@ func (s *Service) DeleteSkillsForUser(userId uuid.UUID) (err error) {
 	userSkills := make([]*domain.UserSkill, 0)
 	tmp := make([]*domain.UserSkill, 0, config.PageSize)
 	var j int
-	for len(tmp) == config.PageSize {
+	for {
 		tmp, err = s.userSkillRepo.GetUserSkillsByUserId(ctx, userId, j+1)
 		if err != nil {
-			return fmt.Errorf("получение списка пар навык-предприниматель: %w", err)
+			return fmt.Errorf("получение связок пользователь-навык по userId: %w", err)
 		}
+
 		userSkills = append(userSkills, tmp...)
 		j++
+		if len(tmp) != config.PageSize {
+			break
+		}
 	}
 
 	for _, userSkill := range userSkills {

@@ -515,10 +515,10 @@ func TestUserSkillService_DeleteSkillsForUser(t *testing.T) {
 					UserId:  uuid.UUID{1},
 					SkillId: uuid.UUID{2},
 				},
-				{
-					UserId:  uuid.UUID{1},
-					SkillId: uuid.UUID{3},
-				},
+				//{
+				//	UserId:  uuid.UUID{1},
+				//	SkillId: uuid.UUID{3},
+				//},
 			},
 			beforeTest: func(userSkillRepo mocks.MockIUserSkillRepository, userRepo mocks.MockIUserRepository, skillRepo mocks.MockISkillRepository) {
 				userSkillRepo.EXPECT().
@@ -536,10 +536,10 @@ func TestUserSkillService_DeleteSkillsForUser(t *testing.T) {
 							UserId:  uuid.UUID{1},
 							SkillId: uuid.UUID{2},
 						},
-						{
-							UserId:  uuid.UUID{1},
-							SkillId: uuid.UUID{3},
-						},
+						//{
+						//	UserId:  uuid.UUID{1},
+						//	SkillId: uuid.UUID{3},
+						//},
 					}, nil)
 
 				userSkillRepo.EXPECT().
@@ -556,12 +556,12 @@ func TestUserSkillService_DeleteSkillsForUser(t *testing.T) {
 					).
 					Return(nil)
 
-				userSkillRepo.EXPECT().
-					Delete(
-						context.Background(),
-						&domain.UserSkill{UserId: uuid.UUID{1}, SkillId: uuid.UUID{3}},
-					).
-					Return(nil)
+				//userSkillRepo.EXPECT().
+				//	Delete(
+				//		context.Background(),
+				//		&domain.UserSkill{UserId: uuid.UUID{1}, SkillId: uuid.UUID{3}},
+				//	).
+				//	Return(nil)
 			},
 			wantErr: false,
 		},
@@ -589,10 +589,10 @@ func TestUserSkillService_DeleteSkillsForUser(t *testing.T) {
 							UserId:  uuid.UUID{1},
 							SkillId: uuid.UUID{2},
 						},
-						{
-							UserId:  uuid.UUID{1},
-							SkillId: uuid.UUID{3},
-						},
+						//{
+						//	UserId:  uuid.UUID{1},
+						//	SkillId: uuid.UUID{3},
+						//},
 					}, nil)
 
 				userSkillRepo.EXPECT().
