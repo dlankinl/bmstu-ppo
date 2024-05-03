@@ -2,10 +2,10 @@ package postgres
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"fmt"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"ppo/domain"
 )
@@ -99,10 +99,12 @@ func (r *FinReportRepository) GetByCompany(ctx context.Context, companyId uuid.U
 				&tmp.Quarter,
 			)
 
-			if errors.Is(err, sql.ErrNoRows) {
-				continue
-			} else if err != nil {
-				return nil, fmt.Errorf("cканирование записи: %w", err)
+			if err != nil {
+				if errors.Is(err, pgx.ErrNoRows) {
+					continue
+				} else {
+					return nil, fmt.Errorf("сканирование записи: %w", err)
+				}
 			}
 
 			report.Reports = append(report.Reports, *tmp)

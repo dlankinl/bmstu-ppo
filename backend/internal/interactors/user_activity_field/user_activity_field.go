@@ -87,8 +87,10 @@ func findFullYearReports(rep *domain.FinancialReportByPeriod, period *domain.Per
 
 		var totalFinReport domain.FinancialReportByPeriod
 		for quarter := startQtr; quarter <= endQtr; quarter++ {
-			totalFinReport.Reports = append(totalFinReport.Reports, rep.Reports[j])
-			j++
+			if j < len(rep.Reports) {
+				totalFinReport.Reports = append(totalFinReport.Reports, rep.Reports[j])
+				j++
+			}
 		}
 
 		if endQtr-startQtr == quartersInYear-1 {
@@ -133,13 +135,16 @@ func (i *Interactor) CalculateUserRating(id uuid.UUID) (rating float32, err erro
 	companies := make([]*domain.Company, 0)
 	tmp := make([]*domain.Company, 0, config.PageSize)
 	var j int
-	for len(tmp) == config.PageSize {
+	for {
 		tmp, err = i.compService.GetByOwnerId(id, j+1)
 		if err != nil {
 			return 0, fmt.Errorf("получение списка компаний: %w", err)
 		}
 		companies = append(companies, tmp...)
 		j++
+		if len(tmp) != config.PageSize {
+			break
+		}
 	}
 
 	prevYear := time.Now().AddDate(-1, 0, 0).Year()
@@ -182,20 +187,20 @@ func (i *Interactor) CalculateUserRating(id uuid.UUID) (rating float32, err erro
 func (i *Interactor) GetUserFinancialReport(id uuid.UUID, period *domain.Period) (report *domain.FinancialReportByPeriod, err error) {
 	report = new(domain.FinancialReportByPeriod)
 
-	//companies, err := i.compService.GetByOwnerId(id)
-	//if err != nil {
-	//	return nil, fmt.Errorf("получение списка компаний: %w", err)
-	//}
 	companies := make([]*domain.Company, 0)
 	tmp := make([]*domain.Company, 0, 3)
 	var j int
-	for len(tmp) == 3 {
+
+	for {
 		tmp, err = i.compService.GetByOwnerId(id, j+1)
 		if err != nil {
 			return nil, fmt.Errorf("получение списка компаний: %w", err)
 		}
 		companies = append(companies, tmp...)
 		j++
+		if len(tmp) != 3 {
+			break
+		}
 	}
 
 	var revenueForTaxLoad float32

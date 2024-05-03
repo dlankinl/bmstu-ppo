@@ -65,8 +65,9 @@ var actions = []Action{
 		Func: handlers.GetMyCompanies,
 	},
 	{
-		Role: admin,
-		Name: "[ Предприниматели ] Удалить карточку предпринимателя",
+		Role: user,
+		Name: "[ Предприниматели ] Просчитать рейтинг",
+		Func: handlers.CalculateRating,
 	},
 	{
 		Role: admin,
@@ -132,6 +133,21 @@ var actions = []Action{
 		Role: user,
 		Name: "[ Средства связи ] Удалить средство связи",
 		Func: handlers.DeleteContact,
+	},
+	{
+		Role: user,
+		Name: "[ Финансовые показатели ] Добавить отчёт",
+		Func: handlers.AddReport,
+	},
+	{
+		Role: user,
+		Name: "[ Финансовые показатели ] Редактировать отчёт",
+		Func: handlers.UpdateFinReport,
+	},
+	{
+		Role: user,
+		Name: "[ Финансовые показатели ] Удалить отчёт",
+		Func: handlers.DeleteFinReport,
 	},
 }
 

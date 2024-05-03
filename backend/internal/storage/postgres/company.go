@@ -129,15 +129,41 @@ func (r *CompanyRepository) Update(ctx context.Context, company *domain.Company)
 }
 
 func (r *CompanyRepository) DeleteById(ctx context.Context, id uuid.UUID) (err error) {
-	query := `delete from ppo.companies where id = $1`
+	tx, err := r.db.Begin(ctx)
+	if err != nil {
+		return fmt.Errorf("открытие транзакции: %w", err)
+	}
 
-	_, err = r.db.Exec(
+	defer func() {
+		if err != nil {
+			rollbackErr := tx.Rollback(ctx)
+			if rollbackErr != nil {
+				err = fmt.Errorf("обработанная ошибка: %w\nоткат транзакции: %v", err, rollbackErr)
+			}
+		}
+	}()
+
+	_, err = tx.Exec(
 		ctx,
-		query,
+		`delete from ppo.companies where id = $1`,
 		id,
 	)
 	if err != nil {
 		return fmt.Errorf("удаление компании по id: %w", err)
+	}
+
+	_, err = tx.Exec(
+		ctx,
+		`delete from ppo.fin_reports where company_id = $1`,
+		id,
+	)
+	if err != nil {
+		return fmt.Errorf("удаление отчетов, связанных с компанией: %w", err)
+	}
+
+	err = tx.Commit(ctx)
+	if err != nil {
+		return fmt.Errorf("закрытие транзакции: %w", err)
 	}
 
 	return nil
