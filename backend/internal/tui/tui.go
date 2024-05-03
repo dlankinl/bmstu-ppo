@@ -149,6 +149,11 @@ var actions = []Action{
 		Name: "[ Финансовые показатели ] Удалить отчёт",
 		Func: handlers.DeleteFinReport,
 	},
+	{
+		Role: user,
+		Name: "[ Финансовые показатели ] Сформировать полный отчёт",
+		Func: handlers.GetUserFinReport,
+	},
 }
 
 func (t *TUI) Run() (err error) {

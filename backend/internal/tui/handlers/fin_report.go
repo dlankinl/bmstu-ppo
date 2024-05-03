@@ -209,4 +209,61 @@ func GetCompanyReports(a *app.App, args ...any) (err error) {
 	return nil
 }
 
+func GetUserFinReport(a *app.App, args ...any) (err error) {
+	var username string
+	var ok bool
+	if len(args) > 0 {
+		username, ok = args[0].(string)
+		if !ok {
+			return fmt.Errorf("приведение аргумента к string")
+		}
+	}
+
+	user, err := a.UserSvc.GetByUsername(username)
+	if err != nil {
+		return fmt.Errorf("пользователь не найден")
+	}
+
+	var startYear, endYear, startQuarter, endQuarter int
+	fmt.Printf("Укажите год начала периода: ")
+	_, err = fmt.Scanf("%d", &startYear)
+	if err != nil {
+		return fmt.Errorf("ошибка ввода года: %w", err)
+	}
+
+	fmt.Printf("Укажите год конца периода: ")
+	_, err = fmt.Scanf("%d", &endYear)
+	if err != nil {
+		return fmt.Errorf("ошибка ввода года: %w", err)
+	}
+
+	fmt.Printf("Укажите квартал начала периода (1-4): ")
+	_, err = fmt.Scanf("%d", &startQuarter)
+	if err != nil {
+		return fmt.Errorf("ошибка ввода квартала: %w", err)
+	}
+
+	fmt.Printf("Укажите квартал конца периода (%d-4): ", startQuarter+1)
+	_, err = fmt.Scanf("%d", &endQuarter)
+	if err != nil {
+		return fmt.Errorf("ошибка ввода квартала: %w", err)
+	}
+
+	period := &domain.Period{
+		StartYear:    startYear,
+		EndYear:      endYear,
+		StartQuarter: startQuarter,
+		EndQuarter:   endQuarter,
+	}
+
+	rep, err := a.Interactor.GetUserFinancialReport(user.ID, period)
+	if err != nil {
+		return fmt.Errorf("формирование отчёта предпринимателя: %w", err)
+	}
+
+	fmt.Println(rep.Profit(), rep.Revenue(), rep.Costs())
+
+	return nil
+}
+
 // TODO: incorrect login or password
