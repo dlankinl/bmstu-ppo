@@ -194,7 +194,8 @@ func (t *TUI) Run() (err error) {
 			ua := &domain.UserAuth{Username: login, Password: password}
 			token, err := t.app.AuthSvc.Login(ua)
 			if err != nil {
-				return fmt.Errorf("ошибка авторизации: %w", err)
+				fmt.Printf("ошибка авторизации: %v\n", err)
+				continue
 			}
 
 			payload, err := base.VerifyAuthToken(token, t.app.Config.JwtKey)

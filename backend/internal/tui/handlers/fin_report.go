@@ -261,9 +261,7 @@ func GetUserFinReport(a *app.App, args ...any) (err error) {
 		return fmt.Errorf("формирование отчёта предпринимателя: %w", err)
 	}
 
-	fmt.Println(rep.Profit(), rep.Revenue(), rep.Costs())
+	fmt.Printf("Прибыль=%f, Выручка=%f, Затраты=%f", rep.Profit(), rep.Revenue(), rep.Costs())
 
 	return nil
 }
-
-// TODO: incorrect login or password
