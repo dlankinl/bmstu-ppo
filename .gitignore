@@ -3,3 +3,4 @@
 *.bkp
 *.drawio
 /.idea/
+*/logs/

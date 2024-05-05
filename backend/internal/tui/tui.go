@@ -182,30 +182,35 @@ func (t *TUI) Run() (err error) {
 			fmt.Printf("Введите логин: ")
 			_, err = fmt.Scanf("%s", &login)
 			if err != nil {
+				t.app.Logger.Error("ошибка ввода логина")
 				return fmt.Errorf("ошибка ввода логина")
 			}
 
 			fmt.Printf("Введите пароль: ")
 			_, err = fmt.Scanf("%s", &password)
 			if err != nil {
+				t.app.Logger.Error("ошибка ввода пароля")
 				return fmt.Errorf("ошибка ввода пароля")
 			}
 
 			ua := &domain.UserAuth{Username: login, Password: password}
 			token, err := t.app.AuthSvc.Login(ua)
 			if err != nil {
+				t.app.Logger.Errorf("ошибка авторизации: %v", err)
 				fmt.Printf("ошибка авторизации: %v\n", err)
 				continue
 			}
 
-			payload, err := base.VerifyAuthToken(token, t.app.Config.JwtKey)
+			payload, err := base.VerifyAuthToken(token, t.app.Config.Server.JwtKey)
 			if err != nil {
+				t.app.Logger.Errorf("ошибка верификации JWT токена: %v", err)
 				return fmt.Errorf("ошибка верификации JWT токена: %w", err)
 			}
 
 			t.userInfo = payload
 			err = t.userMenu()
 			if err != nil {
+				t.app.Logger.Error(err)
 				fmt.Println(err)
 				continue
 			}
@@ -221,6 +226,7 @@ func (t *TUI) userMenu() (err error) {
 		var choice int
 		_, err = fmt.Scanf("%d", &choice)
 		if err != nil {
+			t.app.Logger.Error("ошибка ввода: %v", err)
 			fmt.Printf("Ошибка ввода: %v", err)
 			continue
 		}
@@ -232,6 +238,7 @@ func (t *TUI) userMenu() (err error) {
 		} else {
 			err = allowedActions[choice-1].Func(t.app, t.userInfo.Username)
 			if err != nil {
+				t.app.Logger.Error(err)
 				fmt.Println(err)
 			}
 		}
@@ -244,6 +251,7 @@ func (t *TUI) guestMenu() (err error) {
 		fmt.Println(guestPrompt)
 		_, err = fmt.Scanf("%d", &choice)
 		if err != nil {
+			t.app.Logger.Error("ошибка ввода: %v", err)
 			fmt.Printf("ошибка ввода: %v", err)
 		}
 
@@ -254,25 +262,28 @@ func (t *TUI) guestMenu() (err error) {
 			fmt.Printf("Введите логин: ")
 			_, err = fmt.Scanf("%s", &login)
 			if err != nil {
+				t.app.Logger.Error("ошибка ввода логина")
 				return fmt.Errorf("ошибка ввода логина")
 			}
 
 			fmt.Printf("Введите пароль: ")
 			_, err = fmt.Scanf("%s", &password)
 			if err != nil {
+				t.app.Logger.Error("ошибка ввода пароля")
 				return fmt.Errorf("ошибка ввода пароля")
 			}
 
 			ua := &domain.UserAuth{Username: login, Password: password}
 			err = t.app.AuthSvc.Register(ua)
 			if err != nil {
+				t.app.Logger.Errorf("ошибка регистрации: %v", err)
 				return fmt.Errorf("ошибка регистрации: %w", err)
 			}
 			return nil
 		case 2:
-			//err = handlers.GetAllUsers(t.app)
 			err = utils.PrintPaginatedCollection("Предприниматели", t.app.UserSvc.GetAll)
 			if err != nil {
+				t.app.Logger.Errorf("ошибка просмотра списка предпринимателей: %v", err)
 				return fmt.Errorf("ошибка просмотра списка предпринимателей: %w", err)
 			}
 		case 0:

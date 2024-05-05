@@ -8,10 +8,11 @@ import (
 	"ppo/internal/app"
 	"ppo/internal/config"
 	"ppo/internal/tui"
+	"ppo/pkg/logger"
 )
 
-func newConn(ctx context.Context, cfg *config.DBConfig) (pool *pgxpool.Pool, err error) {
-	connStr := fmt.Sprintf("%s://%s:%s@%s:%s/%s", cfg.Driver, cfg.User, cfg.Password, cfg.Host, cfg.Port, cfg.Database)
+func newConn(ctx context.Context, cfg *config.Config) (pool *pgxpool.Pool, err error) {
+	connStr := fmt.Sprintf("%s://%s:%s@%s:%s/%s", cfg.Database.Driver, cfg.Database.User, cfg.Database.Password, cfg.Database.Host, cfg.Database.Port, cfg.Database.Name)
 
 	pool, err = pgxpool.New(ctx, connStr)
 	if err != nil {
@@ -32,12 +33,17 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	pool, err := newConn(context.Background(), &cfg.DBConfig)
+	pool, err := newConn(context.Background(), cfg)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	app := app.NewApp(pool, cfg)
+	log, err := logger.NewLogger()
+	if err != nil {
+		log.Fatalf("cоздание логгера: %v", err)
+	}
+
+	app := app.NewApp(pool, cfg, log)
 	termui := tui.NewTUI(app)
 
 	err = termui.Run()

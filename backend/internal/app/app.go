@@ -2,6 +2,7 @@ package app
 
 import (
 	"github.com/jackc/pgx/v5/pgxpool"
+	"go.uber.org/zap"
 	"ppo/domain"
 	"ppo/internal/config"
 	"ppo/internal/interactors/user_activity_field"
@@ -18,6 +19,7 @@ import (
 )
 
 type App struct {
+	Logger       *zap.SugaredLogger
 	AuthSvc      domain.IAuthService
 	UserSvc      domain.IUserService
 	FinSvc       domain.IFinancialReportService
@@ -30,7 +32,7 @@ type App struct {
 	Config       config.Config
 }
 
-func NewApp(db *pgxpool.Pool, cfg *config.Config) *App {
+func NewApp(db *pgxpool.Pool, cfg *config.Config, logger *zap.SugaredLogger) *App {
 	authRepo := postgres.NewAuthRepository(db)
 	userRepo := postgres.NewUserRepository(db)
 	finRepo := postgres.NewFinReportRepository(db)
@@ -42,7 +44,7 @@ func NewApp(db *pgxpool.Pool, cfg *config.Config) *App {
 
 	crypto := base.NewHashCrypto()
 
-	authSvc := auth.NewService(authRepo, crypto, cfg.JwtKey)
+	authSvc := auth.NewService(authRepo, crypto, cfg.Server.JwtKey)
 	userSvc := user.NewService(userRepo, compRepo, actFieldRepo)
 	finSvc := fin_report.NewService(finRepo)
 	conSvc := contact.NewService(conRepo)
@@ -53,6 +55,7 @@ func NewApp(db *pgxpool.Pool, cfg *config.Config) *App {
 	interactor := user_activity_field.NewInteractor(userSvc, actFieldSvc, compSvc, finSvc)
 
 	return &App{
+		Logger:       logger,
 		AuthSvc:      authSvc,
 		UserSvc:      userSvc,
 		FinSvc:       finSvc,
