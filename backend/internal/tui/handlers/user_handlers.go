@@ -47,6 +47,11 @@ func CalculateRating(a *app.App, args ...any) (err error) {
 	reader := bufio.NewReader(os.Stdin)
 	var idStr string
 
+	err = GetAllUsers(a, args...)
+	if err != nil {
+		return fmt.Errorf("вывод пользователей: %w", err)
+	}
+
 	fmt.Printf("Введите id: ")
 	idStr, err = reader.ReadString('\n')
 	if err != nil {

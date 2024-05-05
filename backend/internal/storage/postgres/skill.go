@@ -65,6 +65,9 @@ func (r *SkillRepository) GetAll(ctx context.Context, page int) (skills []*domai
 		(page-1)*config.PageSize,
 		config.PageSize,
 	)
+	if err != nil {
+		return nil, fmt.Errorf("получение навыков: %w", err)
+	}
 
 	skills = make([]*domain.Skill, 0)
 	for rows.Next() {

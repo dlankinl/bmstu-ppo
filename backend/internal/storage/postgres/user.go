@@ -108,6 +108,9 @@ func (r *UserRepository) GetAll(ctx context.Context, page int) (users []*domain.
 		(page-1)*config.PageSize,
 		config.PageSize,
 	)
+	if err != nil {
+		return nil, fmt.Errorf("получение предпринимателей: %w", err)
+	}
 
 	users = make([]*domain.User, 0)
 	for rows.Next() {

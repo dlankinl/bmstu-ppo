@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"ppo/domain"
-	"ppo/internal/config"
 )
 
 type Service struct {
@@ -93,20 +92,9 @@ func (s *Service) GetUsersForSkill(skillId uuid.UUID, page int) (users []*domain
 func (s *Service) DeleteSkillsForUser(userId uuid.UUID) (err error) {
 	ctx := context.Background()
 
-	userSkills := make([]*domain.UserSkill, 0)
-	tmp := make([]*domain.UserSkill, 0, config.PageSize)
-	var j int
-	for {
-		tmp, err = s.userSkillRepo.GetUserSkillsByUserId(ctx, userId, j+1)
-		if err != nil {
-			return fmt.Errorf("получение связок пользователь-навык по userId: %w", err)
-		}
-
-		userSkills = append(userSkills, tmp...)
-		j++
-		if len(tmp) != config.PageSize {
-			break
-		}
+	userSkills, err := s.userSkillRepo.GetUserSkillsByUserId(ctx, userId, 0)
+	if err != nil {
+		return fmt.Errorf("получение связок пользователь-навык по userId: %w", err)
 	}
 
 	for _, userSkill := range userSkills {

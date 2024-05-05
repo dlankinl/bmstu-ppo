@@ -88,11 +88,6 @@ func DeleteFinReport(a *app.App, args ...any) (err error) {
 	}
 	compId = strings.TrimSpace(compId)
 
-	//compUuid, err := uuid.Parse(compId)
-	//if err != nil {
-	//	return fmt.Errorf("парсинг uuid из строки: %w", err)
-	//}
-
 	var year int
 	fmt.Printf("Укажите год: ")
 	_, err = fmt.Scanf("%d", &year)
@@ -139,11 +134,6 @@ func UpdateFinReport(a *app.App, args ...any) (err error) {
 		return fmt.Errorf("ошибка ввода id компании: %w", err)
 	}
 	compId = strings.TrimSpace(compId)
-
-	//compUuid, err := uuid.Parse(compId)
-	//if err != nil {
-	//	return fmt.Errorf("парсинг uuid из строки: %w", err)
-	//}
 
 	var year int
 	fmt.Printf("Укажите год: ")

@@ -220,6 +220,10 @@ func (t *TUI) userMenu() (err error) {
 
 		var choice int
 		_, err = fmt.Scanf("%d", &choice)
+		if err != nil {
+			fmt.Printf("Ошибка ввода: %v", err)
+			continue
+		}
 
 		if choice == 0 {
 			return nil

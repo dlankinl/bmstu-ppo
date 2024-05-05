@@ -124,6 +124,9 @@ func (r *ActivityFieldRepository) GetAll(ctx context.Context, page int) (fields 
 		(page-1)*config.PageSize,
 		config.PageSize,
 	)
+	if err != nil {
+		return nil, fmt.Errorf("получение сфер деятельности: %w", err)
+	}
 
 	fields = make([]*domain.ActivityField, 0)
 	for rows.Next() {

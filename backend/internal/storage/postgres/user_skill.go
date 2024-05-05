@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"ppo/domain"
 	"ppo/internal/config"
@@ -56,17 +57,24 @@ func (r *UserSkillRepository) GetUserSkillsByUserId(ctx context.Context, userId 
 	query := `
 		select skill_id 
 		from ppo.user_skills 
-		where user_id = $1
-		offset $2
-		limit $3`
+		where user_id = $1`
 
-	rows, err := r.db.Query(
-		ctx,
-		query,
-		userId,
-		(page-1)*config.PageSize,
-		config.PageSize,
-	)
+	var rows pgx.Rows
+	if page == 0 {
+		rows, err = r.db.Query(
+			ctx,
+			query,
+			userId,
+		)
+	} else {
+		rows, err = r.db.Query(
+			ctx,
+			query+` offset $2 limit $3`,
+			userId,
+			(page-1)*config.PageSize,
+			config.PageSize,
+		)
+	}
 	if err != nil {
 		return nil, fmt.Errorf("получение навыков пользователя: %w", err)
 	}

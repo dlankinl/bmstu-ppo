@@ -76,6 +76,9 @@ func (r *ContactRepository) GetByOwnerId(ctx context.Context, id uuid.UUID, page
 		(page-1)*config.PageSize,
 		config.PageSize,
 	)
+	if err != nil {
+		return nil, fmt.Errorf("получение средств связи: %w", err)
+	}
 
 	contacts = make([]*domain.Contact, 0)
 	for rows.Next() {

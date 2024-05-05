@@ -137,56 +137,7 @@ func printYear(name string, data []domain.FinancialReport) {
 	}
 }
 
-//func PrintYearCollection[T any](collectionName string, fn func(uuid.UUID, *domain.Period) (*T, error), id uuid.UUID) (err error) {
-//	curYear := time.Now().Year()
-//	curPeriod := &domain.Period{
-//		StartYear:    curYear,
-//		EndYear:      curYear,
-//		StartQuarter: 1,
-//		EndQuarter:   4,
-//	}
-//
-//	for {
-//		actYear := time.Now()
-//		tmp, err := fn(id, curPeriod)
-//		if err != nil {
-//			return fmt.Errorf("получение периодизированных данных: %w", err)
-//		}
-//
-//		//PrintCollection(collectionName, tmp)
-//		printYear(collectionName, tmp)
-//
-//		fmt.Printf("1. Предыдущий год.\n2. Следующий год.\n0. Назад.\n\nВыберите действие: ")
-//		var option int
-//		_, err = fmt.Scanf("%d", &option)
-//		if err != nil {
-//			return fmt.Errorf("ошибка ввода следующего действия: %w", err)
-//		}
-//
-//		switch option {
-//		case 1:
-//			if actYear.Year() <= curYear {
-//				actYear.AddDate(-1, 0, 0)
-//			}
-//		case 2:
-//			if actYear.Year() >= curYear {
-//				actYear.AddDate(1, 0, 0)
-//			}
-//		case 0:
-//			return nil
-//		}
-//	}
-//}
-
 func PrintYearCollection(collectionName string, fn func(uuid.UUID, *domain.Period) (*domain.FinancialReportByPeriod, error), id uuid.UUID, year int) (err error) {
-	//curYear := time.Now().Year()
-	//curPeriod := &domain.Period{
-	//	StartYear:    curYear,
-	//	EndYear:      curYear,
-	//	StartQuarter: 1,
-	//	EndQuarter:   4,
-	//}
-
 	curPeriod := &domain.Period{
 		StartYear:    year,
 		EndYear:      year,
@@ -202,33 +153,4 @@ func PrintYearCollection(collectionName string, fn func(uuid.UUID, *domain.Perio
 	printYear(collectionName, tmp.Reports)
 
 	return nil
-	//for {
-	//	actYear := time.Now()
-	//	tmp, err := fn(id, curPeriod)
-	//	if err != nil {
-	//		return fmt.Errorf("получение периодизированных данных: %w", err)
-	//	}
-	//
-	//	printYear(collectionName, tmp.Reports)
-	//
-	//	fmt.Printf("1. Предыдущий год.\n2. Следующий год.\n0. Назад.\n\nВыберите действие: ")
-	//	var option int
-	//	_, err = fmt.Scanf("%d", &option)
-	//	if err != nil {
-	//		return fmt.Errorf("ошибка ввода следующего действия: %w", err)
-	//	}
-	//
-	//	switch option {
-	//	case 1:
-	//		if actYear.Year() <= curYear {
-	//			actYear.AddDate(-1, 0, 0)
-	//		}
-	//	case 2:
-	//		if actYear.Year() >= curYear {
-	//			actYear.AddDate(1, 0, 0)
-	//		}
-	//	case 0:
-	//		return nil
-	//	}
-	//}
 }

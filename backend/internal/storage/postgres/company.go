@@ -189,6 +189,9 @@ func (r *CompanyRepository) GetAll(ctx context.Context, page int) (companies []*
 		(page-1)*config.PageSize,
 		config.PageSize,
 	)
+	if err != nil {
+		return nil, fmt.Errorf("получение списка компаний: %w", err)
+	}
 
 	companies = make([]*domain.Company, 0)
 	for rows.Next() {

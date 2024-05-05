@@ -7,43 +7,10 @@ import (
 	"os"
 	"ppo/domain"
 	"ppo/internal/app"
-	"ppo/internal/config"
 	"ppo/internal/tui/utils"
 	"strconv"
 	"strings"
 )
-
-func getAllActivityFields(a *app.App) (err error) {
-	page := 1
-	for {
-		fields, err := a.ActFieldSvc.GetAll(page)
-		if err != nil {
-			return fmt.Errorf("получение сфер деятельности: %w", err)
-		}
-
-		utils.PrintActivityFields(fields)
-
-		fmt.Printf("1. Предыдущая страница.\n2. Следующая страница.\n0. Назад.\n\nВыберите действие: ")
-		var option int
-		_, err = fmt.Scanf("%d", &option)
-		if err != nil {
-			return fmt.Errorf("ошибка ввода следующего действия: %w", err)
-		}
-
-		switch option {
-		case 1:
-			if page > 1 {
-				page--
-			}
-		case 2:
-			if len(fields) == config.PageSize {
-				page++
-			}
-		case 0:
-			return nil
-		}
-	}
-}
 
 func AddActivityField(a *app.App, args ...any) (err error) {
 	reader := bufio.NewReader(os.Stdin)
