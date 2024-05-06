@@ -87,7 +87,8 @@ func findFullYearReports(rep *domain.FinancialReportByPeriod, period *domain.Per
 		var totalFinReport domain.FinancialReportByPeriod
 
 		// цикл нужен для аккумулирования всех отчётов за выбранный период; переменная j нужна для контроля невозможности
-		// вылезти за границы слайса
+		// вылезти за границы слайса, т.к. за год могут быть в наличии отчёты за 1, 3 и 4 квартал и, в таком случае,
+		// если итерироваться по quarter, будет печалька ;(
 		for quarter := startQtr; quarter <= endQtr; quarter++ {
 			if j < len(rep.Reports) {
 				totalFinReport.Reports = append(totalFinReport.Reports, rep.Reports[j])
