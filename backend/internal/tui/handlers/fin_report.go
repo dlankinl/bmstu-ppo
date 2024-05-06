@@ -233,7 +233,7 @@ func GetUserFinReport(a *app.App, args ...any) (err error) {
 		return fmt.Errorf("ошибка ввода квартала: %w", err)
 	}
 
-	fmt.Printf("Укажите квартал конца периода (%d-4): ", startQuarter+1)
+	fmt.Printf("Укажите квартал конца периода (1-4): ")
 	_, err = fmt.Scanf("%d", &endQuarter)
 	if err != nil {
 		return fmt.Errorf("ошибка ввода квартала: %w", err)

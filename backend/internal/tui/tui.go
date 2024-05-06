@@ -270,7 +270,6 @@ func (t *TUI) guestMenu() (err error) {
 			}
 			return nil
 		case 2:
-			//err = handlers.GetAllUsers(t.app)
 			err = utils.PrintPaginatedCollection("Предприниматели", t.app.UserSvc.GetAll)
 			if err != nil {
 				return fmt.Errorf("ошибка просмотра списка предпринимателей: %w", err)
