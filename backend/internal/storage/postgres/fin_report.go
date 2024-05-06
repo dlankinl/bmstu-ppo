@@ -59,6 +59,7 @@ func (r *FinReportRepository) GetById(ctx context.Context, id uuid.UUID) (report
 		return nil, fmt.Errorf("получение отчета по id: %w", err)
 	}
 
+	report.ID = id
 	return report, nil
 }
 

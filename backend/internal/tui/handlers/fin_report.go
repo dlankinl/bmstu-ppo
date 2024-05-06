@@ -8,6 +8,7 @@ import (
 	"ppo/domain"
 	"ppo/internal/app"
 	"ppo/internal/tui/utils"
+	"strconv"
 	"strings"
 )
 
@@ -159,9 +160,78 @@ func UpdateFinReport(a *app.App, args ...any) (err error) {
 		return fmt.Errorf("парсинг uuid из строки: %w", err)
 	}
 
-	err = a.FinSvc.DeleteById(repUuid)
+	rep, err := a.FinSvc.GetById(repUuid)
 	if err != nil {
-		return fmt.Errorf("ошибка удаления финансового отчета: %w", err)
+		return fmt.Errorf("получение отчета по id: %w", err)
+	}
+
+	var revenue, costs float64
+	var yearUpd, quarter int
+	var revenueStr, costsStr, yearStr, quarterStr string
+
+	fmt.Printf("Введите выручку (%f): ", rep.Revenue)
+	revenueStr, err = reader.ReadString('\n')
+	if err != nil {
+		return fmt.Errorf("ошибка ввода выручки: %w", err)
+	}
+	revenueStr = strings.TrimSpace(revenueStr)
+	if revenueStr != "" {
+		revenue, err = strconv.ParseFloat(revenueStr, 32)
+		if err != nil {
+			return fmt.Errorf("парсинг строки в revenue: %w", err)
+		}
+
+		rep.Revenue = float32(revenue)
+	}
+
+	fmt.Printf("Введите расходы (%f): ", rep.Costs)
+	costsStr, err = reader.ReadString('\n')
+	if err != nil {
+		return fmt.Errorf("ошибка ввода расходов: %w", err)
+	}
+	costsStr = strings.TrimSpace(costsStr)
+	if costsStr != "" {
+		costs, err = strconv.ParseFloat(costsStr, 32)
+		if err != nil {
+			return fmt.Errorf("парсинг строки в cost: %w", err)
+		}
+
+		rep.Costs = float32(costs)
+	}
+
+	fmt.Printf("Введите год (%d): ", rep.Year)
+	yearStr, err = reader.ReadString('\n')
+	if err != nil {
+		return fmt.Errorf("ошибка ввода года: %w", err)
+	}
+	yearStr = strings.TrimSpace(yearStr)
+	if yearStr != "" {
+		yearUpd, err = strconv.Atoi(yearStr)
+		if err != nil {
+			return fmt.Errorf("парсинг строки в year: %w", err)
+		}
+
+		rep.Year = yearUpd
+	}
+
+	fmt.Printf("Введите квартал (%d): ", rep.Quarter)
+	quarterStr, err = reader.ReadString('\n')
+	if err != nil {
+		return fmt.Errorf("ошибка ввода квартала: %w", err)
+	}
+	quarterStr = strings.TrimSpace(quarterStr)
+	if quarterStr != "" {
+		quarter, err = strconv.Atoi(quarterStr)
+		if err != nil {
+			return fmt.Errorf("парсинг строки в quarter: %w", err)
+		}
+
+		rep.Quarter = quarter
+	}
+
+	err = a.FinSvc.Update(rep)
+	if err != nil {
+		return fmt.Errorf("ошибка обновления финансового отчета: %w", err)
 	}
 
 	return nil
