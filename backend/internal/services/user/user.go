@@ -93,6 +93,10 @@ func (s *Service) GetAll(page int) (users []*domain.User, err error) {
 func (s *Service) Update(user *domain.User) (err error) {
 	ctx := context.Background()
 
+	if user.Role != "admin" && user.Role != "user" {
+		return fmt.Errorf("невалидная роль")
+	}
+
 	err = s.userRepo.Update(ctx, user)
 	if err != nil {
 		return fmt.Errorf("обновление информации о пользователе: %w", err)
