@@ -474,6 +474,7 @@ func TestUserService_Update(t *testing.T) {
 			user: &domain.User{
 				ID:   uuid.UUID{1},
 				City: "a",
+				Role: "admin",
 			},
 			beforeTest: func(userRepo mocks.MockIUserRepository) {
 				userRepo.EXPECT().
@@ -482,6 +483,7 @@ func TestUserService_Update(t *testing.T) {
 						&domain.User{
 							ID:   uuid.UUID{1},
 							City: "a",
+							Role: "admin",
 						},
 					).Return(nil)
 			},
@@ -492,6 +494,7 @@ func TestUserService_Update(t *testing.T) {
 			user: &domain.User{
 				ID:   uuid.UUID{1},
 				City: "a",
+				Role: "admin",
 			},
 			beforeTest: func(userRepo mocks.MockIUserRepository) {
 				userRepo.EXPECT().
@@ -500,6 +503,7 @@ func TestUserService_Update(t *testing.T) {
 						&domain.User{
 							ID:   uuid.UUID{1},
 							City: "a",
+							Role: "admin",
 						},
 					).Return(fmt.Errorf("sql error"))
 			},

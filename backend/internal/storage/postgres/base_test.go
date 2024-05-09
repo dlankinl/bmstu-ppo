@@ -6,10 +6,6 @@ import (
 	"testing"
 )
 
-func fillTestTables() error {
-	return nil
-}
-
 func TestMain(m *testing.M) {
 	testDB := SetupTestDatabase()
 	defer testDB.TearDown()

@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"ppo/domain"
+	"ppo/internal/config"
 )
 
 type UserRepository struct {
@@ -44,43 +45,79 @@ func (r *UserRepository) Create(ctx context.Context, user *domain.User) (err err
 	return nil
 }
 
-func (r *UserRepository) GetById(ctx context.Context, id uuid.UUID) (user *domain.User, err error) {
-	query := `select username, full_name, birthday, gender, city from ppo.users where id = $1`
+func (r *UserRepository) GetByUsername(ctx context.Context, username string) (user *domain.User, err error) {
+	query := `select id, username, full_name, birthday, gender, city, role from ppo.users where username = $1`
+
+	tmp := new(User)
+	err = r.db.QueryRow(
+		ctx,
+		query,
+		username,
+	).Scan(
+		&tmp.ID,
+		&tmp.Username,
+		&tmp.FullName,
+		&tmp.Birthday,
+		&tmp.Gender,
+		&tmp.City,
+		&tmp.Role,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("получение пользователя по username: %w", err)
+	}
+
+	return UserDbToUser(tmp), nil
+}
+
+func (r *UserRepository) GetById(ctx context.Context, userId uuid.UUID) (user *domain.User, err error) {
+	query := `select username, full_name, birthday, gender, city, role from ppo.users where id = $1`
 
 	user = new(domain.User)
 	err = r.db.QueryRow(
 		ctx,
 		query,
-		id,
+		userId,
 	).Scan(
 		&user.Username,
 		&user.FullName,
 		&user.Birthday,
 		&user.Gender,
 		&user.City,
+		&user.Role,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("получение пользователя по id: %w", err)
 	}
 
+	user.ID = userId
 	return user, nil
 }
 
 func (r *UserRepository) GetAll(ctx context.Context, page int) (users []*domain.User, err error) {
-	query := `select username, full_name, birthday, gender, city from ppo.users offset $1 limit $2`
+	query := `select id, username, full_name, birthday, gender, city from ppo.users
+	where full_name is not null 
+	    and birthday is not null
+	    and gender is not null
+	    and city is not null
+		and role = 'user'
+	offset $1 limit $2`
 
 	rows, err := r.db.Query(
 		ctx,
 		query,
-		(page-1)*pageSize,
-		pageSize,
+		(page-1)*config.PageSize,
+		config.PageSize,
 	)
+	if err != nil {
+		return nil, fmt.Errorf("получение предпринимателей: %w", err)
+	}
 
 	users = make([]*domain.User, 0)
 	for rows.Next() {
 		tmp := new(domain.User)
 
 		err = rows.Scan(
+			&tmp.ID,
 			&tmp.Username,
 			&tmp.FullName,
 			&tmp.Birthday,
@@ -91,6 +128,7 @@ func (r *UserRepository) GetAll(ctx context.Context, page int) (users []*domain.
 		if err != nil {
 			return nil, fmt.Errorf("сканирование полученных строк: %w", err)
 		}
+		users = append(users, tmp)
 	}
 
 	return users, nil
@@ -103,8 +141,9 @@ func (r *UserRepository) Update(ctx context.Context, user *domain.User) (err err
 			    full_name = $1, 
 			    birthday = $2, 
 			    gender = $3, 
-			    city = $4
-			where id = $5`
+			    city = $4,
+			    role = $5
+			where username = $6`
 
 	_, err = r.db.Exec(
 		ctx,
@@ -113,7 +152,8 @@ func (r *UserRepository) Update(ctx context.Context, user *domain.User) (err err
 		user.Birthday,
 		user.Gender,
 		user.City,
-		user.ID,
+		user.Role,
+		user.Username,
 	)
 	if err != nil {
 		return fmt.Errorf("обновление информации о пользователе: %w", err)

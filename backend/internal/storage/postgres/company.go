@@ -4,8 +4,10 @@ import (
 	"context"
 	"fmt"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"ppo/domain"
+	"ppo/internal/config"
 )
 
 type CompanyRepository struct {
@@ -54,18 +56,40 @@ func (r *CompanyRepository) GetById(ctx context.Context, id uuid.UUID) (company 
 	if err != nil {
 		return nil, fmt.Errorf("получение компании по id: %w", err)
 	}
+	company.ID = id
 
 	return company, nil
 }
 
-func (r *CompanyRepository) GetByOwnerId(ctx context.Context, id uuid.UUID) (companies []*domain.Company, err error) {
-	query := `select id, activity_field_id, name, city from ppo.companies where owner_id = $1 `
+func (r *CompanyRepository) GetByOwnerId(ctx context.Context, id uuid.UUID, page int, isPaginated bool) (companies []*domain.Company, err error) {
+	query :=
+		`select 
+    		id, 
+    		activity_field_id,
+    		name,
+    		city 
+		from ppo.companies 
+		where owner_id = $1`
 
-	rows, err := r.db.Query(
-		ctx,
-		query,
-		id,
-	)
+	var rows pgx.Rows
+	if !isPaginated {
+		rows, err = r.db.Query(
+			ctx,
+			query,
+			id,
+		)
+	} else {
+		rows, err = r.db.Query(
+			ctx,
+			query+` offset $2 limit $3`,
+			id,
+			(page-1)*config.PageSize,
+			config.PageSize,
+		)
+	}
+	if err != nil {
+		return nil, fmt.Errorf("получение компаний: %w", err)
+	}
 
 	companies = make([]*domain.Company, 0)
 	for rows.Next() {
@@ -82,6 +106,8 @@ func (r *CompanyRepository) GetByOwnerId(ctx context.Context, id uuid.UUID) (com
 		if err != nil {
 			return nil, fmt.Errorf("сканирование полученных строк: %w", err)
 		}
+
+		companies = append(companies, tmp)
 	}
 
 	return companies, nil
@@ -114,15 +140,41 @@ func (r *CompanyRepository) Update(ctx context.Context, company *domain.Company)
 }
 
 func (r *CompanyRepository) DeleteById(ctx context.Context, id uuid.UUID) (err error) {
-	query := `delete from ppo.companies where id = $1`
+	tx, err := r.db.Begin(ctx)
+	if err != nil {
+		return fmt.Errorf("открытие транзакции: %w", err)
+	}
 
-	_, err = r.db.Exec(
+	defer func() {
+		if err != nil {
+			rollbackErr := tx.Rollback(ctx)
+			if rollbackErr != nil {
+				err = fmt.Errorf("обработанная ошибка: %w\nоткат транзакции: %v", err, rollbackErr)
+			}
+		}
+	}()
+
+	_, err = tx.Exec(
 		ctx,
-		query,
+		`delete from ppo.companies where id = $1`,
 		id,
 	)
 	if err != nil {
 		return fmt.Errorf("удаление компании по id: %w", err)
+	}
+
+	_, err = tx.Exec(
+		ctx,
+		`delete from ppo.fin_reports where company_id = $1`,
+		id,
+	)
+	if err != nil {
+		return fmt.Errorf("удаление отчетов, связанных с компанией: %w", err)
+	}
+
+	err = tx.Commit(ctx)
+	if err != nil {
+		return fmt.Errorf("закрытие транзакции: %w", err)
 	}
 
 	return nil
@@ -134,9 +186,12 @@ func (r *CompanyRepository) GetAll(ctx context.Context, page int) (companies []*
 	rows, err := r.db.Query(
 		ctx,
 		query,
-		(page-1)*pageSize,
-		pageSize,
+		(page-1)*config.PageSize,
+		config.PageSize,
 	)
+	if err != nil {
+		return nil, fmt.Errorf("получение списка компаний: %w", err)
+	}
 
 	companies = make([]*domain.Company, 0)
 	for rows.Next() {

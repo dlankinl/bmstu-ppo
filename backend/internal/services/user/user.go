@@ -57,10 +57,21 @@ func (s *Service) Create(user *domain.User) (err error) {
 	return nil
 }
 
-func (s *Service) GetById(id uuid.UUID) (user *domain.User, err error) {
+func (s *Service) GetByUsername(username string) (user *domain.User, err error) {
 	ctx := context.Background()
 
-	user, err = s.userRepo.GetById(ctx, id)
+	user, err = s.userRepo.GetByUsername(ctx, username)
+	if err != nil {
+		return nil, fmt.Errorf("получение пользователя по username: %w", err)
+	}
+
+	return user, nil
+}
+
+func (s *Service) GetById(userId uuid.UUID) (user *domain.User, err error) {
+	ctx := context.Background()
+
+	user, err = s.userRepo.GetById(ctx, userId)
 	if err != nil {
 		return nil, fmt.Errorf("получение пользователя по id: %w", err)
 	}
@@ -81,6 +92,10 @@ func (s *Service) GetAll(page int) (users []*domain.User, err error) {
 
 func (s *Service) Update(user *domain.User) (err error) {
 	ctx := context.Background()
+
+	if user.Role != "admin" && user.Role != "user" {
+		return fmt.Errorf("невалидная роль")
+	}
 
 	err = s.userRepo.Update(ctx, user)
 	if err != nil {

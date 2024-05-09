@@ -111,12 +111,13 @@ func TestAuthService_Login(t *testing.T) {
 			}
 
 			token, err := svc.Login(tc.authInfo)
+			_, verifErr := base.VerifyAuthToken(token, jwtKey)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
 			} else {
 				require.Nil(t, err)
-				require.Nil(t, base.VerifyAuthToken(token, jwtKey))
+				require.Nil(t, verifErr)
 			}
 		})
 	}

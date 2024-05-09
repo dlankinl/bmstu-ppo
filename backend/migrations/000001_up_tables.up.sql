@@ -7,7 +7,8 @@ create table if not exists ppo.users(
     birthday date,
     gender varchar(1),
     city varchar(128),
-    password varchar(256)
+    password varchar(256),
+    role varchar(32)
 );
 
 create table if not exists ppo.skills(

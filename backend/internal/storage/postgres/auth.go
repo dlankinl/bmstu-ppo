@@ -18,7 +18,7 @@ func NewAuthRepository(db *pgxpool.Pool) domain.IAuthRepository {
 }
 
 func (r *AuthRepository) Register(ctx context.Context, authInfo *domain.UserAuth) (err error) {
-	query := `insert into ppo.users (username, password) values ($1, $2)`
+	query := `insert into ppo.users (username, password, role) values ($1, $2, 'user')`
 
 	_, err = r.db.Exec(
 		ctx,
@@ -34,19 +34,20 @@ func (r *AuthRepository) Register(ctx context.Context, authInfo *domain.UserAuth
 }
 
 func (r *AuthRepository) GetByUsername(ctx context.Context, username string) (data *domain.UserAuth, err error) {
-	query := `select password from ppo.users where username = $1`
+	query := `select password, role from ppo.users where username = $1`
 
-	data = new(domain.UserAuth)
+	tmp := new(UserAuth)
 	err = r.db.QueryRow(
 		ctx,
 		query,
 		username,
 	).Scan(
-		&data.HashedPass,
+		&tmp.HashedPass,
+		&tmp.Role,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("получение пользователя по username: %w", err)
 	}
 
-	return data, nil
+	return UserAuthDbToUserAuth(tmp), nil
 }

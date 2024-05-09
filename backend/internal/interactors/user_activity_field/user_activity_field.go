@@ -85,9 +85,15 @@ func findFullYearReports(rep *domain.FinancialReportByPeriod, period *domain.Per
 		}
 
 		var totalFinReport domain.FinancialReportByPeriod
+
+		// цикл нужен для аккумулирования всех отчётов за выбранный период; переменная j нужна для контроля невозможности
+		// вылезти за границы слайса, т.к. за год могут быть в наличии отчёты за 1, 3 и 4 квартал и, в таком случае,
+		// если итерироваться по quarter, будет печалька ;(
 		for quarter := startQtr; quarter <= endQtr; quarter++ {
-			totalFinReport.Reports = append(totalFinReport.Reports, rep.Reports[j])
-			j++
+			if j < len(rep.Reports) {
+				totalFinReport.Reports = append(totalFinReport.Reports, rep.Reports[j])
+				j++
+			}
 		}
 
 		if endQtr-startQtr == quartersInYear-1 {
@@ -129,7 +135,7 @@ func (i *Interactor) GetMostProfitableCompany(period *domain.Period, companies [
 }
 
 func (i *Interactor) CalculateUserRating(id uuid.UUID) (rating float32, err error) {
-	companies, err := i.compService.GetByOwnerId(id)
+	companies, err := i.compService.GetByOwnerId(id, 0, false)
 	if err != nil {
 		return 0, fmt.Errorf("получение списка компаний: %w", err)
 	}
@@ -151,8 +157,14 @@ func (i *Interactor) CalculateUserRating(id uuid.UUID) (rating float32, err erro
 	if err != nil {
 		return 0, fmt.Errorf("поиск наиболее прибыльной компании: %w", err)
 	}
+	if mostProfitableCompany == nil {
+		return 0, fmt.Errorf("у предпринимателя не найдены компании")
+	}
 
 	maxCost, err := i.actFieldService.GetMaxCost()
+	if err != nil {
+		return 0, fmt.Errorf("поиск максимального веса: %w", err)
+	}
 
 	cost, err := i.actFieldService.GetCostByCompanyId(mostProfitableCompany.ID)
 	if err != nil {
@@ -171,7 +183,7 @@ func (i *Interactor) CalculateUserRating(id uuid.UUID) (rating float32, err erro
 func (i *Interactor) GetUserFinancialReport(id uuid.UUID, period *domain.Period) (report *domain.FinancialReportByPeriod, err error) {
 	report = new(domain.FinancialReportByPeriod)
 
-	companies, err := i.compService.GetByOwnerId(id)
+	companies, err := i.compService.GetByOwnerId(id, 0, false)
 	if err != nil {
 		return nil, fmt.Errorf("получение списка компаний: %w", err)
 	}

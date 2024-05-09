@@ -4,8 +4,10 @@ import (
 	"context"
 	"fmt"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"ppo/domain"
+	"ppo/internal/config"
 )
 
 type UserSkillRepository struct {
@@ -51,14 +53,28 @@ func (r *UserSkillRepository) Delete(ctx context.Context, pair *domain.UserSkill
 	return nil
 }
 
-func (r *UserSkillRepository) GetUserSkillsByUserId(ctx context.Context, userId uuid.UUID) (pairs []*domain.UserSkill, err error) {
-	query := `select skill_id from ppo.user_skills where user_id = $1`
+func (r *UserSkillRepository) GetUserSkillsByUserId(ctx context.Context, userId uuid.UUID, page int, isPaginated bool) (pairs []*domain.UserSkill, err error) {
+	query := `
+		select skill_id 
+		from ppo.user_skills 
+		where user_id = $1`
 
-	rows, err := r.db.Query(
-		ctx,
-		query,
-		userId,
-	)
+	var rows pgx.Rows
+	if !isPaginated {
+		rows, err = r.db.Query(
+			ctx,
+			query,
+			userId,
+		)
+	} else {
+		rows, err = r.db.Query(
+			ctx,
+			query+` offset $2 limit $3`,
+			userId,
+			(page-1)*config.PageSize,
+			config.PageSize,
+		)
+	}
 	if err != nil {
 		return nil, fmt.Errorf("получение навыков пользователя: %w", err)
 	}
@@ -81,13 +97,20 @@ func (r *UserSkillRepository) GetUserSkillsByUserId(ctx context.Context, userId 
 	return pairs, nil
 }
 
-func (r *UserSkillRepository) GetUserSkillsBySkillId(ctx context.Context, skillId uuid.UUID) (pairs []*domain.UserSkill, err error) {
-	query := `select user_id from ppo.user_skills where skill_id = $1`
+func (r *UserSkillRepository) GetUserSkillsBySkillId(ctx context.Context, skillId uuid.UUID, page int) (pairs []*domain.UserSkill, err error) {
+	query := `
+		select user_id 
+		from ppo.user_skills 
+		where skill_id = $1
+		offset $2
+		limit $3`
 
 	rows, err := r.db.Query(
 		ctx,
 		query,
 		skillId,
+		(page-1)*config.PageSize,
+		config.PageSize,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("получение пользователей по навыку: %w", err)

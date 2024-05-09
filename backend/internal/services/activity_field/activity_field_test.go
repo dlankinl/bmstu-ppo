@@ -17,7 +17,8 @@ func TestService_Create(t *testing.T) {
 	defer ctrl.Finish()
 
 	repo := mocks.NewMockIActivityFieldRepository(ctrl)
-	svc := NewService(repo)
+	compRepo := mocks.NewMockICompanyRepository(ctrl)
+	svc := NewService(repo, compRepo)
 
 	testCases := []struct {
 		name       string
@@ -153,7 +154,8 @@ func TestService_DeleteById(t *testing.T) {
 	defer ctrl.Finish()
 
 	repo := mocks.NewMockIActivityFieldRepository(ctrl)
-	svc := NewService(repo)
+	compRepo := mocks.NewMockICompanyRepository(ctrl)
+	svc := NewService(repo, compRepo)
 
 	curUuid := uuid.New()
 
@@ -208,7 +210,8 @@ func TestService_GetById(t *testing.T) {
 	defer ctrl.Finish()
 
 	repo := mocks.NewMockIActivityFieldRepository(ctrl)
-	svc := NewService(repo)
+	compRepo := mocks.NewMockICompanyRepository(ctrl)
+	svc := NewService(repo, compRepo)
 
 	testCases := []struct {
 		name       string
@@ -278,7 +281,8 @@ func TestService_Update(t *testing.T) {
 	defer ctrl.Finish()
 
 	repo := mocks.NewMockIActivityFieldRepository(ctrl)
-	svc := NewService(repo)
+	compRepo := mocks.NewMockICompanyRepository(ctrl)
+	svc := NewService(repo, compRepo)
 
 	testCases := []struct {
 		name       string
