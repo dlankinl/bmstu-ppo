@@ -7,7 +7,6 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"runtime"
 	"time"
 
 	"github.com/golang-migrate/migrate/v4"
@@ -97,14 +96,13 @@ func createContainer(ctx context.Context) (testcontainers.Container, *pgxpool.Po
 }
 
 func migrateDb(dbAddr string) error {
-	_, path, _, ok := runtime.Caller(0)
-	if !ok {
-		return fmt.Errorf("failed to get path")
+	currentDir, err := os.Getwd()
+	if err != nil {
+		return fmt.Errorf("получение текущей директории: %w", err)
 	}
-	_ = path
-	//pathToMigrationFiles := filepath.Dir(path) + "/migration"
-	//fmt.Println(filepath.Dir(path) + "/migration")
-	pathToMigrationFiles := "/Users/dmitry/Desktop/bmstu/6sem/ppo/backend/migrations"
+
+	relativePathToMigrationFiles := "./migrations"
+	pathToMigrationFiles := filepath.Join(currentDir, "..", "..", "..", relativePathToMigrationFiles)
 
 	databaseURL := fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=disable", DbUser, DbPass, dbAddr, DbName)
 	m, err := migrate.New(fmt.Sprintf("file:%s", pathToMigrationFiles), databaseURL)
