@@ -61,7 +61,7 @@ func (r *CompanyRepository) GetById(ctx context.Context, id uuid.UUID) (company 
 	return company, nil
 }
 
-func (r *CompanyRepository) GetByOwnerId(ctx context.Context, id uuid.UUID, page int) (companies []*domain.Company, err error) {
+func (r *CompanyRepository) GetByOwnerId(ctx context.Context, id uuid.UUID, page int, isPaginated bool) (companies []*domain.Company, err error) {
 	query :=
 		`select 
     		id, 
@@ -72,7 +72,7 @@ func (r *CompanyRepository) GetByOwnerId(ctx context.Context, id uuid.UUID, page
 		where owner_id = $1`
 
 	var rows pgx.Rows
-	if page == 0 {
+	if !isPaginated {
 		rows, err = r.db.Query(
 			ctx,
 			query,

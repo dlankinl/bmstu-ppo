@@ -196,7 +196,7 @@ func GetMyCompanies(a *app.App, args ...any) (err error) {
 		return fmt.Errorf("пользователь не найден")
 	}
 
-	err = utils.PrintPaginatedCollectionArgs("Компании", a.CompSvc.GetByOwnerId, user.ID)
+	err = utils.PrintPaginatedCollectionArgs("Компании", a.CompSvc.GetByOwnerId, user.ID, true)
 	if err != nil {
 		return fmt.Errorf("вывод компаний предпринимателя с пагинацией: %w", err)
 	}

@@ -47,10 +47,10 @@ func (s *Service) Delete(pair *domain.UserSkill) (err error) {
 	return nil
 }
 
-func (s *Service) GetSkillsForUser(userId uuid.UUID, page int) (skills []*domain.Skill, err error) {
+func (s *Service) GetSkillsForUser(userId uuid.UUID, page int, isPaginated bool) (skills []*domain.Skill, err error) {
 	ctx := context.Background()
 
-	userSkills, err := s.userSkillRepo.GetUserSkillsByUserId(ctx, userId, page)
+	userSkills, err := s.userSkillRepo.GetUserSkillsByUserId(ctx, userId, page, isPaginated)
 	if err != nil {
 		return nil, fmt.Errorf("получение связок пользователь-навык по userId: %w", err)
 	}
@@ -92,7 +92,7 @@ func (s *Service) GetUsersForSkill(skillId uuid.UUID, page int) (users []*domain
 func (s *Service) DeleteSkillsForUser(userId uuid.UUID) (err error) {
 	ctx := context.Background()
 
-	userSkills, err := s.userSkillRepo.GetUserSkillsByUserId(ctx, userId, 0)
+	userSkills, err := s.userSkillRepo.GetUserSkillsByUserId(ctx, userId, 0, false)
 	if err != nil {
 		return fmt.Errorf("получение связок пользователь-навык по userId: %w", err)
 	}

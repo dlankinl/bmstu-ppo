@@ -64,11 +64,11 @@ func PrintActivityFields(fields []*domain.ActivityField) {
 	}
 }
 
-func PrintPaginatedCollectionArgs[T any](collectionName string, fn func(uuid.UUID, int) ([]*T, error), id uuid.UUID) (err error) {
+func PrintPaginatedCollectionArgs[T any](collectionName string, fn func(uuid.UUID, int, bool) ([]*T, error), id uuid.UUID, isPaginated bool) (err error) {
 	page := 1
 
 	for {
-		tmp, err := fn(id, page)
+		tmp, err := fn(id, page, isPaginated)
 		if err != nil {
 			return fmt.Errorf("получение пагинированных данных: %w", err)
 		}

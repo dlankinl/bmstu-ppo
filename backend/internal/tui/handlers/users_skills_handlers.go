@@ -119,7 +119,7 @@ func GetMySkills(a *app.App, args ...any) (err error) {
 		return fmt.Errorf("пользователь не найден")
 	}
 
-	err = utils.PrintPaginatedCollectionArgs("Навыки", a.UserSkillSvc.GetSkillsForUser, user.ID)
+	err = utils.PrintPaginatedCollectionArgs("Навыки", a.UserSkillSvc.GetSkillsForUser, user.ID, true)
 	if err != nil {
 		return fmt.Errorf("вывод навыков с пагинацией: %w", err)
 	}

@@ -85,18 +85,18 @@ func (mr *MockIUserSkillRepositoryMockRecorder) GetUserSkillsBySkillId(ctx, skil
 }
 
 // GetUserSkillsByUserId mocks base method.
-func (m *MockIUserSkillRepository) GetUserSkillsByUserId(ctx context.Context, userId uuid.UUID, page int) ([]*domain.UserSkill, error) {
+func (m *MockIUserSkillRepository) GetUserSkillsByUserId(ctx context.Context, userId uuid.UUID, page int, isPaginated bool) ([]*domain.UserSkill, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetUserSkillsByUserId", ctx, userId, page)
+	ret := m.ctrl.Call(m, "GetUserSkillsByUserId", ctx, userId, page, isPaginated)
 	ret0, _ := ret[0].([]*domain.UserSkill)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetUserSkillsByUserId indicates an expected call of GetUserSkillsByUserId.
-func (mr *MockIUserSkillRepositoryMockRecorder) GetUserSkillsByUserId(ctx, userId, page any) *gomock.Call {
+func (mr *MockIUserSkillRepositoryMockRecorder) GetUserSkillsByUserId(ctx, userId, page, isPaginated any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserSkillsByUserId", reflect.TypeOf((*MockIUserSkillRepository)(nil).GetUserSkillsByUserId), ctx, userId, page)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserSkillsByUserId", reflect.TypeOf((*MockIUserSkillRepository)(nil).GetUserSkillsByUserId), ctx, userId, page, isPaginated)
 }
 
 // MockIUserSkillService is a mock of IUserSkillService interface.
@@ -165,18 +165,18 @@ func (mr *MockIUserSkillServiceMockRecorder) DeleteSkillsForUser(userId any) *go
 }
 
 // GetSkillsForUser mocks base method.
-func (m *MockIUserSkillService) GetSkillsForUser(userId uuid.UUID, page int) ([]*domain.Skill, error) {
+func (m *MockIUserSkillService) GetSkillsForUser(userId uuid.UUID, page int, isPaginated bool) ([]*domain.Skill, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetSkillsForUser", userId, page)
+	ret := m.ctrl.Call(m, "GetSkillsForUser", userId, page, isPaginated)
 	ret0, _ := ret[0].([]*domain.Skill)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetSkillsForUser indicates an expected call of GetSkillsForUser.
-func (mr *MockIUserSkillServiceMockRecorder) GetSkillsForUser(userId, page any) *gomock.Call {
+func (mr *MockIUserSkillServiceMockRecorder) GetSkillsForUser(userId, page, isPaginated any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSkillsForUser", reflect.TypeOf((*MockIUserSkillService)(nil).GetSkillsForUser), userId, page)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSkillsForUser", reflect.TypeOf((*MockIUserSkillService)(nil).GetSkillsForUser), userId, page, isPaginated)
 }
 
 // GetUsersForSkill mocks base method.

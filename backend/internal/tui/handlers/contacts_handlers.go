@@ -152,7 +152,7 @@ func GetMyContacts(a *app.App, args ...any) (err error) {
 		return fmt.Errorf("пользователь не найден")
 	}
 
-	err = utils.PrintPaginatedCollectionArgs("Средства связи", a.ConSvc.GetByOwnerId, user.ID)
+	err = utils.PrintPaginatedCollectionArgs("Средства связи", a.ConSvc.GetByOwnerId, user.ID, true)
 	if err != nil {
 		return fmt.Errorf("вывод средств связи с пагинацией: %w", err)
 	}

@@ -53,14 +53,14 @@ func (r *UserSkillRepository) Delete(ctx context.Context, pair *domain.UserSkill
 	return nil
 }
 
-func (r *UserSkillRepository) GetUserSkillsByUserId(ctx context.Context, userId uuid.UUID, page int) (pairs []*domain.UserSkill, err error) {
+func (r *UserSkillRepository) GetUserSkillsByUserId(ctx context.Context, userId uuid.UUID, page int, isPaginated bool) (pairs []*domain.UserSkill, err error) {
 	query := `
 		select skill_id 
 		from ppo.user_skills 
 		where user_id = $1`
 
 	var rows pgx.Rows
-	if page == 0 {
+	if !isPaginated {
 		rows, err = r.db.Query(
 			ctx,
 			query,

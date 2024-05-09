@@ -100,18 +100,18 @@ func (mr *MockICompanyRepositoryMockRecorder) GetById(ctx, id any) *gomock.Call 
 }
 
 // GetByOwnerId mocks base method.
-func (m *MockICompanyRepository) GetByOwnerId(ctx context.Context, id uuid.UUID, page int) ([]*domain.Company, error) {
+func (m *MockICompanyRepository) GetByOwnerId(ctx context.Context, id uuid.UUID, page int, isPaginated bool) ([]*domain.Company, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetByOwnerId", ctx, id, page)
+	ret := m.ctrl.Call(m, "GetByOwnerId", ctx, id, page, isPaginated)
 	ret0, _ := ret[0].([]*domain.Company)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetByOwnerId indicates an expected call of GetByOwnerId.
-func (mr *MockICompanyRepositoryMockRecorder) GetByOwnerId(ctx, id, page any) *gomock.Call {
+func (mr *MockICompanyRepositoryMockRecorder) GetByOwnerId(ctx, id, page, isPaginated any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByOwnerId", reflect.TypeOf((*MockICompanyRepository)(nil).GetByOwnerId), ctx, id, page)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByOwnerId", reflect.TypeOf((*MockICompanyRepository)(nil).GetByOwnerId), ctx, id, page, isPaginated)
 }
 
 // Update mocks base method.
@@ -210,18 +210,18 @@ func (mr *MockICompanyServiceMockRecorder) GetById(id any) *gomock.Call {
 }
 
 // GetByOwnerId mocks base method.
-func (m *MockICompanyService) GetByOwnerId(id uuid.UUID, page int) ([]*domain.Company, error) {
+func (m *MockICompanyService) GetByOwnerId(id uuid.UUID, page int, isPaginated bool) ([]*domain.Company, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetByOwnerId", id, page)
+	ret := m.ctrl.Call(m, "GetByOwnerId", id, page, isPaginated)
 	ret0, _ := ret[0].([]*domain.Company)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetByOwnerId indicates an expected call of GetByOwnerId.
-func (mr *MockICompanyServiceMockRecorder) GetByOwnerId(id, page any) *gomock.Call {
+func (mr *MockICompanyServiceMockRecorder) GetByOwnerId(id, page, isPaginated any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByOwnerId", reflect.TypeOf((*MockICompanyService)(nil).GetByOwnerId), id, page)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByOwnerId", reflect.TypeOf((*MockICompanyService)(nil).GetByOwnerId), id, page, isPaginated)
 }
 
 // Update mocks base method.

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"ppo/domain"
 	"ppo/internal/config"
@@ -57,25 +58,31 @@ func (r *ContactRepository) GetById(ctx context.Context, id uuid.UUID) (contact 
 	return contact, nil
 }
 
-func (r *ContactRepository) GetByOwnerId(ctx context.Context, id uuid.UUID, page int) (contacts []*domain.Contact, err error) {
+func (r *ContactRepository) GetByOwnerId(ctx context.Context, id uuid.UUID, page int, isPaginated bool) (contacts []*domain.Contact, err error) {
 	query := `
 		select 
 		    id,
 		    name,
 		    value 
 		from ppo.contacts 
-		where 
-		    owner_id = $1
-		offset $2
-		limit $3`
+		where owner_id = $1`
 
-	rows, err := r.db.Query(
-		ctx,
-		query,
-		id,
-		(page-1)*config.PageSize,
-		config.PageSize,
-	)
+	var rows pgx.Rows
+	if !isPaginated {
+		rows, err = r.db.Query(
+			ctx,
+			query,
+			id,
+		)
+	} else {
+		rows, err = r.db.Query(
+			ctx,
+			query+` offset $2 limit $3`,
+			id,
+			(page-1)*config.PageSize,
+			config.PageSize,
+		)
+	}
 	if err != nil {
 		return nil, fmt.Errorf("получение средств связи: %w", err)
 	}
