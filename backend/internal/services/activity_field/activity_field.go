@@ -106,3 +106,14 @@ func (s *Service) GetMaxCost() (maxCost float32, err error) {
 
 	return maxCost, nil
 }
+
+func (s *Service) GetAll(page int) (fields []*domain.ActivityField, err error) {
+	ctx := context.Background()
+
+	fields, err = s.actFieldRepo.GetAll(ctx, page)
+	if err != nil {
+		return nil, fmt.Errorf("получение списка всех сфер деятельности: %w", err)
+	}
+
+	return fields, nil
+}

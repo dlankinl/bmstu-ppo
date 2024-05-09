@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"ppo/domain"
+	"ppo/internal/config"
 )
 
 type ActivityFieldRepository struct {
@@ -60,6 +61,7 @@ func (r *ActivityFieldRepository) Update(ctx context.Context, data *domain.Activ
 			    cost = $3
 			where id = $4`
 
+	fmt.Println("HERE", data.ID, data.Name, data.Description, data.Cost)
 	_, err = r.db.Exec(
 		ctx,
 		query,
@@ -92,14 +94,15 @@ func (r *ActivityFieldRepository) GetById(ctx context.Context, id uuid.UUID) (fi
 		return nil, fmt.Errorf("получение сферы деятельности по id: %w", err)
 	}
 
-	return nil, nil
+	field.ID = id
+
+	return field, nil
 }
 
 func (r *ActivityFieldRepository) GetMaxCost(ctx context.Context) (cost float32, err error) {
 	query := `select max(cost)
 		from ppo.activity_fields`
 
-	//var maxVal float32
 	err = r.db.QueryRow(
 		ctx,
 		query,
@@ -110,4 +113,38 @@ func (r *ActivityFieldRepository) GetMaxCost(ctx context.Context) (cost float32,
 	}
 
 	return cost, nil
+}
+
+func (r *ActivityFieldRepository) GetAll(ctx context.Context, page int) (fields []*domain.ActivityField, err error) {
+	query := `select id, name, description, cost from ppo.activity_fields offset $1 limit $2`
+
+	rows, err := r.db.Query(
+		ctx,
+		query,
+		(page-1)*config.PageSize,
+		config.PageSize,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("получение сфер деятельности: %w", err)
+	}
+
+	fields = make([]*domain.ActivityField, 0)
+	for rows.Next() {
+		tmp := new(domain.ActivityField)
+
+		err = rows.Scan(
+			&tmp.ID,
+			&tmp.Name,
+			&tmp.Description,
+			&tmp.Cost,
+		)
+
+		if err != nil {
+			return nil, fmt.Errorf("сканирование полученных строк: %w", err)
+		}
+
+		fields = append(fields, tmp)
+	}
+
+	return fields, nil
 }

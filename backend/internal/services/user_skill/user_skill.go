@@ -47,10 +47,10 @@ func (s *Service) Delete(pair *domain.UserSkill) (err error) {
 	return nil
 }
 
-func (s *Service) GetSkillsForUser(userId uuid.UUID) (skills []*domain.Skill, err error) {
+func (s *Service) GetSkillsForUser(userId uuid.UUID, page int, isPaginated bool) (skills []*domain.Skill, err error) {
 	ctx := context.Background()
 
-	userSkills, err := s.userSkillRepo.GetUserSkillsByUserId(ctx, userId)
+	userSkills, err := s.userSkillRepo.GetUserSkillsByUserId(ctx, userId, page, isPaginated)
 	if err != nil {
 		return nil, fmt.Errorf("получение связок пользователь-навык по userId: %w", err)
 	}
@@ -68,10 +68,10 @@ func (s *Service) GetSkillsForUser(userId uuid.UUID) (skills []*domain.Skill, er
 	return skills, nil
 }
 
-func (s *Service) GetUsersForSkill(skillId uuid.UUID) (users []*domain.User, err error) {
+func (s *Service) GetUsersForSkill(skillId uuid.UUID, page int) (users []*domain.User, err error) {
 	ctx := context.Background()
 
-	userSkills, err := s.userSkillRepo.GetUserSkillsBySkillId(ctx, skillId)
+	userSkills, err := s.userSkillRepo.GetUserSkillsBySkillId(ctx, skillId, page)
 	if err != nil {
 		return nil, fmt.Errorf("получение связок пользователь-навык по skillId: %w", err)
 	}
@@ -92,7 +92,7 @@ func (s *Service) GetUsersForSkill(skillId uuid.UUID) (users []*domain.User, err
 func (s *Service) DeleteSkillsForUser(userId uuid.UUID) (err error) {
 	ctx := context.Background()
 
-	userSkills, err := s.userSkillRepo.GetUserSkillsByUserId(ctx, userId)
+	userSkills, err := s.userSkillRepo.GetUserSkillsByUserId(ctx, userId, 0, false)
 	if err != nil {
 		return fmt.Errorf("получение связок пользователь-навык по userId: %w", err)
 	}
