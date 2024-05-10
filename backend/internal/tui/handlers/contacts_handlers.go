@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"github.com/google/uuid"
 	"os"
@@ -12,6 +13,7 @@ import (
 )
 
 func AddContact(a *app.App, args ...any) (err error) {
+	ctx := context.Background()
 	reader := bufio.NewReader(os.Stdin)
 
 	var username string
@@ -23,7 +25,7 @@ func AddContact(a *app.App, args ...any) (err error) {
 		}
 	}
 
-	user, err := a.UserSvc.GetByUsername(username)
+	user, err := a.UserSvc.GetByUsername(ctx, username)
 	if err != nil {
 		return fmt.Errorf("пользователь не найден: %w", err)
 	}
@@ -47,7 +49,7 @@ func AddContact(a *app.App, args ...any) (err error) {
 	contact.Name = name
 	contact.Value = value
 
-	err = a.ConSvc.Create(&contact)
+	err = a.ConSvc.Create(ctx, &contact)
 	if err != nil {
 		return fmt.Errorf("ошибка добавления средства связи: %w", err)
 	}
@@ -56,6 +58,7 @@ func AddContact(a *app.App, args ...any) (err error) {
 }
 
 func DeleteContact(a *app.App, args ...any) (err error) {
+	ctx := context.Background()
 	err = GetMyContacts(a, args...)
 	if err != nil {
 		return fmt.Errorf("удаление средства связи: %w", err)
@@ -75,7 +78,7 @@ func DeleteContact(a *app.App, args ...any) (err error) {
 		return fmt.Errorf("парсинг uuid из строки: %w", err)
 	}
 
-	err = a.ConSvc.DeleteById(conUuid)
+	err = a.ConSvc.DeleteById(ctx, conUuid)
 	if err != nil {
 		return fmt.Errorf("удаление средства связи: %w", err)
 	}
@@ -84,6 +87,7 @@ func DeleteContact(a *app.App, args ...any) (err error) {
 }
 
 func UpdateContact(a *app.App, args ...any) (err error) {
+	ctx := context.Background()
 	err = GetMyContacts(a, args...)
 	if err != nil {
 		return fmt.Errorf("обновление информации о средстве связи: %w", err)
@@ -103,7 +107,7 @@ func UpdateContact(a *app.App, args ...any) (err error) {
 		return fmt.Errorf("парсинг uuid из строки: %w", err)
 	}
 
-	contact, err := a.ConSvc.GetById(conUuid)
+	contact, err := a.ConSvc.GetById(ctx, conUuid)
 	if err != nil {
 		return fmt.Errorf("получение средства связи по id: %w", err)
 	}
@@ -129,7 +133,7 @@ func UpdateContact(a *app.App, args ...any) (err error) {
 		contact.Value = value
 	}
 
-	err = a.ConSvc.Update(contact)
+	err = a.ConSvc.Update(ctx, contact)
 	if err != nil {
 		return fmt.Errorf("ошибка обновления средства связи: %w", err)
 	}
@@ -138,6 +142,7 @@ func UpdateContact(a *app.App, args ...any) (err error) {
 }
 
 func GetMyContacts(a *app.App, args ...any) (err error) {
+	ctx := context.Background()
 	var username string
 	var ok bool
 	if len(args) > 0 {
@@ -147,12 +152,12 @@ func GetMyContacts(a *app.App, args ...any) (err error) {
 		}
 	}
 
-	user, err := a.UserSvc.GetByUsername(username)
+	user, err := a.UserSvc.GetByUsername(ctx, username)
 	if err != nil {
 		return fmt.Errorf("пользователь не найден")
 	}
 
-	err = utils.PrintPaginatedCollectionArgs("Средства связи", a.ConSvc.GetByOwnerId, user.ID, true)
+	err = utils.PrintPaginatedCollectionArgs("Средства связи", a.ConSvc.GetByOwnerId, ctx, user.ID, true)
 	if err != nil {
 		return fmt.Errorf("вывод средств связи с пагинацией: %w", err)
 	}

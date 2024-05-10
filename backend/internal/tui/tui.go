@@ -2,6 +2,7 @@ package tui
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"os"
 	"ppo/domain"
@@ -157,6 +158,8 @@ var actions = []Action{
 }
 
 func (t *TUI) Run() (err error) {
+	ctx := context.Background()
+
 	var choice int
 	reader := bufio.NewReader(os.Stdin)
 	_ = reader
@@ -192,7 +195,7 @@ func (t *TUI) Run() (err error) {
 			}
 
 			ua := &domain.UserAuth{Username: login, Password: password}
-			token, err := t.app.AuthSvc.Login(ua)
+			token, err := t.app.AuthSvc.Login(ctx, ua)
 			if err != nil {
 				fmt.Printf("ошибка авторизации: %v\n", err)
 				continue
@@ -239,6 +242,8 @@ func (t *TUI) userMenu() (err error) {
 }
 
 func (t *TUI) guestMenu() (err error) {
+	ctx := context.Background()
+
 	var choice int
 	for {
 		fmt.Println(guestPrompt)
@@ -264,13 +269,13 @@ func (t *TUI) guestMenu() (err error) {
 			}
 
 			ua := &domain.UserAuth{Username: login, Password: password}
-			err = t.app.AuthSvc.Register(ua)
+			err = t.app.AuthSvc.Register(ctx, ua)
 			if err != nil {
 				return fmt.Errorf("ошибка регистрации: %w", err)
 			}
 			return nil
 		case 2:
-			err = utils.PrintPaginatedCollection("Предприниматели", t.app.UserSvc.GetAll)
+			err = utils.PrintPaginatedCollection("Предприниматели", t.app.UserSvc.GetAll, ctx)
 			if err != nil {
 				return fmt.Errorf("ошибка просмотра списка предпринимателей: %w", err)
 			}

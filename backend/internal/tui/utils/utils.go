@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"context"
 	"fmt"
 	"github.com/google/uuid"
 	"ppo/domain"
@@ -64,11 +65,12 @@ func PrintActivityFields(fields []*domain.ActivityField) {
 	}
 }
 
-func PrintPaginatedCollectionArgs[T any](collectionName string, fn func(uuid.UUID, int, bool) ([]*T, error), id uuid.UUID, isPaginated bool) (err error) {
+func PrintPaginatedCollectionArgs[T any](collectionName string, fn func(context.Context, uuid.UUID, int, bool) ([]*T, error),
+	ctx context.Context, id uuid.UUID, isPaginated bool) (err error) {
 	page := 1
 
 	for {
-		tmp, err := fn(id, page, isPaginated)
+		tmp, err := fn(ctx, id, page, isPaginated)
 		if err != nil {
 			return fmt.Errorf("получение пагинированных данных: %w", err)
 		}
@@ -97,11 +99,11 @@ func PrintPaginatedCollectionArgs[T any](collectionName string, fn func(uuid.UUI
 	}
 }
 
-func PrintPaginatedCollection[T any](collectionName string, fn func(int) ([]*T, error)) (err error) {
+func PrintPaginatedCollection[T any](collectionName string, fn func(context.Context, int) ([]*T, error), ctx context.Context) (err error) {
 	page := 1
 
 	for {
-		tmp, err := fn(page)
+		tmp, err := fn(ctx, page)
 		if err != nil {
 			return fmt.Errorf("получение пагинированных данных: %w", err)
 		}
@@ -137,7 +139,8 @@ func printYear(name string, data []domain.FinancialReport) {
 	}
 }
 
-func PrintYearCollection(collectionName string, fn func(uuid.UUID, *domain.Period) (*domain.FinancialReportByPeriod, error), id uuid.UUID, year int) (err error) {
+func PrintYearCollection(collectionName string, fn func(context.Context, uuid.UUID, *domain.Period) (*domain.FinancialReportByPeriod, error),
+	ctx context.Context, id uuid.UUID, year int) (err error) {
 	curPeriod := &domain.Period{
 		StartYear:    year,
 		EndYear:      year,
@@ -145,7 +148,7 @@ func PrintYearCollection(collectionName string, fn func(uuid.UUID, *domain.Perio
 		EndQuarter:   4,
 	}
 
-	tmp, err := fn(id, curPeriod)
+	tmp, err := fn(ctx, id, curPeriod)
 	if err != nil {
 		return fmt.Errorf("получение периодизированных данных: %w", err)
 	}

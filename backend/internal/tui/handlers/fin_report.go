@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"github.com/google/uuid"
 	"os"
@@ -13,6 +14,7 @@ import (
 )
 
 func AddReport(a *app.App, args ...any) (err error) {
+	ctx := context.Background()
 	reader := bufio.NewReader(os.Stdin)
 
 	err = GetMyCompanies(a, args...)
@@ -66,7 +68,7 @@ func AddReport(a *app.App, args ...any) (err error) {
 	report.Year = year
 	report.Quarter = quarter
 
-	err = a.FinSvc.Create(&report)
+	err = a.FinSvc.Create(ctx, &report)
 	if err != nil {
 		return fmt.Errorf("ошибка добавления финансового отчета: %w", err)
 	}
@@ -75,6 +77,7 @@ func AddReport(a *app.App, args ...any) (err error) {
 }
 
 func DeleteFinReport(a *app.App, args ...any) (err error) {
+	ctx := context.Background()
 	reader := bufio.NewReader(os.Stdin)
 
 	err = GetMyCompanies(a, args...)
@@ -113,7 +116,7 @@ func DeleteFinReport(a *app.App, args ...any) (err error) {
 		return fmt.Errorf("парсинг uuid из строки: %w", err)
 	}
 
-	err = a.FinSvc.DeleteById(repUuid)
+	err = a.FinSvc.DeleteById(ctx, repUuid)
 	if err != nil {
 		return fmt.Errorf("ошибка удаления финансового отчета: %w", err)
 	}
@@ -122,6 +125,7 @@ func DeleteFinReport(a *app.App, args ...any) (err error) {
 }
 
 func UpdateFinReport(a *app.App, args ...any) (err error) {
+	ctx := context.Background()
 	reader := bufio.NewReader(os.Stdin)
 
 	err = GetMyCompanies(a, args...)
@@ -160,7 +164,7 @@ func UpdateFinReport(a *app.App, args ...any) (err error) {
 		return fmt.Errorf("парсинг uuid из строки: %w", err)
 	}
 
-	rep, err := a.FinSvc.GetById(repUuid)
+	rep, err := a.FinSvc.GetById(ctx, repUuid)
 	if err != nil {
 		return fmt.Errorf("получение отчета по id: %w", err)
 	}
@@ -229,7 +233,7 @@ func UpdateFinReport(a *app.App, args ...any) (err error) {
 		rep.Quarter = quarter
 	}
 
-	err = a.FinSvc.Update(rep)
+	err = a.FinSvc.Update(ctx, rep)
 	if err != nil {
 		return fmt.Errorf("ошибка обновления финансового отчета: %w", err)
 	}
@@ -238,6 +242,7 @@ func UpdateFinReport(a *app.App, args ...any) (err error) {
 }
 
 func GetCompanyReports(a *app.App, args ...any) (err error) {
+	ctx := context.Background()
 	var compId string
 	var year int
 	var ok bool
@@ -261,7 +266,7 @@ func GetCompanyReports(a *app.App, args ...any) (err error) {
 		return fmt.Errorf("парсинг uuid из строки: %w", err)
 	}
 
-	err = utils.PrintYearCollection("Отчёты", a.FinSvc.GetByCompany, compUuid, year)
+	err = utils.PrintYearCollection("Отчёты", a.FinSvc.GetByCompany, ctx, compUuid, year)
 	if err != nil {
 		return fmt.Errorf("вывод отчетов с пагинацией: %w", err)
 	}
@@ -270,6 +275,7 @@ func GetCompanyReports(a *app.App, args ...any) (err error) {
 }
 
 func GetUserFinReport(a *app.App, args ...any) (err error) {
+	ctx := context.Background()
 	var username string
 	var ok bool
 	if len(args) > 0 {
@@ -279,7 +285,7 @@ func GetUserFinReport(a *app.App, args ...any) (err error) {
 		}
 	}
 
-	user, err := a.UserSvc.GetByUsername(username)
+	user, err := a.UserSvc.GetByUsername(ctx, username)
 	if err != nil {
 		return fmt.Errorf("пользователь не найден")
 	}
@@ -316,7 +322,7 @@ func GetUserFinReport(a *app.App, args ...any) (err error) {
 		EndQuarter:   endQuarter,
 	}
 
-	rep, err := a.Interactor.GetUserFinancialReport(user.ID, period)
+	rep, err := a.Interactor.GetUserFinancialReport(ctx, user.ID, period)
 	if err != nil {
 		return fmt.Errorf("формирование отчёта предпринимателя: %w", err)
 	}
