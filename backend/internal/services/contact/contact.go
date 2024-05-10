@@ -17,7 +17,7 @@ func NewService(conRepo domain.IContactsRepository) domain.IContactsService {
 	}
 }
 
-func (s *Service) Create(contact *domain.Contact) (err error) {
+func (s *Service) Create(ctx context.Context, contact *domain.Contact) (err error) {
 	if contact.Name == "" {
 		return fmt.Errorf("должно быть указано название средства связи")
 	}
@@ -25,8 +25,6 @@ func (s *Service) Create(contact *domain.Contact) (err error) {
 	if contact.Value == "" {
 		return fmt.Errorf("должно быть указано значение средства связи")
 	}
-
-	ctx := context.Background()
 
 	err = s.contactRepo.Create(ctx, contact)
 	if err != nil {
@@ -36,9 +34,7 @@ func (s *Service) Create(contact *domain.Contact) (err error) {
 	return nil
 }
 
-func (s *Service) GetById(id uuid.UUID) (contact *domain.Contact, err error) {
-	ctx := context.Background()
-
+func (s *Service) GetById(ctx context.Context, id uuid.UUID) (contact *domain.Contact, err error) {
 	contact, err = s.contactRepo.GetById(ctx, id)
 	if err != nil {
 		return nil, fmt.Errorf("получение средства связи по id: %w", err)
@@ -47,9 +43,7 @@ func (s *Service) GetById(id uuid.UUID) (contact *domain.Contact, err error) {
 	return contact, nil
 }
 
-func (s *Service) GetByOwnerId(id uuid.UUID, page int, isPaginated bool) (contacts []*domain.Contact, err error) {
-	ctx := context.Background()
-
+func (s *Service) GetByOwnerId(ctx context.Context, id uuid.UUID, page int, isPaginated bool) (contacts []*domain.Contact, err error) {
 	contacts, err = s.contactRepo.GetByOwnerId(ctx, id, page, isPaginated)
 	if err != nil {
 		return nil, fmt.Errorf("получение всех средств связи по id владельца: %w", err)
@@ -58,9 +52,7 @@ func (s *Service) GetByOwnerId(id uuid.UUID, page int, isPaginated bool) (contac
 	return contacts, nil
 }
 
-func (s *Service) Update(contact *domain.Contact) (err error) {
-	ctx := context.Background()
-
+func (s *Service) Update(ctx context.Context, contact *domain.Contact) (err error) {
 	err = s.contactRepo.Update(ctx, contact)
 	if err != nil {
 		return fmt.Errorf("обновление информации о средстве связи: %w", err)
@@ -69,9 +61,7 @@ func (s *Service) Update(contact *domain.Contact) (err error) {
 	return nil
 }
 
-func (s *Service) DeleteById(id uuid.UUID) (err error) {
-	ctx := context.Background()
-
+func (s *Service) DeleteById(ctx context.Context, id uuid.UUID) (err error) {
 	err = s.contactRepo.DeleteById(ctx, id)
 	if err != nil {
 		return fmt.Errorf("удаление средства связи по id: %w", err)

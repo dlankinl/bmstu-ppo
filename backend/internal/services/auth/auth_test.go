@@ -106,11 +106,12 @@ func TestAuthService_Login(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			ctx := context.Background()
 			if tc.beforeTest != nil {
 				tc.beforeTest(*repo, *crypto)
 			}
 
-			token, err := svc.Login(tc.authInfo)
+			token, err := svc.Login(ctx, tc.authInfo)
 			_, verifErr := base.VerifyAuthToken(token, jwtKey)
 
 			if tc.wantErr {
@@ -214,11 +215,12 @@ func TestAuthService_Register(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			ctx := context.Background()
 			if tc.beforeTest != nil {
 				tc.beforeTest(*repo, *crypto)
 			}
 
-			err := svc.Register(tc.authInfo)
+			err := svc.Register(ctx, tc.authInfo)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())

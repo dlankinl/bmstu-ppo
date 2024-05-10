@@ -13,17 +13,17 @@ type Contact struct {
 }
 
 type IContactsRepository interface {
-	Create(ctx context.Context, contact *Contact) error
-	GetById(ctx context.Context, id uuid.UUID) (*Contact, error)
-	GetByOwnerId(ctx context.Context, id uuid.UUID, page int, isPaginated bool) ([]*Contact, error)
-	Update(ctx context.Context, contact *Contact) error
-	DeleteById(ctx context.Context, id uuid.UUID) error
+	Create(context.Context, *Contact) error
+	GetById(context.Context, uuid.UUID) (*Contact, error)
+	GetByOwnerId(context.Context, uuid.UUID, int, bool) ([]*Contact, error)
+	Update(context.Context, *Contact) error
+	DeleteById(context.Context, uuid.UUID) error
 }
 
 type IContactsService interface {
-	Create(contact *Contact) error
-	GetById(id uuid.UUID) (*Contact, error)
-	GetByOwnerId(id uuid.UUID, page int, isPaginated bool) ([]*Contact, error)
-	Update(contact *Contact) error
-	DeleteById(id uuid.UUID) error
+	Create(context.Context, *Contact) error
+	GetById(context.Context, uuid.UUID) (*Contact, error)
+	GetByOwnerId(context.Context, uuid.UUID, int, bool) ([]*Contact, error)
+	Update(context.Context, *Contact) error
+	DeleteById(context.Context, uuid.UUID) error
 }

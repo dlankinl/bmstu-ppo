@@ -134,11 +134,12 @@ func TestService_Create(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			ctx := context.Background()
 			if tc.beforeTest != nil {
 				tc.beforeTest(*repo)
 			}
 
-			err := svc.Create(tc.data)
+			err := svc.Create(ctx, tc.data)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -190,11 +191,12 @@ func TestService_DeleteById(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			ctx := context.Background()
 			if tc.beforeTest != nil {
 				tc.beforeTest(*repo)
 			}
 
-			err := svc.DeleteById(tc.id)
+			err := svc.DeleteById(ctx, tc.id)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -260,11 +262,12 @@ func TestService_GetById(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			ctx := context.Background()
 			if tc.beforeTest != nil {
 				tc.beforeTest(*repo)
 			}
 
-			company, err := svc.GetById(tc.id)
+			company, err := svc.GetById(ctx, tc.id)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -331,11 +334,12 @@ func TestService_Update(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			ctx := context.Background()
 			if tc.beforeTest != nil {
 				tc.beforeTest(*repo)
 			}
 
-			err := svc.Update(tc.data)
+			err := svc.Update(ctx, tc.data)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())

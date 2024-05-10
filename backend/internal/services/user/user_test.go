@@ -55,11 +55,12 @@ func TestUserService_DeleteById(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			ctx := context.Background()
 			if tc.beforeTest != nil {
 				tc.beforeTest(*userRepo)
 			}
 
-			err := svc.DeleteById(tc.id)
+			err := svc.DeleteById(ctx, tc.id)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -159,11 +160,12 @@ func TestUserService_GetAll(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			ctx := context.Background()
 			if tc.beforeTest != nil {
 				tc.beforeTest(*userRepo)
 			}
 
-			users, err := svc.GetAll(1)
+			users, err := svc.GetAll(ctx, 1)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -360,11 +362,12 @@ func TestUserService_Create(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			ctx := context.Background()
 			if tc.beforeTest != nil {
 				tc.beforeTest(*userRepo)
 			}
 
-			err := svc.Create(tc.user)
+			err := svc.Create(ctx, tc.user)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -437,11 +440,12 @@ func TestUserService_GetById(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			ctx := context.Background()
 			if tc.beforeTest != nil {
 				tc.beforeTest(*userRepo)
 			}
 
-			user, err := svc.GetById(tc.id)
+			user, err := svc.GetById(ctx, tc.id)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -513,11 +517,12 @@ func TestUserService_Update(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			ctx := context.Background()
 			if tc.beforeTest != nil {
 				tc.beforeTest(*userRepo)
 			}
 
-			err := svc.Update(tc.user)
+			err := svc.Update(ctx, tc.user)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())

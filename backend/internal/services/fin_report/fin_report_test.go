@@ -215,11 +215,12 @@ func TestFinReportService_Create(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			ctx := context.Background()
 			if tc.beforeTest != nil {
 				tc.beforeTest(*finRepo)
 			}
 
-			err := svc.Create(tc.data)
+			err := svc.Create(ctx, tc.data)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -270,11 +271,12 @@ func TestFinReportService_DeleteById(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			ctx := context.Background()
 			if tc.beforeTest != nil {
 				tc.beforeTest(*finRepo)
 			}
 
-			err := svc.DeleteById(tc.id)
+			err := svc.DeleteById(ctx, tc.id)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -582,12 +584,12 @@ func TestFinReportService_GetByCompany(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			ctx := context.Background()
 			if tc.beforeTest != nil {
 				tc.beforeTest(*finRepo)
 			}
 
-			report, err := svc.GetByCompany(tc.id, tc.period)
-			//fmt.Println(report.Period)
+			report, err := svc.GetByCompany(ctx, tc.id, tc.period)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -595,8 +597,6 @@ func TestFinReportService_GetByCompany(t *testing.T) {
 				require.Nil(t, err)
 				require.Equal(t, report.Reports, tc.expected.Reports)
 				require.Equal(t, report.Period, tc.expected.Period)
-				//require.InEpsilon(t, report.Taxes, tc.expected.Taxes, 1e-7)
-				//require.InEpsilon(t, report.TaxLoad, tc.expected.TaxLoad, 1e-7)
 			}
 		})
 	}
@@ -662,11 +662,12 @@ func TestFinReportService_GetById(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			ctx := context.Background()
 			if tc.beforeTest != nil {
 				tc.beforeTest(*repo)
 			}
 
-			report, err := svc.GetById(tc.id)
+			report, err := svc.GetById(ctx, tc.id)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -732,11 +733,12 @@ func TestFinReportService_Update(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			ctx := context.Background()
 			if tc.beforeTest != nil {
 				tc.beforeTest(*repo)
 			}
 
-			err := svc.Update(tc.report)
+			err := svc.Update(ctx, tc.report)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())

@@ -17,7 +17,7 @@ func NewService(skillRepo domain.ISkillRepository) domain.ISkillService {
 	}
 }
 
-func (s *Service) Create(skill *domain.Skill) (err error) {
+func (s *Service) Create(ctx context.Context, skill *domain.Skill) (err error) {
 	if skill.Name == "" {
 		return fmt.Errorf("должно быть указано название навыка")
 	}
@@ -25,8 +25,6 @@ func (s *Service) Create(skill *domain.Skill) (err error) {
 	if skill.Description == "" {
 		return fmt.Errorf("должно быть указано описание навыка")
 	}
-
-	ctx := context.Background()
 
 	err = s.skillRepo.Create(ctx, skill)
 	if err != nil {
@@ -36,9 +34,7 @@ func (s *Service) Create(skill *domain.Skill) (err error) {
 	return nil
 }
 
-func (s *Service) GetById(id uuid.UUID) (skill *domain.Skill, err error) {
-	ctx := context.Background()
-
+func (s *Service) GetById(ctx context.Context, id uuid.UUID) (skill *domain.Skill, err error) {
 	skill, err = s.skillRepo.GetById(ctx, id)
 	if err != nil {
 		return nil, fmt.Errorf("получение навыка по id: %w", err)
@@ -47,9 +43,7 @@ func (s *Service) GetById(id uuid.UUID) (skill *domain.Skill, err error) {
 	return skill, nil
 }
 
-func (s *Service) GetAll(page int) (skills []*domain.Skill, err error) {
-	ctx := context.Background()
-
+func (s *Service) GetAll(ctx context.Context, page int) (skills []*domain.Skill, err error) {
 	skills, err = s.skillRepo.GetAll(ctx, page)
 	if err != nil {
 		return nil, fmt.Errorf("получение списка всех навыков: %w", err)
@@ -58,9 +52,7 @@ func (s *Service) GetAll(page int) (skills []*domain.Skill, err error) {
 	return skills, nil
 }
 
-func (s *Service) Update(skill *domain.Skill) (err error) {
-	ctx := context.Background()
-
+func (s *Service) Update(ctx context.Context, skill *domain.Skill) (err error) {
 	err = s.skillRepo.Update(ctx, skill)
 	if err != nil {
 		return fmt.Errorf("обновление информации о навыке: %w", err)
@@ -69,9 +61,7 @@ func (s *Service) Update(skill *domain.Skill) (err error) {
 	return nil
 }
 
-func (s *Service) DeleteById(id uuid.UUID) (err error) {
-	ctx := context.Background()
-
+func (s *Service) DeleteById(ctx context.Context, id uuid.UUID) (err error) {
 	err = s.skillRepo.DeleteById(ctx, id)
 	if err != nil {
 		return fmt.Errorf("удаление навыка по id: %w", err)

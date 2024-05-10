@@ -12,17 +12,17 @@ type Skill struct {
 }
 
 type ISkillRepository interface {
-	Create(ctx context.Context, skill *Skill) error
-	GetById(ctx context.Context, id uuid.UUID) (*Skill, error)
-	GetAll(ctx context.Context, page int) ([]*Skill, error)
-	Update(ctx context.Context, skill *Skill) error
-	DeleteById(ctx context.Context, id uuid.UUID) error
+	Create(context.Context, *Skill) error
+	GetById(context.Context, uuid.UUID) (*Skill, error)
+	GetAll(context.Context, int) ([]*Skill, error)
+	Update(context.Context, *Skill) error
+	DeleteById(context.Context, uuid.UUID) error
 }
 
 type ISkillService interface {
-	Create(skill *Skill) error
-	GetById(id uuid.UUID) (*Skill, error)
-	GetAll(page int) ([]*Skill, error)
-	Update(skill *Skill) error
-	DeleteById(id uuid.UUID) error
+	Create(context.Context, *Skill) error
+	GetById(context.Context, uuid.UUID) (*Skill, error)
+	GetAll(context.Context, int) ([]*Skill, error)
+	Update(context.Context, *Skill) error
+	DeleteById(context.Context, uuid.UUID) error
 }

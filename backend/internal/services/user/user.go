@@ -26,7 +26,7 @@ func NewService(
 	}
 }
 
-func (s *Service) Create(user *domain.User) (err error) {
+func (s *Service) Create(ctx context.Context, user *domain.User) (err error) {
 	if user.Gender != "m" && user.Gender != "w" {
 		return fmt.Errorf("неизвестный пол")
 	}
@@ -47,8 +47,6 @@ func (s *Service) Create(user *domain.User) (err error) {
 		return fmt.Errorf("некорректное количество слов (должны быть фамилия, имя и отчество)")
 	}
 
-	ctx := context.Background()
-
 	err = s.userRepo.Create(ctx, user)
 	if err != nil {
 		return fmt.Errorf("создание пользователя: %w", err)
@@ -57,9 +55,7 @@ func (s *Service) Create(user *domain.User) (err error) {
 	return nil
 }
 
-func (s *Service) GetByUsername(username string) (user *domain.User, err error) {
-	ctx := context.Background()
-
+func (s *Service) GetByUsername(ctx context.Context, username string) (user *domain.User, err error) {
 	user, err = s.userRepo.GetByUsername(ctx, username)
 	if err != nil {
 		return nil, fmt.Errorf("получение пользователя по username: %w", err)
@@ -68,9 +64,7 @@ func (s *Service) GetByUsername(username string) (user *domain.User, err error) 
 	return user, nil
 }
 
-func (s *Service) GetById(userId uuid.UUID) (user *domain.User, err error) {
-	ctx := context.Background()
-
+func (s *Service) GetById(ctx context.Context, userId uuid.UUID) (user *domain.User, err error) {
 	user, err = s.userRepo.GetById(ctx, userId)
 	if err != nil {
 		return nil, fmt.Errorf("получение пользователя по id: %w", err)
@@ -79,9 +73,7 @@ func (s *Service) GetById(userId uuid.UUID) (user *domain.User, err error) {
 	return user, nil
 }
 
-func (s *Service) GetAll(page int) (users []*domain.User, err error) {
-	ctx := context.Background()
-
+func (s *Service) GetAll(ctx context.Context, page int) (users []*domain.User, err error) {
 	users, err = s.userRepo.GetAll(ctx, page)
 	if err != nil {
 		return nil, fmt.Errorf("получение списка всех пользователей: %w", err)
@@ -90,9 +82,7 @@ func (s *Service) GetAll(page int) (users []*domain.User, err error) {
 	return users, nil
 }
 
-func (s *Service) Update(user *domain.User) (err error) {
-	ctx := context.Background()
-
+func (s *Service) Update(ctx context.Context, user *domain.User) (err error) {
 	if user.Role != "admin" && user.Role != "user" {
 		return fmt.Errorf("невалидная роль")
 	}
@@ -105,9 +95,7 @@ func (s *Service) Update(user *domain.User) (err error) {
 	return nil
 }
 
-func (s *Service) DeleteById(id uuid.UUID) (err error) {
-	ctx := context.Background()
-
+func (s *Service) DeleteById(ctx context.Context, id uuid.UUID) (err error) {
 	err = s.userRepo.DeleteById(ctx, id)
 	if err != nil {
 		return fmt.Errorf("удаление пользователя по id: %w", err)

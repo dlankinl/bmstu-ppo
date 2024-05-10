@@ -1,9 +1,12 @@
 package domain
 
-import "github.com/google/uuid"
+import (
+	"context"
+	"github.com/google/uuid"
+)
 
 type IInteractor interface {
-	GetMostProfitableCompany(period *Period, companies []*Company) (*Company, error)
-	CalculateUserRating(id uuid.UUID) (float32, error)
-	GetUserFinancialReport(id uuid.UUID, period *Period) (*FinancialReportByPeriod, error)
+	GetMostProfitableCompany(context.Context, *Period, []*Company) (*Company, error)
+	CalculateUserRating(context.Context, uuid.UUID) (float32, error)
+	GetUserFinancialReport(context.Context, uuid.UUID, *Period) (*FinancialReportByPeriod, error)
 }
