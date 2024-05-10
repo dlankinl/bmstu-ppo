@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"os"
 	"ppo/internal/app"
@@ -10,6 +11,7 @@ import (
 )
 
 func UpdateUser(a *app.App, args ...any) (err error) {
+	ctx := context.Background()
 	reader := bufio.NewReader(os.Stdin)
 
 	var username, fullName, gender, birthdayStr, city, role string
@@ -19,7 +21,7 @@ func UpdateUser(a *app.App, args ...any) (err error) {
 		return fmt.Errorf("ошибка ввода имени пользователя: %w", err)
 	}
 
-	user, err := a.UserSvc.GetByUsername(username)
+	user, err := a.UserSvc.GetByUsername(ctx, username)
 	if err != nil {
 		return fmt.Errorf("пользователь не найден")
 	}
@@ -78,7 +80,7 @@ func UpdateUser(a *app.App, args ...any) (err error) {
 		user.Role = role
 	}
 
-	err = a.UserSvc.Update(user)
+	err = a.UserSvc.Update(ctx, user)
 	if err != nil {
 		return fmt.Errorf("ошибка обновления карточки предпринимателя: %w", err)
 	}
@@ -87,6 +89,7 @@ func UpdateUser(a *app.App, args ...any) (err error) {
 }
 
 func CreateUser(a *app.App, args ...any) (err error) {
+	ctx := context.Background()
 	reader := bufio.NewReader(os.Stdin)
 
 	var username, fullName, gender, birthdayStr, city, role string
@@ -96,7 +99,7 @@ func CreateUser(a *app.App, args ...any) (err error) {
 		return fmt.Errorf("ошибка ввода имени пользователя: %w", err)
 	}
 
-	user, err := a.UserSvc.GetByUsername(username)
+	user, err := a.UserSvc.GetByUsername(ctx, username)
 	if err != nil {
 		return fmt.Errorf("пользователь не найден: %w", err)
 	}
@@ -149,7 +152,7 @@ func CreateUser(a *app.App, args ...any) (err error) {
 	user.FullName = fullName
 	user.Role = role
 
-	err = a.UserSvc.Update(user)
+	err = a.UserSvc.Update(ctx, user)
 	if err != nil {
 		return fmt.Errorf("ошибка добавления информации в карточку предпринимателя: %w", err)
 	}
@@ -158,6 +161,7 @@ func CreateUser(a *app.App, args ...any) (err error) {
 }
 
 func ChangeUserRole(a *app.App, args ...any) (err error) {
+	ctx := context.Background()
 	reader := bufio.NewReader(os.Stdin)
 
 	var username, role string
@@ -167,7 +171,7 @@ func ChangeUserRole(a *app.App, args ...any) (err error) {
 		return fmt.Errorf("ошибка ввода имени пользователя: %w", err)
 	}
 
-	user, err := a.UserSvc.GetByUsername(username)
+	user, err := a.UserSvc.GetByUsername(ctx, username)
 	if err != nil {
 		return fmt.Errorf("пользователь не найден: %w", err)
 	}
@@ -181,7 +185,7 @@ func ChangeUserRole(a *app.App, args ...any) (err error) {
 
 	user.Role = role
 
-	err = a.UserSvc.Update(user)
+	err = a.UserSvc.Update(ctx, user)
 	if err != nil {
 		return fmt.Errorf("изменение роли пользователя: %w", err)
 	}

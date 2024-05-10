@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"github.com/google/uuid"
 	"os"
@@ -13,6 +14,7 @@ import (
 )
 
 func AddActivityField(a *app.App, args ...any) (err error) {
+	ctx := context.Background()
 	reader := bufio.NewReader(os.Stdin)
 
 	var name, description string
@@ -41,7 +43,7 @@ func AddActivityField(a *app.App, args ...any) (err error) {
 	field.Description = description
 	field.Cost = cost
 
-	err = a.ActFieldSvc.Create(&field)
+	err = a.ActFieldSvc.Create(ctx, &field)
 	if err != nil {
 		return fmt.Errorf("ошибка добавления сферы деятельности: %w", err)
 	}
@@ -50,9 +52,10 @@ func AddActivityField(a *app.App, args ...any) (err error) {
 }
 
 func DeleteActivityField(a *app.App, args ...any) (err error) {
+	ctx := context.Background()
 	reader := bufio.NewReader(os.Stdin)
 
-	err = utils.PrintPaginatedCollection("Сферы деятельности", a.ActFieldSvc.GetAll)
+	err = utils.PrintPaginatedCollection("Сферы деятельности", a.ActFieldSvc.GetAll, ctx)
 	if err != nil {
 		return fmt.Errorf("вывод сфер деятельности с пагинацией: %w", err)
 	}
@@ -69,7 +72,7 @@ func DeleteActivityField(a *app.App, args ...any) (err error) {
 		return fmt.Errorf("парсинг uuid из строки: %w", err)
 	}
 
-	err = a.ActFieldSvc.DeleteById(activityFieldUuid)
+	err = a.ActFieldSvc.DeleteById(ctx, activityFieldUuid)
 	if err != nil {
 		return fmt.Errorf("удаление сферы деятельности: %w", err)
 	}
@@ -78,9 +81,10 @@ func DeleteActivityField(a *app.App, args ...any) (err error) {
 }
 
 func UpdateActivityField(a *app.App, args ...any) (err error) {
+	ctx := context.Background()
 	reader := bufio.NewReader(os.Stdin)
 
-	err = utils.PrintPaginatedCollection("Сферы деятельности", a.ActFieldSvc.GetAll)
+	err = utils.PrintPaginatedCollection("Сферы деятельности", a.ActFieldSvc.GetAll, ctx)
 	if err != nil {
 		return fmt.Errorf("вывод сфер деятельности с пагинацией: %w", err)
 	}
@@ -97,7 +101,7 @@ func UpdateActivityField(a *app.App, args ...any) (err error) {
 		return fmt.Errorf("парсинг uuid из строки: %w", err)
 	}
 
-	field, err := a.ActFieldSvc.GetById(activityFieldUuid)
+	field, err := a.ActFieldSvc.GetById(ctx, activityFieldUuid)
 	if err != nil {
 		return fmt.Errorf("получение сферы деятельности по id: %w", err)
 	}
@@ -139,7 +143,7 @@ func UpdateActivityField(a *app.App, args ...any) (err error) {
 		field.Cost = float32(cost)
 	}
 
-	err = a.ActFieldSvc.Update(field)
+	err = a.ActFieldSvc.Update(ctx, field)
 	if err != nil {
 		return fmt.Errorf("ошибка обновления сферы деятельности: %w", err)
 	}
@@ -148,7 +152,8 @@ func UpdateActivityField(a *app.App, args ...any) (err error) {
 }
 
 func GetActivityFields(a *app.App, args ...any) (err error) {
-	err = utils.PrintPaginatedCollection("Сферы деятельности", a.ActFieldSvc.GetAll)
+	ctx := context.Background()
+	err = utils.PrintPaginatedCollection("Сферы деятельности", a.ActFieldSvc.GetAll, ctx)
 	if err != nil {
 		return fmt.Errorf("вывод сфер деятельности с пагинацией: %w", err)
 	}
