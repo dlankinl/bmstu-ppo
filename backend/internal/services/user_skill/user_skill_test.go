@@ -69,11 +69,12 @@ func TestUserSkillService_Create(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			ctx := context.Background()
 			if tc.beforeTest != nil {
 				tc.beforeTest(*userSkillRepo)
 			}
 
-			err := svc.Create(tc.pair)
+			err := svc.Create(ctx, tc.pair)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -141,11 +142,12 @@ func TestUserSkillService_Delete(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			ctx := context.Background()
 			if tc.beforeTest != nil {
 				tc.beforeTest(*userSkillRepo)
 			}
 
-			err := svc.Delete(tc.pair)
+			err := svc.Delete(ctx, tc.pair)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -309,11 +311,12 @@ func TestUserSkillService_GetSkillsForUser(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			ctx := context.Background()
 			if tc.beforeTest != nil {
 				tc.beforeTest(*userSkillRepo, *userRepo, *skillRepo)
 			}
 
-			skills, err := svc.GetSkillsForUser(uuid.UUID{1}, 1, true)
+			skills, err := svc.GetSkillsForUser(ctx, uuid.UUID{1}, 1, true)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -475,11 +478,12 @@ func TestUserSkillService_GetUsersForSkill(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			ctx := context.Background()
 			if tc.beforeTest != nil {
 				tc.beforeTest(*userSkillRepo, *userRepo, *skillRepo)
 			}
 
-			users, err := svc.GetUsersForSkill(uuid.UUID{1}, 1)
+			users, err := svc.GetUsersForSkill(ctx, uuid.UUID{1}, 1)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -615,11 +619,12 @@ func TestUserSkillService_DeleteSkillsForUser(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			ctx := context.Background()
 			if tc.beforeTest != nil {
 				tc.beforeTest(*userSkillRepo, *userRepo, *skillRepo)
 			}
 
-			err := svc.DeleteSkillsForUser(uuid.UUID{1})
+			err := svc.DeleteSkillsForUser(ctx, uuid.UUID{1})
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())

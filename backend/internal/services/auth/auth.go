@@ -21,7 +21,7 @@ func NewService(repo domain.IAuthRepository, crypto base.IHashCrypto, jwtKey str
 	}
 }
 
-func (s *Service) Register(authInfo *domain.UserAuth) (err error) {
+func (s *Service) Register(ctx context.Context, authInfo *domain.UserAuth) (err error) {
 	if authInfo.Username == "" {
 		return fmt.Errorf("должно быть указано имя пользователя")
 	}
@@ -37,8 +37,6 @@ func (s *Service) Register(authInfo *domain.UserAuth) (err error) {
 
 	authInfo.HashedPass = hashedPass
 
-	ctx := context.Background()
-
 	err = s.authRepo.Register(ctx, authInfo)
 	if err != nil {
 		return fmt.Errorf("регистрация пользователя: %w", err)
@@ -47,7 +45,7 @@ func (s *Service) Register(authInfo *domain.UserAuth) (err error) {
 	return nil
 }
 
-func (s *Service) Login(authInfo *domain.UserAuth) (token string, err error) {
+func (s *Service) Login(ctx context.Context, authInfo *domain.UserAuth) (token string, err error) {
 	if authInfo.Username == "" {
 		return "", fmt.Errorf("должно быть указано имя пользователя")
 	}
@@ -55,8 +53,6 @@ func (s *Service) Login(authInfo *domain.UserAuth) (token string, err error) {
 	if authInfo.Password == "" {
 		return "", fmt.Errorf("должен быть указан пароль")
 	}
-
-	ctx := context.Background()
 
 	userAuth, err := s.authRepo.GetByUsername(ctx, authInfo.Username)
 	if err != nil {

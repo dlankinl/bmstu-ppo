@@ -53,18 +53,18 @@ func (r *FinancialReportByPeriod) Profit() (sum float32) {
 }
 
 type IFinancialReportRepository interface {
-	Create(ctx context.Context, finRep *FinancialReport) error
-	GetById(ctx context.Context, id uuid.UUID) (*FinancialReport, error)
-	GetByCompany(ctx context.Context, companyId uuid.UUID, period *Period) (*FinancialReportByPeriod, error)
-	Update(ctx context.Context, finRep *FinancialReport) error
-	DeleteById(ctx context.Context, id uuid.UUID) error
+	Create(context.Context, *FinancialReport) error
+	GetById(context.Context, uuid.UUID) (*FinancialReport, error)
+	GetByCompany(context.Context, uuid.UUID, *Period) (*FinancialReportByPeriod, error)
+	Update(context.Context, *FinancialReport) error
+	DeleteById(context.Context, uuid.UUID) error
 }
 
 type IFinancialReportService interface {
-	Create(finRep *FinancialReport) error
-	CreateByPeriod(finReportByPeriod *FinancialReportByPeriod) error
-	GetById(id uuid.UUID) (*FinancialReport, error)
-	GetByCompany(companyId uuid.UUID, period *Period) (*FinancialReportByPeriod, error)
-	Update(finRep *FinancialReport) error
-	DeleteById(id uuid.UUID) error
+	Create(context.Context, *FinancialReport) error
+	CreateByPeriod(context.Context, *FinancialReportByPeriod) error
+	GetById(context.Context, uuid.UUID) (*FinancialReport, error)
+	GetByCompany(context.Context, uuid.UUID, *Period) (*FinancialReportByPeriod, error)
+	Update(context.Context, *FinancialReport) error
+	DeleteById(context.Context, uuid.UUID) error
 }

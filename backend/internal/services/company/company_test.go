@@ -107,11 +107,12 @@ func TestCompanyService_Create(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			ctx := context.Background()
 			if tc.beforeTest != nil {
 				tc.beforeTest(*compRepo)
 			}
 
-			err := svc.Create(tc.company)
+			err := svc.Create(ctx, tc.company)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -162,11 +163,12 @@ func TestCompanyService_DeleteById(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			ctx := context.Background()
 			if tc.beforeTest != nil {
 				tc.beforeTest(*compRepo)
 			}
 
-			err := svc.DeleteById(tc.id)
+			err := svc.DeleteById(ctx, tc.id)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -246,11 +248,12 @@ func TestCompanyService_GetAll(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			ctx := context.Background()
 			if tc.beforeTest != nil {
 				tc.beforeTest(*compRepo)
 			}
 
-			companies, err := svc.GetAll(1)
+			companies, err := svc.GetAll(ctx, 1)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -316,11 +319,12 @@ func TestCompanyService_GetById(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			ctx := context.Background()
 			if tc.beforeTest != nil {
 				tc.beforeTest(*compRepo)
 			}
 
-			company, err := svc.GetById(tc.id)
+			company, err := svc.GetById(ctx, tc.id)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -420,11 +424,12 @@ func TestCompanyService_GetByOwnerId(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			ctx := context.Background()
 			if tc.beforeTest != nil {
 				tc.beforeTest(*compRepo)
 			}
 
-			companies, err := svc.GetByOwnerId(tc.id, 1, true)
+			companies, err := svc.GetByOwnerId(ctx, tc.id, 1, true)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -490,11 +495,12 @@ func TestCompanyService_Update(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			ctx := context.Background()
 			if tc.beforeTest != nil {
 				tc.beforeTest(*compRepo)
 			}
 
-			err := svc.Update(tc.company)
+			err := svc.Update(ctx, tc.company)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())

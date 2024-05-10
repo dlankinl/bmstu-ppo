@@ -14,11 +14,11 @@ type UserAuth struct {
 }
 
 type IAuthRepository interface {
-	Register(ctx context.Context, authInfo *UserAuth) (err error)
-	GetByUsername(ctx context.Context, username string) (*UserAuth, error)
+	Register(context.Context, *UserAuth) error
+	GetByUsername(context.Context, string) (*UserAuth, error)
 }
 
 type IAuthService interface {
-	Login(authInfo *UserAuth) (string, error)
-	Register(authInfo *UserAuth) (err error)
+	Login(context.Context, *UserAuth) (string, error)
+	Register(context.Context, *UserAuth) error
 }
