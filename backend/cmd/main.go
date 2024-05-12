@@ -51,32 +51,38 @@ func main() {
 
 	mux.Use(middleware.Logger)
 
-	mux.Route("/admin", func(r chi.Router) {
-		r.Use(jwtauth.Verifier(tokenAuth))
-		r.Use(jwtauth.Authenticator(tokenAuth))
-		r.Use(web.ValidateAdminRoleJWT)
+	mux.Group(func(r chi.Router) {
+		r.Route("/skills", func(r chi.Router) {
+			r.Get("/{id}", web.GetSkill(a))
+
+			r.Group(func(r chi.Router) {
+				r.Use(jwtauth.Verifier(tokenAuth))
+				r.Use(jwtauth.Authenticator(tokenAuth))
+				r.Use(web.ValidateAdminRoleJWT)
+
+				r.Post("/create", web.CreateSkill(a))
+				r.Delete("/{id}/delete", web.DeleteSkill(a))
+				r.Patch("/{id}/update", web.UpdateSkill(a))
+			})
+		})
 
 		r.Route("/entrepreneurs", func(r chi.Router) {
-			r.Patch("/{id}/update", web.UpdateEntrepreneur(a))
-			r.Delete("/{id}/delete", web.DeleteEntrepreneur(a))
-		})
+			r.Get("/{id}", web.GetEntrepreneur(a))
+			r.Get("/", web.ListEntrepreneurs(a))
 
-		r.Route("/skills", func(r chi.Router) {
-			r.Post("/create", web.CreateSkill(a))
-			r.Delete("/{id}/delete", web.DeleteSkill(a))
-			r.Patch("/{id}/update", web.UpdateSkill(a))
-		})
-	})
+			r.Group(func(r chi.Router) {
+				r.Use(jwtauth.Verifier(tokenAuth))
+				r.Use(jwtauth.Authenticator(tokenAuth))
+				r.Use(web.ValidateAdminRoleJWT)
 
-	mux.Group(func(r chi.Router) {
-		r.Use(jwtauth.Verifier(tokenAuth))
-		r.Use(jwtauth.Authenticator(tokenAuth))
+				r.Patch("/{id}/update", web.UpdateEntrepreneur(a))
+				r.Delete("/{id}/delete", web.DeleteEntrepreneur(a))
+			})
+		})
 	})
 
 	mux.Post("/login", web.LoginHandler(a))
 	mux.Post("/signup", web.RegisterHandler(a))
-
-	mux.Get("/entrepreneurs/{page}", web.ListEntrepreneurs(a))
 
 	fmt.Println("server was started")
 	http.ListenAndServe("localhost:8080", mux)

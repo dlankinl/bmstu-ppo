@@ -21,7 +21,7 @@ func ValidateAdminRoleJWT(next http.Handler) http.Handler {
 		}
 
 		if role != "admin" {
-			errorResponse(w, fmt.Errorf("only administrators can use this: %w", err).Error(), http.StatusBadRequest)
+			errorResponse(w, fmt.Errorf("only administrators can use this").Error(), http.StatusForbidden)
 			return
 		}
 

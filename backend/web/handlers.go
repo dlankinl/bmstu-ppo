@@ -70,7 +70,7 @@ func RegisterHandler(app *app.App) http.HandlerFunc {
 
 func ListEntrepreneurs(app *app.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		page := chi.URLParam(r, "page")
+		page := r.URL.Query().Get("page")
 		if page == "" {
 			errorResponse(w, fmt.Errorf("empty page number").Error(), http.StatusBadRequest)
 			return
@@ -178,6 +178,30 @@ func DeleteEntrepreneur(app *app.App) http.HandlerFunc {
 	}
 }
 
+func GetEntrepreneur(app *app.App) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id := chi.URLParam(r, "id")
+		if id == "" {
+			errorResponse(w, fmt.Errorf("empty id").Error(), http.StatusBadRequest)
+			return
+		}
+
+		idUuid, err := uuid.Parse(id)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("converting id to uuid: %w", err).Error(), http.StatusUnauthorized)
+			return
+		}
+
+		user, err := app.UserSvc.GetById(r.Context(), idUuid)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("getting user by id: %w", err).Error(), http.StatusUnauthorized)
+			return
+		}
+
+		successResponse(w, http.StatusOK, map[string]interface{}{"entrepreneur": toUserTransport(user)})
+	}
+}
+
 func CreateSkill(app *app.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req Skill
@@ -238,6 +262,12 @@ func UpdateSkill(app *app.App) http.HandlerFunc {
 			return
 		}
 
+		skillDb, err := app.SkillSvc.GetById(r.Context(), idUuid)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("getting skill from database by id: %w", err).Error(), http.StatusUnauthorized)
+			return
+		}
+
 		var req Skill
 
 		err = json.NewDecoder(r.Body).Decode(&req)
@@ -245,16 +275,44 @@ func UpdateSkill(app *app.App) http.HandlerFunc {
 			errorResponse(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		req.ID = idUuid
 
-		skillModel := toSkillModel(&req)
+		if req.Name != "" {
+			skillDb.Name = req.Name
+		}
+		if req.Description != "" {
+			skillDb.Description = req.Description
+		}
 
-		err = app.SkillSvc.Update(r.Context(), &skillModel)
+		err = app.SkillSvc.Update(r.Context(), skillDb)
 		if err != nil {
 			errorResponse(w, fmt.Errorf("updating skill info: %w", err).Error(), http.StatusBadRequest)
 			return
 		}
 
 		successResponse(w, http.StatusOK, nil)
+	}
+}
+
+func GetSkill(app *app.App) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id := chi.URLParam(r, "id")
+		if id == "" {
+			errorResponse(w, fmt.Errorf("empty id").Error(), http.StatusBadRequest)
+			return
+		}
+
+		idUuid, err := uuid.Parse(id)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("converting id to uuid: %w", err).Error(), http.StatusUnauthorized)
+			return
+		}
+
+		skill, err := app.SkillSvc.GetById(r.Context(), idUuid)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("getting skill by id: %w", err).Error(), http.StatusUnauthorized)
+			return
+		}
+
+		successResponse(w, http.StatusOK, map[string]interface{}{"skill": toSkillTransport(skill)})
 	}
 }
