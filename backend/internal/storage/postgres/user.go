@@ -19,7 +19,6 @@ func NewUserRepository(db *pgxpool.Pool) domain.IUserRepository {
 	}
 }
 
-// FIXME: не нужен получается
 func (r *UserRepository) Create(ctx context.Context, user *domain.User) (err error) {
 	query := `update ppo.users
 		set 
@@ -72,25 +71,25 @@ func (r *UserRepository) GetByUsername(ctx context.Context, username string) (us
 func (r *UserRepository) GetById(ctx context.Context, userId uuid.UUID) (user *domain.User, err error) {
 	query := `select username, full_name, birthday, gender, city, role from ppo.users where id = $1`
 
-	user = new(domain.User)
+	tmp := new(User)
 	err = r.db.QueryRow(
 		ctx,
 		query,
 		userId,
 	).Scan(
-		&user.Username,
-		&user.FullName,
-		&user.Birthday,
-		&user.Gender,
-		&user.City,
-		&user.Role,
+		&tmp.Username,
+		&tmp.FullName,
+		&tmp.Birthday,
+		&tmp.Gender,
+		&tmp.City,
+		&tmp.Role,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("получение пользователя по id: %w", err)
 	}
 
-	user.ID = userId
-	return user, nil
+	tmp.ID = userId
+	return UserDbToUser(tmp), nil
 }
 
 func (r *UserRepository) GetAll(ctx context.Context, page int) (users []*domain.User, err error) {
@@ -142,8 +141,9 @@ func (r *UserRepository) Update(ctx context.Context, user *domain.User) (err err
 			    birthday = $2, 
 			    gender = $3, 
 			    city = $4,
-			    role = $5
-			where username = $6`
+			    role = $5,
+			    username = $6
+			where id = $7`
 
 	_, err = r.db.Exec(
 		ctx,
@@ -154,6 +154,7 @@ func (r *UserRepository) Update(ctx context.Context, user *domain.User) (err err
 		user.City,
 		user.Role,
 		user.Username,
+		user.ID,
 	)
 	if err != nil {
 		return fmt.Errorf("обновление информации о пользователе: %w", err)
