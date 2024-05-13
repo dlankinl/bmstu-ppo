@@ -25,8 +25,15 @@ type Skill struct {
 type Contact struct {
 	ID      uuid.UUID `json:"id,omitempty"`
 	OwnerID uuid.UUID `json:"owner_id,omitempty"`
-	Name    string    `json:"name"`
-	Value   string    `json:"value"`
+	Name    string    `json:"name,omitempty"`
+	Value   string    `json:"value,omitempty"`
+}
+
+type ActivityField struct {
+	ID          uuid.UUID `json:"id,omitempty"`
+	Name        string    `json:"name,omitempty"`
+	Description string    `json:"description,omitempty"`
+	Cost        float32   `json:"cost,omitempty"`
 }
 
 func toUserTransport(user *domain.User) User {
@@ -84,5 +91,23 @@ func toContactModel(contact *Contact) domain.Contact {
 		OwnerID: contact.OwnerID,
 		Name:    contact.Name,
 		Value:   contact.Value,
+	}
+}
+
+func toActFieldTransport(field *domain.ActivityField) ActivityField {
+	return ActivityField{
+		ID:          field.ID,
+		Name:        field.Name,
+		Description: field.Description,
+		Cost:        field.Cost,
+	}
+}
+
+func toActFieldModel(field *ActivityField) domain.ActivityField {
+	return domain.ActivityField{
+		ID:          field.ID,
+		Name:        field.Name,
+		Description: field.Description,
+		Cost:        field.Cost,
 	}
 }

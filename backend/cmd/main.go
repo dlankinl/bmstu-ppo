@@ -103,6 +103,21 @@ func main() {
 		})
 	})
 
+	mux.Route("/activity_fields", func(r chi.Router) {
+		r.Get("/{id}", web.GetActivityField(a))
+		r.Get("/", web.ListActivityFields(a))
+
+		r.Group(func(r chi.Router) {
+			r.Use(jwtauth.Verifier(tokenAuth))
+			r.Use(jwtauth.Authenticator(tokenAuth))
+			r.Use(web.ValidateAdminRoleJWT)
+
+			r.Post("/create", web.CreateActivityField(a))
+			r.Patch("/{id}/update", web.UpdateActivityField(a))
+			r.Delete("/{id}/delete", web.DeleteActivityField(a))
+		})
+	})
+
 	mux.Post("/login", web.LoginHandler(a))
 	mux.Post("/signup", web.RegisterHandler(a))
 

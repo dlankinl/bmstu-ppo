@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
+	"math"
 	"net/http"
 	"ppo/domain"
 	"ppo/internal/app"
@@ -391,7 +392,7 @@ func DeleteContact(app *app.App) http.HandlerFunc {
 
 		contact, err := app.ConSvc.GetById(r.Context(), idUuid)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("getting contact by id: %w", err).Error(), http.StatusInternalServerError)
+			errorResponse(w, fmt.Errorf("deleting contact by id: %w", err).Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -534,5 +535,157 @@ func ListEntrepreneurContacts(app *app.App) http.HandlerFunc {
 		}
 
 		successResponse(w, http.StatusOK, map[string]interface{}{"entrepreneur_id": entId, "contacts": contactsTransport})
+	}
+}
+
+func CreateActivityField(app *app.App) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var req ActivityField
+		err := json.NewDecoder(r.Body).Decode(&req)
+		if err != nil {
+			errorResponse(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		actField := toActFieldModel(&req)
+
+		err = app.ActFieldSvc.Create(r.Context(), &actField)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("creating activity field: %w", err).Error(), http.StatusBadRequest)
+			return
+		}
+
+		successResponse(w, http.StatusOK, nil)
+	}
+}
+
+func DeleteActivityField(app *app.App) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id := chi.URLParam(r, "id")
+		if id == "" {
+			errorResponse(w, fmt.Errorf("empty id").Error(), http.StatusBadRequest)
+			return
+		}
+
+		idUuid, err := uuid.Parse(id)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("converting id to uuid: %w", err).Error(), http.StatusBadRequest)
+			return
+		}
+
+		_, err = app.ActFieldSvc.GetById(r.Context(), idUuid)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("deleting activity field by id: %w", err).Error(), http.StatusInternalServerError)
+			return
+		}
+
+		err = app.ActFieldSvc.DeleteById(r.Context(), idUuid)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("deleting activity field by id: %w", err).Error(), http.StatusInternalServerError)
+			return
+		}
+
+		successResponse(w, http.StatusOK, nil)
+	}
+}
+
+func UpdateActivityField(app *app.App) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id := chi.URLParam(r, "id")
+		if id == "" {
+			errorResponse(w, fmt.Errorf("empty id").Error(), http.StatusBadRequest)
+			return
+		}
+
+		idUuid, err := uuid.Parse(id)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("converting id to uuid: %w", err).Error(), http.StatusBadRequest)
+			return
+		}
+
+		actFieldDb, err := app.ActFieldSvc.GetById(r.Context(), idUuid)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("getting activity field from database by id: %w", err).Error(), http.StatusInternalServerError)
+			return
+		}
+
+		var req ActivityField
+
+		err = json.NewDecoder(r.Body).Decode(&req)
+		if err != nil {
+			errorResponse(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		if req.Name != "" {
+			actFieldDb.Name = req.Name
+		}
+		if req.Description != "" {
+			actFieldDb.Description = req.Description
+		}
+		if !(math.Abs(float64(req.Cost)) < eps) {
+			actFieldDb.Cost = req.Cost
+		}
+
+		err = app.ActFieldSvc.Update(r.Context(), actFieldDb)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("updating activity field info: %w", err).Error(), http.StatusInternalServerError)
+			return
+		}
+
+		successResponse(w, http.StatusOK, nil)
+	}
+}
+
+func GetActivityField(app *app.App) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id := chi.URLParam(r, "id")
+		if id == "" {
+			errorResponse(w, fmt.Errorf("empty id").Error(), http.StatusBadRequest)
+			return
+		}
+
+		idUuid, err := uuid.Parse(id)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("converting id to uuid: %w", err).Error(), http.StatusBadRequest)
+			return
+		}
+
+		actField, err := app.ActFieldSvc.GetById(r.Context(), idUuid)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("getting activity field by id: %w", err).Error(), http.StatusInternalServerError)
+			return
+		}
+
+		successResponse(w, http.StatusOK, map[string]interface{}{"activity_field": toActFieldTransport(actField)})
+	}
+}
+
+func ListActivityFields(app *app.App) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		page := r.URL.Query().Get("page")
+		if page == "" {
+			errorResponse(w, fmt.Errorf("empty page number").Error(), http.StatusBadRequest)
+			return
+		}
+
+		pageInt, err := strconv.Atoi(page)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("converting page to int: %w", err).Error(), http.StatusBadRequest)
+			return
+		}
+
+		actFields, err := app.ActFieldSvc.GetAll(r.Context(), pageInt)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("getting users: %w", err).Error(), http.StatusInternalServerError)
+			return
+		}
+
+		actFieldsTransport := make([]ActivityField, len(actFields))
+		for i, actField := range actFields {
+			actFieldsTransport[i] = toActFieldTransport(actField)
+		}
+
+		successResponse(w, http.StatusOK, map[string]interface{}{"activity_fields": actFieldsTransport})
 	}
 }

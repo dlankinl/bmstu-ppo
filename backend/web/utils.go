@@ -13,6 +13,8 @@ const (
 	successMsg = "success"
 )
 
+const eps = 1e-6
+
 type ErrorResponse struct {
 	Status string `json:"status"`
 	Error  string `json:"error"`
