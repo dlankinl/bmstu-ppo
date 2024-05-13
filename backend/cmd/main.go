@@ -98,6 +98,8 @@ func main() {
 			r.Use(web.ValidateUserRoleJWT)
 
 			r.Post("/create", web.CreateContact(a))
+			r.Patch("/{id}/update", web.UpdateContact(a))
+			r.Delete("/{id}/delete", web.DeleteContact(a))
 		})
 	})
 

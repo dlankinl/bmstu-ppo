@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/jwtauth/v5"
 	"github.com/google/uuid"
 	"net/http"
 	"ppo/domain"
@@ -169,6 +168,12 @@ func DeleteEntrepreneur(app *app.App) http.HandlerFunc {
 			return
 		}
 
+		_, err = app.UserSvc.GetById(r.Context(), idUuid)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("deleting user by id: %w", err).Error(), http.StatusBadRequest)
+			return
+		}
+
 		err = app.UserSvc.DeleteById(r.Context(), idUuid)
 		if err != nil {
 			errorResponse(w, fmt.Errorf("deleting user by id: %w", err).Error(), http.StatusInternalServerError)
@@ -236,6 +241,12 @@ func DeleteSkill(app *app.App) http.HandlerFunc {
 		idUuid, err := uuid.Parse(id)
 		if err != nil {
 			errorResponse(w, fmt.Errorf("converting id to uuid: %w", err).Error(), http.StatusBadRequest)
+			return
+		}
+
+		_, err = app.SkillSvc.GetById(r.Context(), idUuid)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("deleting skill by id: %w", err).Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -320,21 +331,9 @@ func GetSkill(app *app.App) http.HandlerFunc {
 
 func CreateContact(app *app.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		_, claims, err := jwtauth.FromContext(r.Context())
+		idStr, err := getStringClaimFromJWT(r.Context(), "sub")
 		if err != nil {
-			errorResponse(w, fmt.Errorf("getting claims from JWT: %w", err).Error(), http.StatusBadRequest)
-			return
-		}
-
-		id, ok := claims["sub"]
-		if !ok {
-			errorResponse(w, fmt.Errorf("failed getting claim 'sub' from JWT token").Error(), http.StatusBadRequest)
-			return
-		}
-
-		idStr, ok := id.(string)
-		if !ok {
-			errorResponse(w, fmt.Errorf("converting interface to string").Error(), http.StatusBadRequest)
+			errorResponse(w, fmt.Errorf("getting claim from JWT: %w", err).Error(), http.StatusBadRequest)
 			return
 		}
 
@@ -366,6 +365,18 @@ func CreateContact(app *app.App) http.HandlerFunc {
 
 func DeleteContact(app *app.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		ownerIdStr, err := getStringClaimFromJWT(r.Context(), "sub")
+		if err != nil {
+			errorResponse(w, fmt.Errorf("getting claim from JWT: %w", err).Error(), http.StatusBadRequest)
+			return
+		}
+
+		ownerIdUuid, err := uuid.Parse(ownerIdStr)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("converting string to uuid: %w", err).Error(), http.StatusInternalServerError)
+			return
+		}
+
 		id := chi.URLParam(r, "id")
 		if id == "" {
 			errorResponse(w, fmt.Errorf("empty id").Error(), http.StatusBadRequest)
@@ -375,6 +386,17 @@ func DeleteContact(app *app.App) http.HandlerFunc {
 		idUuid, err := uuid.Parse(id)
 		if err != nil {
 			errorResponse(w, fmt.Errorf("converting id to uuid: %w", err).Error(), http.StatusBadRequest)
+			return
+		}
+
+		contact, err := app.ConSvc.GetById(r.Context(), idUuid)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("getting contact by id: %w", err).Error(), http.StatusInternalServerError)
+			return
+		}
+
+		if ownerIdUuid != contact.OwnerID {
+			errorResponse(w, fmt.Errorf("only owner can delete his contact").Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -390,6 +412,18 @@ func DeleteContact(app *app.App) http.HandlerFunc {
 
 func UpdateContact(app *app.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		ownerIdStr, err := getStringClaimFromJWT(r.Context(), "sub")
+		if err != nil {
+			errorResponse(w, fmt.Errorf("getting claim from JWT: %w", err).Error(), http.StatusBadRequest)
+			return
+		}
+
+		ownerIdUuid, err := uuid.Parse(ownerIdStr)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("converting string to uuid: %w", err).Error(), http.StatusInternalServerError)
+			return
+		}
+
 		id := chi.URLParam(r, "id")
 		if id == "" {
 			errorResponse(w, fmt.Errorf("empty id").Error(), http.StatusBadRequest)
@@ -405,6 +439,11 @@ func UpdateContact(app *app.App) http.HandlerFunc {
 		conDb, err := app.ConSvc.GetById(r.Context(), idUuid)
 		if err != nil {
 			errorResponse(w, fmt.Errorf("getting contact from database by id: %w", err).Error(), http.StatusInternalServerError)
+			return
+		}
+
+		if ownerIdUuid != conDb.OwnerID {
+			errorResponse(w, fmt.Errorf("only owner can update his contact").Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -447,13 +486,13 @@ func GetContact(app *app.App) http.HandlerFunc {
 			return
 		}
 
-		skill, err := app.ConSvc.GetById(r.Context(), idUuid)
+		contact, err := app.ConSvc.GetById(r.Context(), idUuid)
 		if err != nil {
 			errorResponse(w, fmt.Errorf("getting contact by id: %w", err).Error(), http.StatusInternalServerError)
 			return
 		}
 
-		successResponse(w, http.StatusOK, map[string]interface{}{"contact": toContactTransport(skill)})
+		successResponse(w, http.StatusOK, map[string]interface{}{"contact": toContactTransport(contact)})
 	}
 }
 
