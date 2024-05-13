@@ -44,6 +44,11 @@ type Company struct {
 	City            string    `json:"city,omitempty"`
 }
 
+type UserSkill struct {
+	UserId  uuid.UUID `json:"user_id,omitempty"`
+	SkillId uuid.UUID `json:"skill_id,omitempty"`
+}
+
 func toUserTransport(user *domain.User) User {
 	return User{
 		ID:       user.ID,
@@ -137,5 +142,19 @@ func toCompanyModel(company *Company) domain.Company {
 		ActivityFieldId: company.ActivityFieldId,
 		Name:            company.Name,
 		City:            company.City,
+	}
+}
+
+func toUserSkillTransport(userSkill *domain.UserSkill) UserSkill {
+	return UserSkill{
+		UserId:  userSkill.UserId,
+		SkillId: userSkill.SkillId,
+	}
+}
+
+func toUserSkillModel(userSkill *UserSkill) domain.UserSkill {
+	return domain.UserSkill{
+		UserId:  userSkill.UserId,
+		SkillId: userSkill.SkillId,
 	}
 }

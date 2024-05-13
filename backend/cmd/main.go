@@ -53,6 +53,7 @@ func main() {
 
 	mux.Route("/skills", func(r chi.Router) {
 		r.Get("/{id}", web.GetSkill(a))
+		r.Get("/", web.ListEntrepreneurSkills(a))
 
 		r.Group(func(r chi.Router) {
 			r.Use(jwtauth.Verifier(tokenAuth))
@@ -80,11 +81,11 @@ func main() {
 				r.Delete("/{id}/delete", web.DeleteEntrepreneur(a))
 			})
 
-			r.Group(func(r chi.Router) {
-				r.Use(web.ValidateUserRoleJWT)
-
-				//r.Ro
-			})
+			//r.Group(func(r chi.Router) {
+			//	r.Use(web.ValidateUserRoleJWT)
+			//
+			//	r.Post("/{id}/skills/create", web.CreateUserSkill(a))
+			//})
 		})
 	})
 
@@ -130,6 +131,17 @@ func main() {
 			r.Post("/create", web.CreateCompany(a))
 			r.Patch("/{id}/update", web.UpdateCompany(a))
 			r.Delete("/{id}/delete", web.DeleteCompany(a))
+		})
+	})
+
+	mux.Route("/user-skills", func(r chi.Router) {
+		r.Group(func(r chi.Router) {
+			r.Use(jwtauth.Verifier(tokenAuth))
+			r.Use(jwtauth.Authenticator(tokenAuth))
+			r.Use(web.ValidateUserRoleJWT)
+
+			r.Post("/create", web.CreateUserSkill(a))
+			r.Delete("/{id}/delete", web.DeleteUserSkill(a))
 		})
 	})
 

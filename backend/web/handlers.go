@@ -900,3 +900,114 @@ func ListEntrepreneurCompanies(app *app.App) http.HandlerFunc {
 		successResponse(w, http.StatusOK, map[string]interface{}{"entrepreneur_id": entId, "companies": companiesTransport})
 	}
 }
+
+func CreateUserSkill(app *app.App) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		idStr, err := getStringClaimFromJWT(r.Context(), "sub")
+		if err != nil {
+			errorResponse(w, fmt.Errorf("getting claim from JWT: %w", err).Error(), http.StatusBadRequest)
+			return
+		}
+
+		idUuid, err := uuid.Parse(idStr)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("converting string to uuid: %w", err).Error(), http.StatusInternalServerError)
+			return
+		}
+
+		var req UserSkill
+		err = json.NewDecoder(r.Body).Decode(&req)
+		if err != nil {
+			errorResponse(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		userSkill := toUserSkillModel(&req)
+		userSkill.UserId = idUuid
+
+		err = app.UserSkillSvc.Create(r.Context(), &userSkill)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("creating user-skill pair: %w", err).Error(), http.StatusBadRequest)
+			return
+		}
+
+		successResponse(w, http.StatusOK, nil)
+	}
+}
+
+func DeleteUserSkill(app *app.App) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ownerIdStr, err := getStringClaimFromJWT(r.Context(), "sub")
+		if err != nil {
+			errorResponse(w, fmt.Errorf("getting claim from JWT: %w", err).Error(), http.StatusBadRequest)
+			return
+		}
+
+		ownerIdUuid, err := uuid.Parse(ownerIdStr)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("converting string to uuid: %w", err).Error(), http.StatusInternalServerError)
+			return
+		}
+
+		id := chi.URLParam(r, "id")
+		if id == "" {
+			errorResponse(w, fmt.Errorf("empty id").Error(), http.StatusBadRequest)
+			return
+		}
+
+		idUuid, err := uuid.Parse(id)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("converting id to uuid: %w", err).Error(), http.StatusBadRequest)
+			return
+		}
+
+		err = app.UserSkillSvc.Delete(r.Context(), &domain.UserSkill{UserId: ownerIdUuid, SkillId: idUuid})
+		if err != nil {
+			errorResponse(w, fmt.Errorf("deleting user-skill pair: %w", err).Error(), http.StatusInternalServerError)
+			return
+		}
+
+		successResponse(w, http.StatusOK, nil)
+	}
+}
+
+func ListEntrepreneurSkills(app *app.App) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		page := r.URL.Query().Get("page")
+		if page == "" {
+			errorResponse(w, fmt.Errorf("empty page number").Error(), http.StatusBadRequest)
+			return
+		}
+
+		pageInt, err := strconv.Atoi(page)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("converting page to int: %w", err).Error(), http.StatusBadRequest)
+			return
+		}
+
+		entId := r.URL.Query().Get("entrepreneur-id")
+		if page == "" {
+			errorResponse(w, fmt.Errorf("empty entrepreneur id").Error(), http.StatusBadRequest)
+			return
+		}
+
+		entUuid, err := uuid.Parse(entId)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("converting entrepreneur id to uuid: %w", err).Error(), http.StatusInternalServerError)
+			return
+		}
+
+		skills, err := app.UserSkillSvc.GetSkillsForUser(r.Context(), entUuid, pageInt, true)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("getting companies: %w", err).Error(), http.StatusInternalServerError)
+			return
+		}
+
+		skillsTransport := make([]Skill, len(skills))
+		for i, skill := range skills {
+			skillsTransport[i] = toSkillTransport(skill)
+		}
+
+		successResponse(w, http.StatusOK, map[string]interface{}{"entrepreneur_id": entId, "skills": skillsTransport})
+	}
+}
