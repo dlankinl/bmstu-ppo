@@ -816,6 +816,9 @@ func UpdateCompany(app *app.App) http.HandlerFunc {
 			return
 		}
 
+		if req.ActivityFieldId.ID() != 0 {
+			compDb.ActivityFieldId = req.ActivityFieldId
+		}
 		if req.Name != "" {
 			compDb.Name = req.Name
 		}

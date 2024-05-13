@@ -72,14 +72,14 @@ func (s *Service) GetAll(ctx context.Context, page int) (companies []*domain.Com
 }
 
 func (s *Service) Update(ctx context.Context, company *domain.Company) (err error) {
-	err = s.companyRepo.Update(ctx, company)
-	if err != nil {
-		return fmt.Errorf("обновление информации о компании: %w", err)
-	}
-
 	_, err = s.actFieldRepo.GetById(ctx, company.ActivityFieldId)
 	if err != nil {
 		return fmt.Errorf("обновление информации о компании (поиск сферы деятельности): %w", err)
+	}
+
+	err = s.companyRepo.Update(ctx, company)
+	if err != nil {
+		return fmt.Errorf("обновление информации о компании: %w", err)
 	}
 
 	return nil
