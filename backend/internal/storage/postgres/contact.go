@@ -55,6 +55,7 @@ func (r *ContactRepository) GetById(ctx context.Context, id uuid.UUID) (contact 
 		return nil, fmt.Errorf("получение средства связи по id: %w", err)
 	}
 
+	contact.ID = id
 	return contact, nil
 }
 

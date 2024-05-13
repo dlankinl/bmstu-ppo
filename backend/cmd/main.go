@@ -51,33 +51,53 @@ func main() {
 
 	mux.Use(middleware.Logger)
 
-	mux.Group(func(r chi.Router) {
-		r.Route("/skills", func(r chi.Router) {
-			r.Get("/{id}", web.GetSkill(a))
+	mux.Route("/skills", func(r chi.Router) {
+		r.Get("/{id}", web.GetSkill(a))
 
-			r.Group(func(r chi.Router) {
-				r.Use(jwtauth.Verifier(tokenAuth))
-				r.Use(jwtauth.Authenticator(tokenAuth))
-				r.Use(web.ValidateAdminRoleJWT)
+		r.Group(func(r chi.Router) {
+			r.Use(jwtauth.Verifier(tokenAuth))
+			r.Use(jwtauth.Authenticator(tokenAuth))
+			r.Use(web.ValidateAdminRoleJWT)
 
-				r.Post("/create", web.CreateSkill(a))
-				r.Delete("/{id}/delete", web.DeleteSkill(a))
-				r.Patch("/{id}/update", web.UpdateSkill(a))
-			})
+			r.Post("/create", web.CreateSkill(a))
+			r.Delete("/{id}/delete", web.DeleteSkill(a))
+			r.Patch("/{id}/update", web.UpdateSkill(a))
 		})
+	})
 
-		r.Route("/entrepreneurs", func(r chi.Router) {
-			r.Get("/{id}", web.GetEntrepreneur(a))
-			r.Get("/", web.ListEntrepreneurs(a))
+	mux.Route("/entrepreneurs", func(r chi.Router) {
+		r.Get("/{id}", web.GetEntrepreneur(a))
+		r.Get("/", web.ListEntrepreneurs(a))
+
+		r.Group(func(r chi.Router) {
+			r.Use(jwtauth.Verifier(tokenAuth))
+			r.Use(jwtauth.Authenticator(tokenAuth))
 
 			r.Group(func(r chi.Router) {
-				r.Use(jwtauth.Verifier(tokenAuth))
-				r.Use(jwtauth.Authenticator(tokenAuth))
 				r.Use(web.ValidateAdminRoleJWT)
 
 				r.Patch("/{id}/update", web.UpdateEntrepreneur(a))
 				r.Delete("/{id}/delete", web.DeleteEntrepreneur(a))
 			})
+
+			r.Group(func(r chi.Router) {
+				r.Use(web.ValidateUserRoleJWT)
+
+				//r.Ro
+			})
+		})
+	})
+
+	mux.Route("/contacts", func(r chi.Router) {
+		r.Get("/{id}", web.GetContact(a))
+		r.Get("/", web.ListEntrepreneurContacts(a))
+
+		r.Group(func(r chi.Router) {
+			r.Use(jwtauth.Verifier(tokenAuth))
+			r.Use(jwtauth.Authenticator(tokenAuth))
+			r.Use(web.ValidateUserRoleJWT)
+
+			r.Post("/create", web.CreateContact(a))
 		})
 	})
 

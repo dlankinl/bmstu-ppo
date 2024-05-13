@@ -22,6 +22,13 @@ type Skill struct {
 	Description string    `json:"description,omitempty"`
 }
 
+type Contact struct {
+	ID      uuid.UUID `json:"id,omitempty"`
+	OwnerID uuid.UUID `json:"owner_id,omitempty"`
+	Name    string    `json:"name"`
+	Value   string    `json:"value"`
+}
+
 func toUserTransport(user *domain.User) User {
 	return User{
 		ID:       user.ID,
@@ -59,5 +66,23 @@ func toSkillModel(skill *Skill) domain.Skill {
 		ID:          skill.ID,
 		Name:        skill.Name,
 		Description: skill.Description,
+	}
+}
+
+func toContactTransport(contact *domain.Contact) Contact {
+	return Contact{
+		ID:      contact.ID,
+		OwnerID: contact.OwnerID,
+		Name:    contact.Name,
+		Value:   contact.Value,
+	}
+}
+
+func toContactModel(contact *Contact) domain.Contact {
+	return domain.Contact{
+		ID:      contact.ID,
+		OwnerID: contact.OwnerID,
+		Name:    contact.Name,
+		Value:   contact.Value,
 	}
 }
