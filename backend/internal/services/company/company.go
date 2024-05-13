@@ -8,14 +8,17 @@ import (
 )
 
 type Service struct {
-	companyRepo domain.ICompanyRepository
+	actFieldRepo domain.IActivityFieldRepository
+	companyRepo  domain.ICompanyRepository
 }
 
 func NewService(
 	companyRepo domain.ICompanyRepository,
+	actFieldRepo domain.IActivityFieldRepository,
 ) domain.ICompanyService {
 	return &Service{
-		companyRepo: companyRepo,
+		companyRepo:  companyRepo,
+		actFieldRepo: actFieldRepo,
 	}
 }
 
@@ -26,6 +29,11 @@ func (s *Service) Create(ctx context.Context, company *domain.Company) (err erro
 
 	if company.City == "" {
 		return fmt.Errorf("должно быть указано название города")
+	}
+
+	_, err = s.actFieldRepo.GetById(ctx, company.ActivityFieldId)
+	if err != nil {
+		return fmt.Errorf("добавление компании (поиск сферы деятельности): %w", err)
 	}
 
 	err = s.companyRepo.Create(ctx, company)
@@ -67,6 +75,11 @@ func (s *Service) Update(ctx context.Context, company *domain.Company) (err erro
 	err = s.companyRepo.Update(ctx, company)
 	if err != nil {
 		return fmt.Errorf("обновление информации о компании: %w", err)
+	}
+
+	_, err = s.actFieldRepo.GetById(ctx, company.ActivityFieldId)
+	if err != nil {
+		return fmt.Errorf("обновление информации о компании (поиск сферы деятельности): %w", err)
 	}
 
 	return nil

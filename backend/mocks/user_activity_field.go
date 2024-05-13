@@ -10,6 +10,7 @@
 package mocks
 
 import (
+	context "context"
 	domain "ppo/domain"
 	reflect "reflect"
 
@@ -41,46 +42,46 @@ func (m *MockIInteractor) EXPECT() *MockIInteractorMockRecorder {
 }
 
 // CalculateUserRating mocks base method.
-func (m *MockIInteractor) CalculateUserRating(id uuid.UUID) (float32, error) {
+func (m *MockIInteractor) CalculateUserRating(arg0 context.Context, arg1 uuid.UUID) (float32, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CalculateUserRating", id)
+	ret := m.ctrl.Call(m, "CalculateUserRating", arg0, arg1)
 	ret0, _ := ret[0].(float32)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CalculateUserRating indicates an expected call of CalculateUserRating.
-func (mr *MockIInteractorMockRecorder) CalculateUserRating(id any) *gomock.Call {
+func (mr *MockIInteractorMockRecorder) CalculateUserRating(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CalculateUserRating", reflect.TypeOf((*MockIInteractor)(nil).CalculateUserRating), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CalculateUserRating", reflect.TypeOf((*MockIInteractor)(nil).CalculateUserRating), arg0, arg1)
 }
 
 // GetMostProfitableCompany mocks base method.
-func (m *MockIInteractor) GetMostProfitableCompany(period *domain.Period, companies []*domain.Company) (*domain.Company, error) {
+func (m *MockIInteractor) GetMostProfitableCompany(arg0 context.Context, arg1 *domain.Period, arg2 []*domain.Company) (*domain.Company, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetMostProfitableCompany", period, companies)
+	ret := m.ctrl.Call(m, "GetMostProfitableCompany", arg0, arg1, arg2)
 	ret0, _ := ret[0].(*domain.Company)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetMostProfitableCompany indicates an expected call of GetMostProfitableCompany.
-func (mr *MockIInteractorMockRecorder) GetMostProfitableCompany(period, companies any) *gomock.Call {
+func (mr *MockIInteractorMockRecorder) GetMostProfitableCompany(arg0, arg1, arg2 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMostProfitableCompany", reflect.TypeOf((*MockIInteractor)(nil).GetMostProfitableCompany), period, companies)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMostProfitableCompany", reflect.TypeOf((*MockIInteractor)(nil).GetMostProfitableCompany), arg0, arg1, arg2)
 }
 
 // GetUserFinancialReport mocks base method.
-func (m *MockIInteractor) GetUserFinancialReport(id uuid.UUID, period *domain.Period) (*domain.FinancialReportByPeriod, error) {
+func (m *MockIInteractor) GetUserFinancialReport(arg0 context.Context, arg1 uuid.UUID, arg2 *domain.Period) (*domain.FinancialReportByPeriod, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetUserFinancialReport", id, period)
+	ret := m.ctrl.Call(m, "GetUserFinancialReport", arg0, arg1, arg2)
 	ret0, _ := ret[0].(*domain.FinancialReportByPeriod)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetUserFinancialReport indicates an expected call of GetUserFinancialReport.
-func (mr *MockIInteractorMockRecorder) GetUserFinancialReport(id, period any) *gomock.Call {
+func (mr *MockIInteractorMockRecorder) GetUserFinancialReport(arg0, arg1, arg2 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserFinancialReport", reflect.TypeOf((*MockIInteractor)(nil).GetUserFinancialReport), id, period)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserFinancialReport", reflect.TypeOf((*MockIInteractor)(nil).GetUserFinancialReport), arg0, arg1, arg2)
 }

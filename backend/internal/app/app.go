@@ -49,7 +49,7 @@ func NewApp(db *pgxpool.Pool, cfg *config.Config) *App {
 	skillSvc := skill.NewService(skillRepo)
 	userSkillSvc := user_skill.NewService(userSkillRepo, userRepo, skillRepo)
 	actFieldSvc := activity_field.NewService(actFieldRepo, compRepo)
-	compSvc := company.NewService(compRepo)
+	compSvc := company.NewService(compRepo, actFieldRepo)
 	interactor := user_activity_field.NewInteractor(userSvc, actFieldSvc, compSvc, finSvc)
 
 	return &App{

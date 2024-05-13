@@ -42,75 +42,75 @@ func (m *MockIContactsRepository) EXPECT() *MockIContactsRepositoryMockRecorder 
 }
 
 // Create mocks base method.
-func (m *MockIContactsRepository) Create(ctx context.Context, contact *domain.Contact) error {
+func (m *MockIContactsRepository) Create(arg0 context.Context, arg1 *domain.Contact) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create", ctx, contact)
+	ret := m.ctrl.Call(m, "Create", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Create indicates an expected call of Create.
-func (mr *MockIContactsRepositoryMockRecorder) Create(ctx, contact any) *gomock.Call {
+func (mr *MockIContactsRepositoryMockRecorder) Create(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockIContactsRepository)(nil).Create), ctx, contact)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockIContactsRepository)(nil).Create), arg0, arg1)
 }
 
 // DeleteById mocks base method.
-func (m *MockIContactsRepository) DeleteById(ctx context.Context, id uuid.UUID) error {
+func (m *MockIContactsRepository) DeleteById(arg0 context.Context, arg1 uuid.UUID) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteById", ctx, id)
+	ret := m.ctrl.Call(m, "DeleteById", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // DeleteById indicates an expected call of DeleteById.
-func (mr *MockIContactsRepositoryMockRecorder) DeleteById(ctx, id any) *gomock.Call {
+func (mr *MockIContactsRepositoryMockRecorder) DeleteById(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteById", reflect.TypeOf((*MockIContactsRepository)(nil).DeleteById), ctx, id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteById", reflect.TypeOf((*MockIContactsRepository)(nil).DeleteById), arg0, arg1)
 }
 
 // GetById mocks base method.
-func (m *MockIContactsRepository) GetById(ctx context.Context, id uuid.UUID) (*domain.Contact, error) {
+func (m *MockIContactsRepository) GetById(arg0 context.Context, arg1 uuid.UUID) (*domain.Contact, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetById", ctx, id)
+	ret := m.ctrl.Call(m, "GetById", arg0, arg1)
 	ret0, _ := ret[0].(*domain.Contact)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetById indicates an expected call of GetById.
-func (mr *MockIContactsRepositoryMockRecorder) GetById(ctx, id any) *gomock.Call {
+func (mr *MockIContactsRepositoryMockRecorder) GetById(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetById", reflect.TypeOf((*MockIContactsRepository)(nil).GetById), ctx, id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetById", reflect.TypeOf((*MockIContactsRepository)(nil).GetById), arg0, arg1)
 }
 
 // GetByOwnerId mocks base method.
-func (m *MockIContactsRepository) GetByOwnerId(ctx context.Context, id uuid.UUID, page int, isPaginated bool) ([]*domain.Contact, error) {
+func (m *MockIContactsRepository) GetByOwnerId(arg0 context.Context, arg1 uuid.UUID, arg2 int, arg3 bool) ([]*domain.Contact, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetByOwnerId", ctx, id, page, isPaginated)
+	ret := m.ctrl.Call(m, "GetByOwnerId", arg0, arg1, arg2, arg3)
 	ret0, _ := ret[0].([]*domain.Contact)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetByOwnerId indicates an expected call of GetByOwnerId.
-func (mr *MockIContactsRepositoryMockRecorder) GetByOwnerId(ctx, id, page, isPaginated any) *gomock.Call {
+func (mr *MockIContactsRepositoryMockRecorder) GetByOwnerId(arg0, arg1, arg2, arg3 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByOwnerId", reflect.TypeOf((*MockIContactsRepository)(nil).GetByOwnerId), ctx, id, page, isPaginated)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByOwnerId", reflect.TypeOf((*MockIContactsRepository)(nil).GetByOwnerId), arg0, arg1, arg2, arg3)
 }
 
 // Update mocks base method.
-func (m *MockIContactsRepository) Update(ctx context.Context, contact *domain.Contact) error {
+func (m *MockIContactsRepository) Update(arg0 context.Context, arg1 *domain.Contact) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Update", ctx, contact)
+	ret := m.ctrl.Call(m, "Update", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Update indicates an expected call of Update.
-func (mr *MockIContactsRepositoryMockRecorder) Update(ctx, contact any) *gomock.Call {
+func (mr *MockIContactsRepositoryMockRecorder) Update(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockIContactsRepository)(nil).Update), ctx, contact)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockIContactsRepository)(nil).Update), arg0, arg1)
 }
 
 // MockIContactsService is a mock of IContactsService interface.
@@ -137,73 +137,73 @@ func (m *MockIContactsService) EXPECT() *MockIContactsServiceMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockIContactsService) Create(contact *domain.Contact) error {
+func (m *MockIContactsService) Create(arg0 context.Context, arg1 *domain.Contact) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create", contact)
+	ret := m.ctrl.Call(m, "Create", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Create indicates an expected call of Create.
-func (mr *MockIContactsServiceMockRecorder) Create(contact any) *gomock.Call {
+func (mr *MockIContactsServiceMockRecorder) Create(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockIContactsService)(nil).Create), contact)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockIContactsService)(nil).Create), arg0, arg1)
 }
 
 // DeleteById mocks base method.
-func (m *MockIContactsService) DeleteById(id uuid.UUID) error {
+func (m *MockIContactsService) DeleteById(arg0 context.Context, arg1 uuid.UUID) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteById", id)
+	ret := m.ctrl.Call(m, "DeleteById", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // DeleteById indicates an expected call of DeleteById.
-func (mr *MockIContactsServiceMockRecorder) DeleteById(id any) *gomock.Call {
+func (mr *MockIContactsServiceMockRecorder) DeleteById(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteById", reflect.TypeOf((*MockIContactsService)(nil).DeleteById), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteById", reflect.TypeOf((*MockIContactsService)(nil).DeleteById), arg0, arg1)
 }
 
 // GetById mocks base method.
-func (m *MockIContactsService) GetById(id uuid.UUID) (*domain.Contact, error) {
+func (m *MockIContactsService) GetById(arg0 context.Context, arg1 uuid.UUID) (*domain.Contact, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetById", id)
+	ret := m.ctrl.Call(m, "GetById", arg0, arg1)
 	ret0, _ := ret[0].(*domain.Contact)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetById indicates an expected call of GetById.
-func (mr *MockIContactsServiceMockRecorder) GetById(id any) *gomock.Call {
+func (mr *MockIContactsServiceMockRecorder) GetById(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetById", reflect.TypeOf((*MockIContactsService)(nil).GetById), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetById", reflect.TypeOf((*MockIContactsService)(nil).GetById), arg0, arg1)
 }
 
 // GetByOwnerId mocks base method.
-func (m *MockIContactsService) GetByOwnerId(id uuid.UUID, page int, isPaginated bool) ([]*domain.Contact, error) {
+func (m *MockIContactsService) GetByOwnerId(arg0 context.Context, arg1 uuid.UUID, arg2 int, arg3 bool) ([]*domain.Contact, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetByOwnerId", id, page, isPaginated)
+	ret := m.ctrl.Call(m, "GetByOwnerId", arg0, arg1, arg2, arg3)
 	ret0, _ := ret[0].([]*domain.Contact)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetByOwnerId indicates an expected call of GetByOwnerId.
-func (mr *MockIContactsServiceMockRecorder) GetByOwnerId(id, page, isPaginated any) *gomock.Call {
+func (mr *MockIContactsServiceMockRecorder) GetByOwnerId(arg0, arg1, arg2, arg3 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByOwnerId", reflect.TypeOf((*MockIContactsService)(nil).GetByOwnerId), id, page, isPaginated)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByOwnerId", reflect.TypeOf((*MockIContactsService)(nil).GetByOwnerId), arg0, arg1, arg2, arg3)
 }
 
 // Update mocks base method.
-func (m *MockIContactsService) Update(contact *domain.Contact) error {
+func (m *MockIContactsService) Update(arg0 context.Context, arg1 *domain.Contact) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Update", contact)
+	ret := m.ctrl.Call(m, "Update", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Update indicates an expected call of Update.
-func (mr *MockIContactsServiceMockRecorder) Update(contact any) *gomock.Call {
+func (mr *MockIContactsServiceMockRecorder) Update(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockIContactsService)(nil).Update), contact)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockIContactsService)(nil).Update), arg0, arg1)
 }
