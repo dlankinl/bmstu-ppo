@@ -89,13 +89,13 @@ func main() {
 	})
 
 	mux.Route("/contacts", func(r chi.Router) {
-		r.Get("/{id}", web.GetContact(a))
-		r.Get("/", web.ListEntrepreneurContacts(a))
-
 		r.Group(func(r chi.Router) {
 			r.Use(jwtauth.Verifier(tokenAuth))
 			r.Use(jwtauth.Authenticator(tokenAuth))
 			r.Use(web.ValidateUserRoleJWT)
+
+			r.Get("/{id}", web.GetContact(a))
+			r.Get("/", web.ListEntrepreneurContacts(a))
 
 			r.Post("/create", web.CreateContact(a))
 			r.Patch("/{id}/update", web.UpdateContact(a))
@@ -115,6 +115,21 @@ func main() {
 			r.Post("/create", web.CreateActivityField(a))
 			r.Patch("/{id}/update", web.UpdateActivityField(a))
 			r.Delete("/{id}/delete", web.DeleteActivityField(a))
+		})
+	})
+
+	mux.Route("/companies", func(r chi.Router) {
+		r.Get("/{id}", web.GetCompany(a))
+		r.Get("/", web.ListEntrepreneurCompanies(a))
+
+		r.Group(func(r chi.Router) {
+			r.Use(jwtauth.Verifier(tokenAuth))
+			r.Use(jwtauth.Authenticator(tokenAuth))
+			r.Use(web.ValidateUserRoleJWT)
+
+			r.Post("/create", web.CreateCompany(a))
+			r.Patch("/{id}/update", web.UpdateCompany(a))
+			r.Delete("/{id}/delete", web.DeleteCompany(a))
 		})
 	})
 

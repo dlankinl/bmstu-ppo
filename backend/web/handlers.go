@@ -525,7 +525,7 @@ func ListEntrepreneurContacts(app *app.App) http.HandlerFunc {
 
 		contacts, err := app.ConSvc.GetByOwnerId(r.Context(), entUuid, pageInt, true)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("getting users: %w", err).Error(), http.StatusInternalServerError)
+			errorResponse(w, fmt.Errorf("getting contacts: %w", err).Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -687,5 +687,213 @@ func ListActivityFields(app *app.App) http.HandlerFunc {
 		}
 
 		successResponse(w, http.StatusOK, map[string]interface{}{"activity_fields": actFieldsTransport})
+	}
+}
+
+func CreateCompany(app *app.App) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		idStr, err := getStringClaimFromJWT(r.Context(), "sub")
+		if err != nil {
+			errorResponse(w, fmt.Errorf("getting claim from JWT: %w", err).Error(), http.StatusBadRequest)
+			return
+		}
+
+		idUuid, err := uuid.Parse(idStr)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("converting string to uuid: %w", err).Error(), http.StatusInternalServerError)
+			return
+		}
+
+		var req Company
+		err = json.NewDecoder(r.Body).Decode(&req)
+		if err != nil {
+			errorResponse(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		company := toCompanyModel(&req)
+		company.OwnerID = idUuid
+
+		err = app.CompSvc.Create(r.Context(), &company)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("creating company: %w", err).Error(), http.StatusBadRequest)
+			return
+		}
+
+		successResponse(w, http.StatusOK, nil)
+	}
+}
+
+func DeleteCompany(app *app.App) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ownerIdStr, err := getStringClaimFromJWT(r.Context(), "sub")
+		if err != nil {
+			errorResponse(w, fmt.Errorf("getting claim from JWT: %w", err).Error(), http.StatusBadRequest)
+			return
+		}
+
+		ownerIdUuid, err := uuid.Parse(ownerIdStr)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("converting string to uuid: %w", err).Error(), http.StatusInternalServerError)
+			return
+		}
+
+		id := chi.URLParam(r, "id")
+		if id == "" {
+			errorResponse(w, fmt.Errorf("empty id").Error(), http.StatusBadRequest)
+			return
+		}
+
+		idUuid, err := uuid.Parse(id)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("converting id to uuid: %w", err).Error(), http.StatusBadRequest)
+			return
+		}
+
+		company, err := app.CompSvc.GetById(r.Context(), idUuid)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("deleting company by id: %w", err).Error(), http.StatusInternalServerError)
+			return
+		}
+
+		if ownerIdUuid != company.OwnerID {
+			errorResponse(w, fmt.Errorf("only owner can delete his company").Error(), http.StatusInternalServerError)
+			return
+		}
+
+		err = app.CompSvc.DeleteById(r.Context(), idUuid)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("deleting company by id: %w", err).Error(), http.StatusInternalServerError)
+			return
+		}
+
+		successResponse(w, http.StatusOK, nil)
+	}
+}
+
+func UpdateCompany(app *app.App) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ownerIdStr, err := getStringClaimFromJWT(r.Context(), "sub")
+		if err != nil {
+			errorResponse(w, fmt.Errorf("getting claim from JWT: %w", err).Error(), http.StatusBadRequest)
+			return
+		}
+
+		ownerIdUuid, err := uuid.Parse(ownerIdStr)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("converting string to uuid: %w", err).Error(), http.StatusInternalServerError)
+			return
+		}
+
+		id := chi.URLParam(r, "id")
+		if id == "" {
+			errorResponse(w, fmt.Errorf("empty id").Error(), http.StatusBadRequest)
+			return
+		}
+
+		idUuid, err := uuid.Parse(id)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("converting id to uuid: %w", err).Error(), http.StatusBadRequest)
+			return
+		}
+
+		compDb, err := app.CompSvc.GetById(r.Context(), idUuid)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("getting company from database by id: %w", err).Error(), http.StatusInternalServerError)
+			return
+		}
+
+		if ownerIdUuid != compDb.OwnerID {
+			errorResponse(w, fmt.Errorf("only owner can update his company").Error(), http.StatusInternalServerError)
+			return
+		}
+
+		var req Company
+
+		err = json.NewDecoder(r.Body).Decode(&req)
+		if err != nil {
+			errorResponse(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		if req.Name != "" {
+			compDb.Name = req.Name
+		}
+		if req.City != "" {
+			compDb.City = req.City
+		}
+
+		err = app.CompSvc.Update(r.Context(), compDb)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("updating company info: %w", err).Error(), http.StatusInternalServerError)
+			return
+		}
+
+		successResponse(w, http.StatusOK, nil)
+	}
+}
+
+func GetCompany(app *app.App) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id := chi.URLParam(r, "id")
+		if id == "" {
+			errorResponse(w, fmt.Errorf("empty id").Error(), http.StatusBadRequest)
+			return
+		}
+
+		idUuid, err := uuid.Parse(id)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("converting id to uuid: %w", err).Error(), http.StatusBadRequest)
+			return
+		}
+
+		company, err := app.CompSvc.GetById(r.Context(), idUuid)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("getting company by id: %w", err).Error(), http.StatusInternalServerError)
+			return
+		}
+
+		successResponse(w, http.StatusOK, map[string]interface{}{"company": toCompanyTransport(company)})
+	}
+}
+
+func ListEntrepreneurCompanies(app *app.App) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		page := r.URL.Query().Get("page")
+		if page == "" {
+			errorResponse(w, fmt.Errorf("empty page number").Error(), http.StatusBadRequest)
+			return
+		}
+
+		pageInt, err := strconv.Atoi(page)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("converting page to int: %w", err).Error(), http.StatusBadRequest)
+			return
+		}
+
+		entId := r.URL.Query().Get("entrepreneur-id")
+		if page == "" {
+			errorResponse(w, fmt.Errorf("empty entrepreneur id").Error(), http.StatusBadRequest)
+			return
+		}
+
+		entUuid, err := uuid.Parse(entId)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("converting entrepreneur id to uuid: %w", err).Error(), http.StatusInternalServerError)
+			return
+		}
+
+		companies, err := app.CompSvc.GetByOwnerId(r.Context(), entUuid, pageInt, true)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("getting companies: %w", err).Error(), http.StatusInternalServerError)
+			return
+		}
+
+		companiesTransport := make([]Company, len(companies))
+		for i, company := range companies {
+			companiesTransport[i] = toCompanyTransport(company)
+		}
+
+		successResponse(w, http.StatusOK, map[string]interface{}{"entrepreneur_id": entId, "companies": companiesTransport})
 	}
 }

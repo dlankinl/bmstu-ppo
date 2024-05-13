@@ -36,6 +36,14 @@ type ActivityField struct {
 	Cost        float32   `json:"cost,omitempty"`
 }
 
+type Company struct {
+	ID              uuid.UUID `json:"id,omitempty"`
+	OwnerID         uuid.UUID `json:"owner_id,omitempty"`
+	ActivityFieldId uuid.UUID `json:"activity_field_id,omitempty"`
+	Name            string    `json:"name,omitempty"`
+	City            string    `json:"city,omitempty"`
+}
+
 func toUserTransport(user *domain.User) User {
 	return User{
 		ID:       user.ID,
@@ -109,5 +117,25 @@ func toActFieldModel(field *ActivityField) domain.ActivityField {
 		Name:        field.Name,
 		Description: field.Description,
 		Cost:        field.Cost,
+	}
+}
+
+func toCompanyTransport(company *domain.Company) Company {
+	return Company{
+		ID:              company.ID,
+		OwnerID:         company.OwnerID,
+		ActivityFieldId: company.ActivityFieldId,
+		Name:            company.Name,
+		City:            company.City,
+	}
+}
+
+func toCompanyModel(company *Company) domain.Company {
+	return domain.Company{
+		ID:              company.ID,
+		OwnerID:         company.OwnerID,
+		ActivityFieldId: company.ActivityFieldId,
+		Name:            company.Name,
+		City:            company.City,
 	}
 }
