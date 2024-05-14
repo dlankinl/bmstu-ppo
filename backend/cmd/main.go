@@ -132,6 +132,14 @@ func main() {
 			r.Patch("/{id}/update", web.UpdateCompany(a))
 			r.Delete("/{id}/delete", web.DeleteCompany(a))
 		})
+
+		r.Route("/{id}/financials", func(r chi.Router) {
+			r.Use(jwtauth.Verifier(tokenAuth))
+			r.Use(jwtauth.Authenticator(tokenAuth))
+			r.Use(web.ValidateUserRoleJWT)
+
+			r.Post("/create", web.CreateReport(a))
+		})
 	})
 
 	mux.Route("/user-skills", func(r chi.Router) {
@@ -142,6 +150,17 @@ func main() {
 
 			r.Post("/create", web.CreateUserSkill(a))
 			r.Delete("/{id}/delete", web.DeleteUserSkill(a))
+		})
+	})
+
+	mux.Route("/financials", func(r chi.Router) {
+		r.Group(func(r chi.Router) {
+			r.Use(jwtauth.Verifier(tokenAuth))
+			r.Use(jwtauth.Authenticator(tokenAuth))
+			r.Use(web.ValidateUserRoleJWT)
+
+			r.Delete("/{id}/delete", web.DeleteFinReport(a))
+			r.Patch("/{id}/update", web.UpdateFinReport(a))
 		})
 	})
 

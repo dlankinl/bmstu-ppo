@@ -986,7 +986,7 @@ func ListEntrepreneurSkills(app *app.App) http.HandlerFunc {
 		}
 
 		entId := r.URL.Query().Get("entrepreneur-id")
-		if page == "" {
+		if entId == "" {
 			errorResponse(w, fmt.Errorf("empty entrepreneur id").Error(), http.StatusBadRequest)
 			return
 		}
@@ -1009,5 +1009,213 @@ func ListEntrepreneurSkills(app *app.App) http.HandlerFunc {
 		}
 
 		successResponse(w, http.StatusOK, map[string]interface{}{"entrepreneur_id": entId, "skills": skillsTransport})
+	}
+}
+
+func CreateReport(app *app.App) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		userIdStr, err := getStringClaimFromJWT(r.Context(), "sub")
+		if err != nil {
+			errorResponse(w, fmt.Errorf("getting claim from JWT: %w", err).Error(), http.StatusBadRequest)
+			return
+		}
+
+		userIdUuid, err := uuid.Parse(userIdStr)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("converting string to uuid: %w", err).Error(), http.StatusInternalServerError)
+			return
+		}
+
+		compIdStr := r.URL.Query().Get("company-id")
+		if compIdStr == "" {
+			errorResponse(w, fmt.Errorf("empty company id").Error(), http.StatusBadRequest)
+			return
+		}
+
+		compIdUuid, err := uuid.Parse(compIdStr)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("converting string to uuid: %w", err).Error(), http.StatusInternalServerError)
+			return
+		}
+
+		company, err := app.CompSvc.GetById(r.Context(), compIdUuid)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("creating fin report: %w", err).Error(), http.StatusInternalServerError)
+			return
+		}
+
+		if company.OwnerID != userIdUuid {
+			errorResponse(w, fmt.Errorf("only company`s owner can create financial report: %w", err).Error(), http.StatusInternalServerError)
+			return
+		}
+
+		var req FinancialReport
+		err = json.NewDecoder(r.Body).Decode(&req)
+		if err != nil {
+			errorResponse(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		report := toFinReportModel(&req)
+		report.CompanyID = compIdUuid
+
+		err = app.FinSvc.Create(r.Context(), &report)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("creating financial report: %w", err).Error(), http.StatusInternalServerError)
+			return
+		}
+
+		successResponse(w, http.StatusOK, nil)
+	}
+}
+
+func DeleteFinReport(app *app.App) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		userIdStr, err := getStringClaimFromJWT(r.Context(), "sub")
+		if err != nil {
+			errorResponse(w, fmt.Errorf("getting claim from JWT: %w", err).Error(), http.StatusBadRequest)
+			return
+		}
+
+		userIdUuid, err := uuid.Parse(userIdStr)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("converting string to uuid: %w", err).Error(), http.StatusInternalServerError)
+			return
+		}
+
+		reportIdStr := r.URL.Query().Get("id")
+		if reportIdStr == "" {
+			errorResponse(w, fmt.Errorf("empty report id").Error(), http.StatusBadRequest)
+			return
+		}
+
+		reportIdUuid, err := uuid.Parse(reportIdStr)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("converting string to uuid: %w", err).Error(), http.StatusInternalServerError)
+			return
+		}
+
+		report, err := app.FinSvc.GetById(r.Context(), reportIdUuid)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("getting financial report: %w", err).Error(), http.StatusInternalServerError)
+			return
+		}
+
+		company, err := app.CompSvc.GetById(r.Context(), report.CompanyID)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("getting financial report: %w", err).Error(), http.StatusInternalServerError)
+			return
+		}
+
+		if company.OwnerID != userIdUuid {
+			errorResponse(w, fmt.Errorf("only company`s owner can delete financial report: %w", err).Error(), http.StatusInternalServerError)
+			return
+		}
+
+		err = app.FinSvc.DeleteById(r.Context(), reportIdUuid)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("deleting company by id: %w", err).Error(), http.StatusInternalServerError)
+			return
+		}
+
+		successResponse(w, http.StatusOK, nil)
+	}
+}
+
+func UpdateFinReport(app *app.App) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		userIdStr, err := getStringClaimFromJWT(r.Context(), "sub")
+		if err != nil {
+			errorResponse(w, fmt.Errorf("getting claim from JWT: %w", err).Error(), http.StatusBadRequest)
+			return
+		}
+
+		userIdUuid, err := uuid.Parse(userIdStr)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("converting string to uuid: %w", err).Error(), http.StatusInternalServerError)
+			return
+		}
+
+		reportIdStr := r.URL.Query().Get("id")
+		if reportIdStr == "" {
+			errorResponse(w, fmt.Errorf("empty report id").Error(), http.StatusBadRequest)
+			return
+		}
+
+		reportIdUuid, err := uuid.Parse(reportIdStr)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("converting string to uuid: %w", err).Error(), http.StatusInternalServerError)
+			return
+		}
+
+		reportDb, err := app.FinSvc.GetById(r.Context(), reportIdUuid)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("getting financial report: %w", err).Error(), http.StatusInternalServerError)
+			return
+		}
+
+		company, err := app.CompSvc.GetById(r.Context(), reportDb.CompanyID)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("getting financial report: %w", err).Error(), http.StatusInternalServerError)
+			return
+		}
+
+		if company.OwnerID != userIdUuid {
+			errorResponse(w, fmt.Errorf("only company`s owner can update financial report: %w", err).Error(), http.StatusInternalServerError)
+			return
+		}
+
+		var req FinancialReport
+
+		err = json.NewDecoder(r.Body).Decode(&req)
+		if err != nil {
+			errorResponse(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		if req.Year != 0 {
+			reportDb.Year = req.Year
+		}
+		if req.Quarter != 0 {
+			reportDb.Quarter = req.Quarter
+		}
+		if !(math.Abs(float64(req.Revenue)) < eps) {
+			reportDb.Revenue = req.Revenue
+		}
+		if !(math.Abs(float64(req.Costs)) < eps) {
+			reportDb.Costs = req.Costs
+		}
+
+		err = app.FinSvc.Update(r.Context(), reportDb)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("updating financial report info: %w", err).Error(), http.StatusInternalServerError)
+			return
+		}
+
+		successResponse(w, http.StatusOK, nil)
+	}
+}
+
+func GetFinReport(app *app.App) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id := chi.URLParam(r, "id")
+		if id == "" {
+			errorResponse(w, fmt.Errorf("empty id").Error(), http.StatusBadRequest)
+			return
+		}
+
+		idUuid, err := uuid.Parse(id)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("converting id to uuid: %w", err).Error(), http.StatusBadRequest)
+			return
+		}
+
+		report, err := app.FinSvc.GetById(r.Context(), idUuid)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("getting financial report by id: %w", err).Error(), http.StatusInternalServerError)
+			return
+		}
+
+		successResponse(w, http.StatusOK, map[string]interface{}{"financial_report": toFinReportTransport(report)})
 	}
 }

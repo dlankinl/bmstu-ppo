@@ -49,6 +49,15 @@ type UserSkill struct {
 	SkillId uuid.UUID `json:"skill_id,omitempty"`
 }
 
+type FinancialReport struct {
+	ID        uuid.UUID `json:"id,omitempty"`
+	CompanyID uuid.UUID `json:"company_id,omitempty"`
+	Revenue   float32   `json:"revenue,omitempty"`
+	Costs     float32   `json:"costs,omitempty"`
+	Year      int       `json:"year,omitempty"`
+	Quarter   int       `json:"quarter,omitempty"`
+}
+
 func toUserTransport(user *domain.User) User {
 	return User{
 		ID:       user.ID,
@@ -156,5 +165,27 @@ func toUserSkillModel(userSkill *UserSkill) domain.UserSkill {
 	return domain.UserSkill{
 		UserId:  userSkill.UserId,
 		SkillId: userSkill.SkillId,
+	}
+}
+
+func toFinReportTransport(finReport *domain.FinancialReport) FinancialReport {
+	return FinancialReport{
+		ID:        finReport.ID,
+		CompanyID: finReport.CompanyID,
+		Revenue:   finReport.Revenue,
+		Costs:     finReport.Costs,
+		Year:      finReport.Year,
+		Quarter:   finReport.Quarter,
+	}
+}
+
+func toFinReportModel(finReport *FinancialReport) domain.FinancialReport {
+	return domain.FinancialReport{
+		ID:        finReport.ID,
+		CompanyID: finReport.CompanyID,
+		Revenue:   finReport.Revenue,
+		Costs:     finReport.Costs,
+		Year:      finReport.Year,
+		Quarter:   finReport.Quarter,
 	}
 }
