@@ -139,6 +139,7 @@ func main() {
 			r.Use(web.ValidateUserRoleJWT)
 
 			r.Post("/create", web.CreateReport(a))
+			r.Get("/{year-start}_{quarter-start}-{year-end}_{quarter-end}", web.ListCompanyReports(a))
 		})
 	})
 

@@ -58,6 +58,13 @@ type FinancialReport struct {
 	Quarter   int       `json:"quarter,omitempty"`
 }
 
+type Period struct {
+	StartYear    int `json:"start_year"`
+	StartQuarter int `json:"start_quarter"`
+	EndYear      int `json:"end_year"`
+	EndQuarter   int `json:"end_quarter"`
+}
+
 func toUserTransport(user *domain.User) User {
 	return User{
 		ID:       user.ID,
@@ -187,5 +194,14 @@ func toFinReportModel(finReport *FinancialReport) domain.FinancialReport {
 		Costs:     finReport.Costs,
 		Year:      finReport.Year,
 		Quarter:   finReport.Quarter,
+	}
+}
+
+func toPeriodTransport(per *domain.Period) Period {
+	return Period{
+		StartYear:    per.StartYear,
+		StartQuarter: per.StartQuarter,
+		EndYear:      per.EndYear,
+		EndQuarter:   per.EndQuarter,
 	}
 }

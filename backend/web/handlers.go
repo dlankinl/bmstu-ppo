@@ -1026,7 +1026,7 @@ func CreateReport(app *app.App) http.HandlerFunc {
 			return
 		}
 
-		compIdStr := r.URL.Query().Get("company-id")
+		compIdStr := chi.URLParam(r, "id")
 		if compIdStr == "" {
 			errorResponse(w, fmt.Errorf("empty company id").Error(), http.StatusBadRequest)
 			return
@@ -1045,7 +1045,7 @@ func CreateReport(app *app.App) http.HandlerFunc {
 		}
 
 		if company.OwnerID != userIdUuid {
-			errorResponse(w, fmt.Errorf("only company`s owner can create financial report: %w", err).Error(), http.StatusInternalServerError)
+			errorResponse(w, fmt.Errorf("only company`s owner can create financial report").Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -1083,7 +1083,7 @@ func DeleteFinReport(app *app.App) http.HandlerFunc {
 			return
 		}
 
-		reportIdStr := r.URL.Query().Get("id")
+		reportIdStr := chi.URLParam(r, "id")
 		if reportIdStr == "" {
 			errorResponse(w, fmt.Errorf("empty report id").Error(), http.StatusBadRequest)
 			return
@@ -1108,7 +1108,7 @@ func DeleteFinReport(app *app.App) http.HandlerFunc {
 		}
 
 		if company.OwnerID != userIdUuid {
-			errorResponse(w, fmt.Errorf("only company`s owner can delete financial report: %w", err).Error(), http.StatusInternalServerError)
+			errorResponse(w, fmt.Errorf("only company`s owner can delete financial report").Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -1136,7 +1136,7 @@ func UpdateFinReport(app *app.App) http.HandlerFunc {
 			return
 		}
 
-		reportIdStr := r.URL.Query().Get("id")
+		reportIdStr := chi.URLParam(r, "id")
 		if reportIdStr == "" {
 			errorResponse(w, fmt.Errorf("empty report id").Error(), http.StatusBadRequest)
 			return
@@ -1161,7 +1161,7 @@ func UpdateFinReport(app *app.App) http.HandlerFunc {
 		}
 
 		if company.OwnerID != userIdUuid {
-			errorResponse(w, fmt.Errorf("only company`s owner can update financial report: %w", err).Error(), http.StatusInternalServerError)
+			errorResponse(w, fmt.Errorf("only company`s owner can update financial report").Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -1217,5 +1217,65 @@ func GetFinReport(app *app.App) http.HandlerFunc {
 		}
 
 		successResponse(w, http.StatusOK, map[string]interface{}{"financial_report": toFinReportTransport(report)})
+	}
+}
+
+func ListCompanyReports(app *app.App) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		//page := r.URL.Query().Get("page")
+		//if page == "" {
+		//	errorResponse(w, fmt.Errorf("empty page number").Error(), http.StatusBadRequest)
+		//	return
+		//}
+		//
+		//pageInt, err := strconv.Atoi(page)
+		//if err != nil {
+		//	errorResponse(w, fmt.Errorf("converting page to int: %w", err).Error(), http.StatusBadRequest)
+		//	return
+		//}
+
+		period, err := parsePeriodFromURL(r)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("parsing period from URL: %w", err).Error(), http.StatusBadRequest)
+			return
+		}
+
+		//compIdStr := chi.URLParam(r, "id")
+		//if compIdStr == "" {
+		//	errorResponse(w, fmt.Errorf("empty company id").Error(), http.StatusBadRequest)
+		//	return
+		//}
+		//
+		//compIdUuid, err := uuid.Parse(compIdStr)
+		//if err != nil {
+		//	errorResponse(w, fmt.Errorf("converting company id to uuid: %w", err).Error(), http.StatusInternalServerError)
+		//	return
+		//}
+		compIdUuid, err := parseUUIDFromURL(r, "id", "company")
+		if err != nil {
+			errorResponse(w, fmt.Errorf("parsing company id from url: %w", err).Error(), http.StatusBadRequest)
+			return
+		}
+
+		reports, err := app.FinSvc.GetByCompany(r.Context(), compIdUuid, period)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("getting companies: %w", err).Error(), http.StatusInternalServerError)
+			return
+		}
+
+		reportsTransport := make([]FinancialReport, len(reports.Reports))
+		for i, rep := range reports.Reports {
+			reportsTransport[i] = toFinReportTransport(&rep)
+		}
+
+		successResponse(w, http.StatusOK,
+			map[string]interface{}{
+				"company_id": compIdUuid,
+				"period":     toPeriodTransport(period),
+				"revenue":    reports.Revenue(),
+				"costs":      reports.Costs(),
+				"profit":     reports.Profit(),
+				"reports":    reportsTransport},
+		)
 	}
 }
