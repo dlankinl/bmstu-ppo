@@ -3,15 +3,17 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
-	"github.com/go-chi/jwtauth/v5"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"log"
 	"net/http"
 	"ppo/internal/app"
 	"ppo/internal/config"
 	"ppo/web"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
+	"github.com/go-chi/jwtauth/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 var tokenAuth *jwtauth.JWTAuth
@@ -49,6 +51,15 @@ func main() {
 
 	mux := chi.NewMux()
 
+	mux.Use(cors.Handler(cors.Options{
+		AllowedOrigins:   []string{"https://*", "http://*"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: false,
+		MaxAge:           300, // Maximum value not ignored by any of major browsers
+	}))
+
 	mux.Use(middleware.Logger)
 
 	mux.Route("/skills", func(r chi.Router) {
@@ -69,6 +80,7 @@ func main() {
 	mux.Route("/entrepreneurs", func(r chi.Router) {
 		r.Get("/{id}", web.GetEntrepreneur(a))
 		r.Get("/", web.ListEntrepreneurs(a))
+		r.Get("/{id}/rating", web.CalculateRating(a))
 
 		r.Group(func(r chi.Router) {
 			r.Use(jwtauth.Verifier(tokenAuth))
@@ -169,5 +181,5 @@ func main() {
 	mux.Post("/signup", web.RegisterHandler(a))
 
 	fmt.Println("server was started")
-	http.ListenAndServe("localhost:8080", mux)
+	http.ListenAndServe(":8081", mux)
 }

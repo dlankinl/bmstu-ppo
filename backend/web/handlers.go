@@ -3,14 +3,16 @@ package web
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/go-chi/chi/v5"
-	"github.com/google/uuid"
 	"math"
 	"net/http"
 	"ppo/domain"
 	"ppo/internal/app"
 	"ppo/pkg/base"
 	"strconv"
+	"time"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/google/uuid"
 )
 
 func LoginHandler(app *app.App) http.HandlerFunc {
@@ -40,6 +42,15 @@ func LoginHandler(app *app.App) http.HandlerFunc {
 			return
 		}
 
+		cookie := http.Cookie{
+			Name:    "access_token",
+			Value:   token,
+			Path:    "/",
+			Secure:  true,
+			Expires: time.Now().Add(3600 * 24 * time.Second),
+		}
+
+		http.SetCookie(w, &cookie)
 		successResponse(w, http.StatusOK, map[string]string{"token": token})
 	}
 }
@@ -1277,5 +1288,29 @@ func ListCompanyReports(app *app.App) http.HandlerFunc {
 				"profit":     reports.Profit(),
 				"reports":    reportsTransport},
 		)
+	}
+}
+
+func CalculateRating(app *app.App) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id := chi.URLParam(r, "id")
+		if id == "" {
+			errorResponse(w, fmt.Errorf("empty id").Error(), http.StatusBadRequest)
+			return
+		}
+
+		idUuid, err := uuid.Parse(id)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("converting id to uuid: %w", err).Error(), http.StatusBadRequest)
+			return
+		}
+
+		rating, err := app.Interactor.CalculateUserRating(r.Context(), idUuid)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("calculating entrepreneur rating: %w", err).Error(), http.StatusInternalServerError)
+			return
+		}
+
+		successResponse(w, http.StatusOK, map[string]float32{"rating": rating})
 	}
 }
