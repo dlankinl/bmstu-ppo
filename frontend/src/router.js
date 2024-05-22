@@ -4,6 +4,7 @@ import Login from "./components/Login.vue";
 import Register from "./components/Register.vue";
 import EntrepreneursPage from './components/EntrepreneursPage.vue';
 import EntrepreneurPage from './components/EntrepreneurPage.vue';
+import UpdateEntrepreneurPage from './components/UpdateEntrepreneurPage.vue'
 // lazy-loaded
 const Profile = () => import("./components/Profile.vue")
 const BoardAdmin = () => import("./components/BoardAdmin.vue")
@@ -65,10 +66,16 @@ const routes = [
   },
   {
     path: '/entrepreneurs/:id/update',
-    name: 'EntrepreneurUpdatePage',
-    component: EntrepreneurUpdatePage,
-    meta: { requiresAdmin: true }
+    name: 'UpdateEntrepreneurPage',
+    component: UpdateEntrepreneurPage,
+    props: true
   }
+  // {
+  //   path: '/entrepreneurs/:id/update',
+  //   name: 'EntrepreneurUpdatePage',
+  //   component: EntrepreneurUpdatePage,
+  //   meta: { requiresAdmin: true }
+  // }
 ];
 
 const router = createRouter({

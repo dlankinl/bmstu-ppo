@@ -3,9 +3,12 @@ package user
 import (
 	"context"
 	"fmt"
-	"github.com/google/uuid"
 	"ppo/domain"
 	"strings"
+
+	"ppo/internal/config"
+
+	"github.com/google/uuid"
 )
 
 type Service struct {
@@ -102,4 +105,18 @@ func (s *Service) DeleteById(ctx context.Context, id uuid.UUID) (err error) {
 	}
 
 	return nil
+}
+
+func (s *Service) GetTotalPages(ctx context.Context) (pages int, err error) {
+	usersAmount, err := s.userRepo.GetUsersAmount(ctx)
+	if err != nil {
+		return 0, fmt.Errorf("getting total pages number: %w", err)
+	}
+
+	pages = usersAmount / config.PageSize
+	if usersAmount%config.PageSize != 0 {
+		pages += 1
+	}
+
+	return pages, nil
 }

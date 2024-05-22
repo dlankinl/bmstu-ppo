@@ -1,13 +1,18 @@
 <template>
     <div>
-      <h1>Entrepreneur Details</h1>
-      <div>
-        <h2>Полное имя: {{ entrepreneur.full_name }}</h2>
-        <p>Дата рождения: {{ formatBirthday(entrepreneur.birthday) }}</p>
-        <p>Город: {{ entrepreneur.city }}</p>
-        <p>Пол: {{ formatGender(entrepreneur.gender) }}</p>
-        <p>Рейтинг: {{ entrepreneur.rating }}</p>
-      </div>
+      <template v-if="entrepreneur.full_name">
+        <h1>Информация о предпринимателе</h1>
+        <div>
+          <h2>Полное имя: {{ entrepreneur.full_name }}</h2>
+          <p>Дата рождения: {{ formatBirthday(entrepreneur.birthday) }}</p>
+          <p>Город: {{ entrepreneur.city }}</p>
+          <p>Пол: {{ formatGender(entrepreneur.gender) }}</p>
+          <p>Рейтинг: {{ entrepreneur.rating }}</p>
+        </div>
+      </template>
+      <template v-else>
+          <h1>Информация о данном предпринимателе не заполнена.</h1>
+      </template>
     </div>
   </template>
   
@@ -29,9 +34,12 @@
         const entrepreneurId = this.$route.params.id
         EntrepreneurService.getEntrepreneurDetails(entrepreneurId)
           .then(response => {
-            // this.entrepreneur = response.data.data.entrepreneur
             const entrepreneur = response.data.data.entrepreneur
-            this.fetchRating(entrepreneur)
+            if (entrepreneur.full_name) {
+                this.fetchRating(entrepreneur)
+            } else {
+                this.entrepreneur = entrepreneur
+            }
           })
           .catch(error => {
             console.error('Error fetching entrepreneur details:', error)

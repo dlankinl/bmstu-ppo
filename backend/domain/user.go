@@ -2,8 +2,9 @@ package domain
 
 import (
 	"context"
-	"github.com/google/uuid"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type User struct {
@@ -23,6 +24,7 @@ type IUserRepository interface {
 	GetAll(context.Context, int) ([]*User, error)
 	Update(context.Context, *User) error
 	DeleteById(context.Context, uuid.UUID) error
+	GetUsersAmount(context.Context) (int, error)
 }
 
 type IUserService interface {
@@ -32,4 +34,5 @@ type IUserService interface {
 	GetAll(context.Context, int) ([]*User, error)
 	Update(context.Context, *User) error
 	DeleteById(context.Context, uuid.UUID) error
+	GetTotalPages(context.Context) (int, error)
 }

@@ -53,7 +53,7 @@ func main() {
 
 	mux.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"https://*", "http://*"},
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},
 		AllowCredentials: false,
@@ -83,6 +83,19 @@ func main() {
 		r.Get("/{id}/rating", web.CalculateRating(a))
 
 		r.Group(func(r chi.Router) {
+			var printHeaders = func(next http.Handler) http.Handler {
+				return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+					fmt.Println("Request Headers:")
+					for key, values := range r.Header {
+						for _, value := range values {
+							fmt.Printf("%s: %s\n", key, value)
+						}
+					}
+					next.ServeHTTP(w, r)
+				})
+			}
+
+			r.Use(printHeaders)
 			r.Use(jwtauth.Verifier(tokenAuth))
 			r.Use(jwtauth.Authenticator(tokenAuth))
 
@@ -91,6 +104,7 @@ func main() {
 
 				r.Patch("/{id}/update", web.UpdateEntrepreneur(a))
 				r.Delete("/{id}/delete", web.DeleteEntrepreneur(a))
+				r.Get("/empty", web.ListEmptyEntrepreneurs(a))
 			})
 
 			//r.Group(func(r chi.Router) {

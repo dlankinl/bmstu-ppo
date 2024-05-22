@@ -3,10 +3,11 @@ package postgres
 import (
 	"context"
 	"fmt"
-	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"ppo/domain"
 	"ppo/internal/config"
+
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type UserRepository struct {
@@ -93,13 +94,17 @@ func (r *UserRepository) GetById(ctx context.Context, userId uuid.UUID) (user *d
 }
 
 func (r *UserRepository) GetAll(ctx context.Context, page int) (users []*domain.User, err error) {
-	query := `select id, username, full_name, birthday, gender, city from ppo.users
-	where full_name is not null 
-	    and birthday is not null
-	    and gender is not null
-	    and city is not null
-		and role = 'user'
-	offset $1 limit $2`
+	query := `select 
+    	id,
+    	username,
+    	full_name,
+    	birthday,
+    	gender,
+    	city 
+	from ppo.users
+	where role = 'user'
+	offset $1
+	limit $2`
 
 	rows, err := r.db.Query(
 		ctx,
@@ -113,7 +118,7 @@ func (r *UserRepository) GetAll(ctx context.Context, page int) (users []*domain.
 
 	users = make([]*domain.User, 0)
 	for rows.Next() {
-		tmp := new(domain.User)
+		tmp := new(User)
 
 		err = rows.Scan(
 			&tmp.ID,
@@ -127,7 +132,7 @@ func (r *UserRepository) GetAll(ctx context.Context, page int) (users []*domain.
 		if err != nil {
 			return nil, fmt.Errorf("сканирование полученных строк: %w", err)
 		}
-		users = append(users, tmp)
+		users = append(users, UserDbToUser(tmp))
 	}
 
 	return users, nil
@@ -176,4 +181,15 @@ func (r *UserRepository) DeleteById(ctx context.Context, id uuid.UUID) (err erro
 	}
 
 	return nil
+}
+
+func (r *UserRepository) GetUsersAmount(ctx context.Context) (users int, err error) {
+	query := `select count(*) as total_users from ppo.users`
+
+	err = r.db.QueryRow(ctx, query).Scan(&users)
+	if err != nil {
+		return 0, fmt.Errorf("getting total users amount: %w", err)
+	}
+
+	return users, nil
 }

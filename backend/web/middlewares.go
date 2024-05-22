@@ -2,8 +2,9 @@ package web
 
 import (
 	"fmt"
-	"github.com/go-chi/jwtauth/v5"
 	"net/http"
+
+	"github.com/go-chi/jwtauth/v5"
 )
 
 func ValidateAdminRoleJWT(next http.Handler) http.Handler {

@@ -55,3 +55,6 @@ create table if not exists ppo.activity_fields(
     description text not null,
     cost float4 not null
 );
+
+insert into ppo.users(username, password, role)
+values ('admin', '$2a$10$4MYWtRfOlgU9smD01vZCFel4WmfsXc2RHuQm6Wq.uUezTeYb3HrNm', 'admin');

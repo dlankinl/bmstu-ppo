@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 const API_URL = 'http://localhost:8081/';
+// const API_URL = process.env.API_URL;
 
 class AuthService {
   login(user) {
@@ -10,8 +11,8 @@ class AuthService {
         password: user.password
       })
       .then(response => {
-        console.log(response.data.data.token)
         if (response.data.data.token) {
+          axios.defaults.headers.common['Authorization'] = 'Bearer ' + response.data.data.token;
           localStorage.setItem('user', JSON.stringify(response.data.data.token));
         }
 

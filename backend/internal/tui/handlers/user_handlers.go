@@ -4,12 +4,13 @@ import (
 	"bufio"
 	"context"
 	"fmt"
-	"github.com/google/uuid"
 	"os"
 	"ppo/internal/app"
 	"ppo/internal/config"
 	"ppo/internal/tui/utils"
 	"strings"
+
+	"github.com/google/uuid"
 )
 
 func GetAllUsers(a *app.App, args ...any) (err error) {

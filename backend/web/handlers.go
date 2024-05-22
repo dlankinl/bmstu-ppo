@@ -100,6 +100,41 @@ func ListEntrepreneurs(app *app.App) http.HandlerFunc {
 			return
 		}
 
+		numPages, err := app.UserSvc.GetTotalPages(r.Context())
+		if err != nil {
+			errorResponse(w, fmt.Errorf("getting total pages: %w", err).Error(), http.StatusInternalServerError)
+			return
+		}
+
+		usersTransport := make([]User, len(users))
+		for i, user := range users {
+			usersTransport[i] = toUserTransport(user)
+		}
+
+		successResponse(w, http.StatusOK, map[string]interface{}{"num_pages": numPages, "users": usersTransport})
+	}
+}
+
+func ListEmptyEntrepreneurs(app *app.App) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		page := r.URL.Query().Get("page")
+		if page == "" {
+			errorResponse(w, fmt.Errorf("empty page number").Error(), http.StatusBadRequest)
+			return
+		}
+
+		pageInt, err := strconv.Atoi(page)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("converting page to int: %w", err).Error(), http.StatusBadRequest)
+			return
+		}
+
+		users, err := app.UserSvc.GetAll(r.Context(), pageInt)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("getting users: %w", err).Error(), http.StatusInternalServerError)
+			return
+		}
+
 		usersTransport := make([]User, len(users))
 		for i, user := range users {
 			usersTransport[i] = toUserTransport(user)
