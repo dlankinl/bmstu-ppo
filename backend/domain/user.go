@@ -21,18 +21,16 @@ type IUserRepository interface {
 	Create(context.Context, *User) error
 	GetByUsername(context.Context, string) (*User, error)
 	GetById(context.Context, uuid.UUID) (*User, error)
-	GetAll(context.Context, int) ([]*User, error)
+	GetAll(context.Context, int) ([]*User, int, error)
 	Update(context.Context, *User) error
 	DeleteById(context.Context, uuid.UUID) error
-	GetUsersAmount(context.Context) (int, error)
 }
 
 type IUserService interface {
 	Create(context.Context, *User) error
 	GetByUsername(context.Context, string) (*User, error)
 	GetById(context.Context, uuid.UUID) (*User, error)
-	GetAll(context.Context, int) ([]*User, error)
+	GetAll(context.Context, int) ([]*User, int, error)
 	Update(context.Context, *User) error
 	DeleteById(context.Context, uuid.UUID) error
-	GetTotalPages(context.Context) (int, error)
 }

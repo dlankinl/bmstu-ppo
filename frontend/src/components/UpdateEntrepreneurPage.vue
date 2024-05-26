@@ -99,7 +99,6 @@ export default {
       EntrepreneurService.updateEntrepreneur(this.$route.params.id, user)
       .then(response => {
         this.message = { severity: 'success', content: 'Данные успешно обновлены' }
-        // console.log(response.status)
       })
       .catch(error => {
         this.message = { severity: 'error', content: `Произошла ошибка при обновлении данных: ${error.response.data.error}` }

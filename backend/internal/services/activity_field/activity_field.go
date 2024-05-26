@@ -3,9 +3,10 @@ package activity_field
 import (
 	"context"
 	"fmt"
-	"github.com/google/uuid"
 	"math"
 	"ppo/domain"
+
+	"github.com/google/uuid"
 )
 
 type Service struct {
@@ -96,11 +97,11 @@ func (s *Service) GetMaxCost(ctx context.Context) (maxCost float32, err error) {
 	return maxCost, nil
 }
 
-func (s *Service) GetAll(ctx context.Context, page int) (fields []*domain.ActivityField, err error) {
-	fields, err = s.actFieldRepo.GetAll(ctx, page)
+func (s *Service) GetAll(ctx context.Context, page int, isPaginated bool) (fields []*domain.ActivityField, numPages int, err error) {
+	fields, numPages, err = s.actFieldRepo.GetAll(ctx, page, isPaginated)
 	if err != nil {
-		return nil, fmt.Errorf("получение списка всех сфер деятельности: %w", err)
+		return nil, 0, fmt.Errorf("получение списка всех сфер деятельности: %w", err)
 	}
 
-	return fields, nil
+	return fields, numPages, nil
 }

@@ -6,8 +6,6 @@ import (
 	"ppo/domain"
 	"strings"
 
-	"ppo/internal/config"
-
 	"github.com/google/uuid"
 )
 
@@ -76,13 +74,13 @@ func (s *Service) GetById(ctx context.Context, userId uuid.UUID) (user *domain.U
 	return user, nil
 }
 
-func (s *Service) GetAll(ctx context.Context, page int) (users []*domain.User, err error) {
-	users, err = s.userRepo.GetAll(ctx, page)
+func (s *Service) GetAll(ctx context.Context, page int) (users []*domain.User, numPages int, err error) {
+	users, numPages, err = s.userRepo.GetAll(ctx, page)
 	if err != nil {
-		return nil, fmt.Errorf("получение списка всех пользователей: %w", err)
+		return nil, 0, fmt.Errorf("получение списка всех пользователей: %w", err)
 	}
 
-	return users, nil
+	return users, numPages, nil
 }
 
 func (s *Service) Update(ctx context.Context, user *domain.User) (err error) {
@@ -125,18 +123,4 @@ func (s *Service) DeleteById(ctx context.Context, id uuid.UUID) (err error) {
 	}
 
 	return nil
-}
-
-func (s *Service) GetTotalPages(ctx context.Context) (pages int, err error) {
-	usersAmount, err := s.userRepo.GetUsersAmount(ctx)
-	if err != nil {
-		return 0, fmt.Errorf("getting total pages number: %w", err)
-	}
-
-	pages = usersAmount / config.PageSize
-	if usersAmount%config.PageSize != 0 {
-		pages += 1
-	}
-
-	return pages, nil
 }

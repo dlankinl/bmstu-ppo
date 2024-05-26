@@ -3,11 +3,12 @@ package postgres
 import (
 	"context"
 	"fmt"
+	"ppo/domain"
+	"ppo/internal/config"
+
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"ppo/domain"
-	"ppo/internal/config"
 )
 
 type CompanyRepository struct {

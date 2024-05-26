@@ -1,22 +1,20 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8081/contacts';
+const API_URL = 'http://localhost:8081/skills';
 
-class ContactsService {
-  getByOwnerId(id) {
-    return axios.get(API_URL + `?entrepreneur-id=${id}`, {
-        headers: {
-            Authorization: `Bearer ${localStorage.getItem('user').replace(/"/g, '')}`
-        }
-    })
+class SkillsService {
+  getSkill(id) {
+    return axios.get(
+      API_URL + `/${id}`
+    )
   }
 
-  createContact(contact) {
+  createSkill(skill) {
     return axios.post(
       API_URL + `/create`,
       {
-        name: contact.name,
-        value: contact.value
+        name: skill.name,
+        description: skill.description
       },
       {
         headers: {
@@ -26,7 +24,7 @@ class ContactsService {
     )
   }
 
-  deleteContact(id) {
+  deleteSkill(id) {
     return axios.delete(
       API_URL + `/${id}/delete`,
       {
@@ -37,12 +35,12 @@ class ContactsService {
     )
   }
 
-  updateContact(id, contact) {
+  updateSkill(id, contact) {
     return axios.patch(
       API_URL + `/${id}/update`,
       {
         name: contact.name,
-        value: contact.value
+        description: skill.description
       },
       {
         headers: {
@@ -53,4 +51,4 @@ class ContactsService {
   }
 }
 
-export default new ContactsService();
+export default new SkillsService();

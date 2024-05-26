@@ -1,27 +1,3 @@
-<!-- <template>
-  <div>
-    <h1>Entrepreneurs</h1>
-    <div v-for="entrepreneur in entrepreneurs" :key="entrepreneur.id">
-    <template v-if="entrepreneur.full_name">
-      <h2>Полное имя: <a :href="`/entrepreneurs/${entrepreneur.id}`">{{ entrepreneur.full_name }}</a></h2>
-      <p>Дата рождения: {{ formatBirthday(entrepreneur.birthday) }}</p>
-      <p>Город: {{ entrepreneur.city }}</p>
-      <p>Пол: {{ formatGender(entrepreneur.gender)  }}</p>
-      <p>Рейтинг: {{ entrepreneur.rating }}</p>
-    </template>
-    <template v-else>
-      <h2>Имя пользователя: <a :href="`/entrepreneurs/${entrepreneur.id}`">{{ entrepreneur.username }}</a></h2>
-    </template>
-    </div>
-    <div>
-    <Button @click="prevPage" :disabled="currentPage === 1" plain text raised>Назад</Button>
-    <Button @click="nextPage" plain text raised>Далее</Button>
-    </div>
-  </div>
-</template> -->
-
-<!-- v-for="(item, index) in slotProps.items" -->
-
 <template>
   <div class="card">
     <DataView :value="entrepreneurs" paginator :rows="rows" :totalRecords="totalPages*rows" @page="onPageChange">
@@ -145,7 +121,6 @@ export default {
     fetchEntrepreneurs() {
       EntrepreneurService.getEntrepreneurs(this.currentPage)
         .then(response => {
-          // this.entrepreneurs = [...this.entrepreneurs, ...response.data.data.users]
           this.entrepreneurs = [...Array((this.currentPage - 1) * 3).fill(null), ...response.data.data.users]
           this.totalPages = response.data.data.num_pages
           Promise.all(
@@ -156,8 +131,7 @@ export default {
                     entrepreneur.rating = response.data.data.rating
                   })
                 )
-            ).then(() => {
-            })
+            ).then(() => {})
         })
         .catch(error => {
           console.error(error)

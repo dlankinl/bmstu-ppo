@@ -13,24 +13,23 @@
       <template v-else>
           <h1>Информация о данном предпринимателе не заполнена.</h1>
       </template>
-      <RouterLink :to="`/entrepreneurs/${entrepreneur.id}/update`">
-      <Button 
-        icon="pi pi-cog"
-        label="Обновить информацию"
-        class="flex-auto md:flex-initial white-space-nowrap"
-      >
-      </Button>
-      </RouterLink>
+      <template v-if="role==='admin'">
+        <RouterLink :to="`/entrepreneurs/${entrepreneur.id}/update`">
+        <Button 
+          icon="pi pi-cog"
+          label="Обновить информацию"
+          class="flex-auto md:flex-initial white-space-nowrap"
+        >
+        </Button>
+        </RouterLink>
+      </template>
     </div>
     <div class="contacts">
         <Accordion :multiple="true">
           <AccordionTab header="Контактные данные">
             <p class="m-0">
-              <!-- <div v-for="contact in contacts" :key="contact.id">
-                <p>{{ contact.name }}</p>
-                <p>{{ contact.value }}</p>
-              </div> -->
-              <DataTable :value="contacts" tableStyle="min-width: 30rem">
+              <div v-if="isAuthValue==false">Войдите в аккаунт, чтобы увидеть список средств связи.</div>
+              <DataTable v-else :value="contacts" tableStyle="min-width: 30rem">
                 <Column field="name" header="Название"></Column>
                 <Column field="value" header="Значение"></Column>
               </DataTable>
@@ -44,21 +43,25 @@
           </AccordionTab>
           <AccordionTab header="Финансовые показатели">
               <p class="m-0">
-                <p>Выручка: {{ financials.revenue }}</p>
-                <p>Расходы: {{ financials.costs }}</p>
-                <p>Прибыль: {{ financials.profit }}</p>                  
-              </p>
-          </AccordionTab>
-          <AccordionTab header="Компании">
-              <p class="m-0">
-                <DataTable :value="companies" paginator :rows="rows" :totalRecords="totalPages*rows" tableStyle="min-width: 30rem">
-                  <Column field="name" header="Название"></Column>
-                  <Column field="activity_field_id" header="Сфера деятельности"></Column>
-                  <Column field="city" header="Город"></Column>
-                </DataTable>
+                <div v-if="isAuthValue==false">
+                  Войдите в аккаунт, чтобы увидеть финансовые показатели предпринимателя.
+                </div>
+                <div v-else>
+                  <p>Выручка: {{ financials.revenue }}</p>
+                  <p>Расходы: {{ financials.costs }}</p>
+                  <p>Прибыль: {{ financials.profit }}</p>   
+                </div>               
               </p>
           </AccordionTab>
         </Accordion>
+        <RouterLink :to="`/entrepreneurs/${entrepreneur.id}/companies`">
+          <Button 
+            icon="pi pi-building"
+            label="Компании"
+            class="flex-auto md:flex-initial white-space-nowrap"
+          >
+          </Button>
+        </RouterLink>
       </div>
   </template>
   
@@ -67,11 +70,13 @@
   import ContactsService from '../services/contacts.service';
   import FinancialsService from '../services/financials.service';
   import CompaniesService from '../services/companies.service';
+  import ActivityFieldsService from '../services/activity-fields.service';
   import DataTable from 'primevue/datatable';
   import Column from 'primevue/column';
   import Button from 'primevue/button';
   import Accordion from 'primevue/accordion';
   import AccordionTab from 'primevue/accordiontab';
+  import Utils from '../services/auth-header';
   
   export default {
     name: 'EntrepreneurPage',
@@ -91,13 +96,16 @@
         currentPage: 1,
         rows: 3,
         totalPages: 0,
+        isAuthValue: null,
+        role: null
       }
     },
     created() {
+      this.isAuth()
       this.fetchEntrepreneurDetails()
       this.fetchContacts()
       this.fetchFinancials()
-      this.fetchCompanies()
+      this.role = Utils.getUserRoleJWT();
     },
     methods: {
       fetchEntrepreneurDetails() {
@@ -134,36 +142,31 @@
       },
       fetchContacts() {
         const id = this.$route.params.id;
-        ContactsService.getByOwnerId(id)
+        if (this.isAuthValue) {
+          ContactsService.getByOwnerId(id)
           .then(response => {
             this.contacts = response.data.data.contacts;
           })
           .catch(error => {
             console.error('Ошибка получения средств связи:', error)
           })
+        }
       },
       fetchFinancials() {
         const id = this.$route.params.id;
-        FinancialsService.getLastYearReport(id)
-          .then(response => {
-            this.financials = response.data.data;
-          })
-          .catch(error => {
-            console.error('Ошибка получения прошлогоднего отчета:', error)
-          })
+        if (this.isAuthValue) {
+          FinancialsService.getLastYearReport(id)
+            .then(response => {
+              this.financials = response.data.data;
+            })
+            .catch(error => {
+              console.error('Ошибка получения прошлогоднего отчета:', error)
+            })
+        }
       },
-      fetchCompanies() {
-        console.log("PARAMS", this.$route.params);
-        const id = this.$route.params.id;
-        CompaniesService.getEntrepreneursCompanies(id, this.currentPage)
-          .then(response => {
-            this.companies = response.data.data.companies;
-            this.totalPages = response.data.data.num_pages;
-          })
-          .catch(error => {
-            console.error('Ошибка получения списка компаний предпринимателя: ', error)
-          })
-      }
+      isAuth() {
+        this.isAuthValue = Utils.isAuth();
+      },
     }
   }
   </script>

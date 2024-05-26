@@ -93,7 +93,7 @@ func (r *UserRepository) GetById(ctx context.Context, userId uuid.UUID) (user *d
 	return UserDbToUser(tmp), nil
 }
 
-func (r *UserRepository) GetAll(ctx context.Context, page int) (users []*domain.User, err error) {
+func (r *UserRepository) GetAll(ctx context.Context, page int) (users []*domain.User, numPages int, err error) {
 	query := `select 
     	id,
     	username,
@@ -113,7 +113,7 @@ func (r *UserRepository) GetAll(ctx context.Context, page int) (users []*domain.
 		config.PageSize,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("получение предпринимателей: %w", err)
+		return nil, 0, fmt.Errorf("получение предпринимателей: %w", err)
 	}
 
 	users = make([]*domain.User, 0)
@@ -130,12 +130,26 @@ func (r *UserRepository) GetAll(ctx context.Context, page int) (users []*domain.
 		)
 
 		if err != nil {
-			return nil, fmt.Errorf("сканирование полученных строк: %w", err)
+			return nil, 0, fmt.Errorf("сканирование полученных строк: %w", err)
 		}
 		users = append(users, UserDbToUser(tmp))
 	}
 
-	return users, nil
+	var numRecords int
+	err = r.db.QueryRow(
+		ctx,
+		`select count(*) from ppo.users`,
+	).Scan(&numRecords)
+	if err != nil {
+		return nil, 0, fmt.Errorf("получение количества предпринимателей: %w", err)
+	}
+
+	numPages = numRecords / config.PageSize
+	if numRecords%config.PageSize != 0 {
+		numPages++
+	}
+
+	return users, numPages, nil
 }
 
 func (r *UserRepository) Update(ctx context.Context, user *domain.User) (err error) {
@@ -181,15 +195,4 @@ func (r *UserRepository) DeleteById(ctx context.Context, id uuid.UUID) (err erro
 	}
 
 	return nil
-}
-
-func (r *UserRepository) GetUsersAmount(ctx context.Context) (users int, err error) {
-	query := `select count(*) as total_users from ppo.users`
-
-	err = r.db.QueryRow(ctx, query).Scan(&users)
-	if err != nil {
-		return 0, fmt.Errorf("getting total users amount: %w", err)
-	}
-
-	return users, nil
 }

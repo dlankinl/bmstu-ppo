@@ -44,7 +44,7 @@ func ValidateUserRoleJWT(next http.Handler) http.Handler {
 			return
 		}
 
-		if role != "user" {
+		if role != "user" && role != "admin" {
 			errorResponse(w, fmt.Errorf("you need to login to perform this action").Error(), http.StatusForbidden)
 			return
 		}
