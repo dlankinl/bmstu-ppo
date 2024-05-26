@@ -53,7 +53,7 @@ func (r *UserSkillRepository) Delete(ctx context.Context, pair *domain.UserSkill
 	return nil
 }
 
-func (r *UserSkillRepository) GetUserSkillsByUserId(ctx context.Context, userId uuid.UUID, page int, isPaginated bool) (pairs []*domain.UserSkill, err error) {
+func (r *UserSkillRepository) GetUserSkillsByUserId(ctx context.Context, userId uuid.UUID, page int, isPaginated bool) (pairs []*domain.UserSkill, numPages int, err error) {
 	query := `
 		select skill_id 
 		from ppo.user_skills 
@@ -76,7 +76,7 @@ func (r *UserSkillRepository) GetUserSkillsByUserId(ctx context.Context, userId 
 		)
 	}
 	if err != nil {
-		return nil, fmt.Errorf("получение навыков пользователя: %w", err)
+		return nil, 0, fmt.Errorf("получение навыков пользователя: %w", err)
 	}
 
 	pairs = make([]*domain.UserSkill, 0)
@@ -87,14 +87,29 @@ func (r *UserSkillRepository) GetUserSkillsByUserId(ctx context.Context, userId 
 			&tmp.SkillId,
 		)
 		if err != nil {
-			return nil, fmt.Errorf("сканирование строки: %w", err)
+			return nil, 0, fmt.Errorf("сканирование строки: %w", err)
 		}
 
 		tmp.UserId = userId
 		pairs = append(pairs, tmp)
 	}
 
-	return pairs, nil
+	var numRecords int
+	err = r.db.QueryRow(
+		ctx,
+		`select count(*) from ppo.user_skills where user_id = $1`,
+		userId,
+	).Scan(&numRecords)
+	if err != nil {
+		return nil, 0, fmt.Errorf("получение количества навыков предпринимателя: %w", err)
+	}
+
+	numPages = numRecords / config.PageSize
+	if numRecords%config.PageSize != 0 {
+		numPages++
+	}
+
+	return pairs, numPages, nil
 }
 
 func (r *UserSkillRepository) GetUserSkillsBySkillId(ctx context.Context, skillId uuid.UUID, page int) (pairs []*domain.UserSkill, err error) {

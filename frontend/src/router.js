@@ -9,11 +9,8 @@ import UpdateCompanyPage from './components/UpdateCompanyPage.vue';
 import CompanyPage from './components/CompanyPage.vue';
 import CompaniesPage from './components/CompaniesPage.vue';
 import ProfilePage from "./components/ProfilePage.vue";
-import CompanyCreatePage from './components/CompanyCreatePage.vue'
-
-const BoardAdmin = () => import("./components/BoardAdmin.vue")
-const BoardModerator = () => import("./components/BoardModerator.vue")
-const BoardUser = () => import("./components/BoardUser.vue")
+import CompanyCreatePage from './components/CompanyCreatePage.vue';
+import UserSkillsPage from './components/UserSkillsPage.vue';
 
 const routes = [
   {
@@ -77,6 +74,12 @@ const routes = [
     path: '/companies/create',
     name: 'CompanyCreatePage',
     component: CompanyCreatePage,
+    props: true
+  },
+  {
+    path: '/entrepreneurs/:id/skills',
+    name: 'UserSkillsPage',
+    component: UserSkillsPage,
     props: true
   }
   // {

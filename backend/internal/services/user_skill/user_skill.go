@@ -43,23 +43,23 @@ func (s *Service) Delete(ctx context.Context, pair *domain.UserSkill) (err error
 	return nil
 }
 
-func (s *Service) GetSkillsForUser(ctx context.Context, userId uuid.UUID, page int, isPaginated bool) (skills []*domain.Skill, err error) {
-	userSkills, err := s.userSkillRepo.GetUserSkillsByUserId(ctx, userId, page, isPaginated)
+func (s *Service) GetSkillsForUser(ctx context.Context, userId uuid.UUID, page int, isPaginated bool) (skills []*domain.Skill, numPages int, err error) {
+	userSkills, numPages, err := s.userSkillRepo.GetUserSkillsByUserId(ctx, userId, page, isPaginated)
 	if err != nil {
-		return nil, fmt.Errorf("получение связок пользователь-навык по userId: %w", err)
+		return nil, 0, fmt.Errorf("получение связок пользователь-навык по userId: %w", err)
 	}
 
 	skills = make([]*domain.Skill, len(userSkills))
 	for i, userSkill := range userSkills {
 		skill, err := s.skillRepo.GetById(ctx, userSkill.SkillId)
 		if err != nil {
-			return nil, fmt.Errorf("получение скилла по skillId: %w", err)
+			return nil, 0, fmt.Errorf("получение скилла по skillId: %w", err)
 		}
 
 		skills[i] = skill
 	}
 
-	return skills, nil
+	return skills, 0, nil
 }
 
 func (s *Service) GetUsersForSkill(ctx context.Context, skillId uuid.UUID, page int) (users []*domain.User, err error) {
@@ -82,7 +82,7 @@ func (s *Service) GetUsersForSkill(ctx context.Context, skillId uuid.UUID, page 
 }
 
 func (s *Service) DeleteSkillsForUser(ctx context.Context, userId uuid.UUID) (err error) {
-	userSkills, err := s.userSkillRepo.GetUserSkillsByUserId(ctx, userId, 0, false)
+	userSkills, _, err := s.userSkillRepo.GetUserSkillsByUserId(ctx, userId, 0, false)
 	if err != nil {
 		return fmt.Errorf("получение связок пользователь-навык по userId: %w", err)
 	}

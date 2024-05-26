@@ -1,7 +1,9 @@
 <template>
   <div class="card">
     <Message v-if="message" :severity="message.severity" :life="3000">{{ message.content }}</Message>
-    <RouterLink :to="`/companies/create`"><Button label="Добавить" icon="pi pi-plus-circle"></Button></RouterLink>
+    <template v-if="entId==visitorId">
+      <RouterLink :to="`/companies/create`"><Button label="Добавить" icon="pi pi-plus-circle"></Button></RouterLink>
+    </template>
     <DataView :value="companies" paginator :rows="rows" :totalRecords="totalPages*rows" @page="onPageChange">
       <template #list="slotProps">
         <div class="grid grid-nogutter">
@@ -27,7 +29,7 @@
                         {{ item.name }} <Chip :label="`${item.activity_field.name}`" />
                         <template v-if="entId==visitorId">
                           <Button icon="pi pi-trash" class="p-button-rounded p-button-secondary p-button-text" @click="deleteCompany(item)"></Button>
-                          <Button icon="pi pi-wrench" class="p-button-rounded p-button-secondary p-button-text" @click="editCompany(item)"></Button>
+                          <RouterLink :to="`/companies/${item.id}/update`"><Button icon="pi pi-wrench" class="p-button-rounded p-button-secondary p-button-text"></Button></RouterLink>
                         </template>
                       </template>
                     </div>

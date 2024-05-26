@@ -169,6 +169,9 @@ func main() {
 	})
 
 	mux.Route("/user-skills", func(r chi.Router) {
+		//r.Get("/{id}", web.GetUserSkill(a))
+		r.Get("/", web.ListEntrepreneurSkills(a))
+
 		r.Group(func(r chi.Router) {
 			r.Use(jwtauth.Verifier(tokenAuth))
 			r.Use(jwtauth.Authenticator(tokenAuth))

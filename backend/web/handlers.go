@@ -1051,7 +1051,7 @@ func ListEntrepreneurSkills(app *app.App) http.HandlerFunc {
 			return
 		}
 
-		skills, err := app.UserSkillSvc.GetSkillsForUser(r.Context(), entUuid, pageInt, true)
+		skills, numPages, err := app.UserSkillSvc.GetSkillsForUser(r.Context(), entUuid, pageInt, true)
 		if err != nil {
 			errorResponse(w, fmt.Errorf("getting companies: %w", err).Error(), http.StatusInternalServerError)
 			return
@@ -1062,7 +1062,7 @@ func ListEntrepreneurSkills(app *app.App) http.HandlerFunc {
 			skillsTransport[i] = toSkillTransport(skill)
 		}
 
-		successResponse(w, http.StatusOK, map[string]interface{}{"entrepreneur_id": entId, "skills": skillsTransport})
+		successResponse(w, http.StatusOK, map[string]interface{}{"entrepreneur_id": entId, "skills": skillsTransport, "num_pages": numPages})
 	}
 }
 

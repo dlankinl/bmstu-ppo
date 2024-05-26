@@ -28,6 +28,12 @@ class UserSkillsService {
       }
     )
   }
+
+  getEntrepreneurSkills(id, page) {
+    return axios.get(
+      API_URL + `?entrepreneur-id=${id}&page=${page}`
+    )
+  }
 }
 
 export default new UserSkillsService();
