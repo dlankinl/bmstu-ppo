@@ -86,6 +86,26 @@ func (s *Service) GetAll(ctx context.Context, page int) (users []*domain.User, e
 }
 
 func (s *Service) Update(ctx context.Context, user *domain.User) (err error) {
+	if user.Gender != "m" && user.Gender != "w" {
+		return fmt.Errorf("неизвестный пол")
+	}
+
+	if user.City == "" {
+		return fmt.Errorf("должно быть указано название города")
+	}
+
+	if user.Birthday.IsZero() {
+		return fmt.Errorf("должна быть указана дата рождения")
+	}
+
+	if user.FullName == "" {
+		return fmt.Errorf("должны быть указаны ФИО")
+	}
+
+	if len(strings.Split(user.FullName, " ")) != 3 {
+		return fmt.Errorf("некорректное количество слов (должны быть фамилия, имя и отчество)")
+	}
+
 	if user.Role != "admin" && user.Role != "user" {
 		return fmt.Errorf("невалидная роль")
 	}

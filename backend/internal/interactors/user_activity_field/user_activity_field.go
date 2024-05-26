@@ -137,7 +137,7 @@ func (i *Interactor) GetMostProfitableCompany(ctx context.Context, period *domai
 }
 
 func (i *Interactor) CalculateUserRating(ctx context.Context, id uuid.UUID) (rating float32, err error) {
-	companies, err := i.compService.GetByOwnerId(ctx, id, 0, false)
+	companies, _, err := i.compService.GetByOwnerId(ctx, id, 0, false)
 	if err != nil {
 		return 0, fmt.Errorf("получение списка компаний: %w", err)
 	}
@@ -186,7 +186,7 @@ func (i *Interactor) CalculateUserRating(ctx context.Context, id uuid.UUID) (rat
 func (i *Interactor) GetUserFinancialReport(ctx context.Context, id uuid.UUID, period *domain.Period) (report *domain.FinancialReportByPeriod, err error) {
 	report = new(domain.FinancialReportByPeriod)
 
-	companies, err := i.compService.GetByOwnerId(ctx, id, 0, false)
+	companies, _, err := i.compService.GetByOwnerId(ctx, id, 0, false)
 	if err != nil {
 		return nil, fmt.Errorf("получение списка компаний: %w", err)
 	}

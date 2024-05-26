@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"ppo/domain"
+	"ppo/internal/config"
 )
 
 type Service struct {
@@ -26,6 +27,15 @@ func (s *Service) Create(ctx context.Context, contact *domain.Contact) (err erro
 		return fmt.Errorf("должно быть указано значение средства связи")
 	}
 
+	contacts, err := s.contactRepo.GetByOwnerId(ctx, contact.OwnerID)
+	if err != nil {
+		return fmt.Errorf("добавление средства связи: %w", err)
+	}
+
+	if len(contacts) >= config.MaxContacts {
+		return fmt.Errorf("добавление средства связи: количество не должно быть более %d", config.MaxContacts)
+	}
+
 	err = s.contactRepo.Create(ctx, contact)
 	if err != nil {
 		return fmt.Errorf("добавление средства связи: %w", err)
@@ -43,8 +53,8 @@ func (s *Service) GetById(ctx context.Context, id uuid.UUID) (contact *domain.Co
 	return contact, nil
 }
 
-func (s *Service) GetByOwnerId(ctx context.Context, id uuid.UUID, page int, isPaginated bool) (contacts []*domain.Contact, err error) {
-	contacts, err = s.contactRepo.GetByOwnerId(ctx, id, page, isPaginated)
+func (s *Service) GetByOwnerId(ctx context.Context, id uuid.UUID) (contacts []*domain.Contact, err error) {
+	contacts, err = s.contactRepo.GetByOwnerId(ctx, id)
 	if err != nil {
 		return nil, fmt.Errorf("получение всех средств связи по id владельца: %w", err)
 	}

@@ -1,11 +1,9 @@
 import axios from 'axios';
-import authHeader from './auth-header';
 
 const API_URL = 'http://localhost:8081/entrepreneurs';
 
 class EntrepreneurService {
   getEntrepreneurs(page) {
-    // return axios.get(API_URL + `?page=${page}`);
     return axios.get(API_URL + `?page=${page}`, {
         headers: {
             Authorization: `Bearer ${localStorage.getItem('user')}`

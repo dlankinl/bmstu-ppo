@@ -85,7 +85,6 @@ func main() {
 		r.Group(func(r chi.Router) {
 			var printHeaders = func(next http.Handler) http.Handler {
 				return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-					fmt.Println("Request Headers:")
 					for key, values := range r.Header {
 						for _, value := range values {
 							fmt.Printf("%s: %s\n", key, value)
@@ -186,6 +185,7 @@ func main() {
 			r.Use(jwtauth.Authenticator(tokenAuth))
 			r.Use(web.ValidateUserRoleJWT)
 
+			r.Get("/", web.GetEntrepreneurFinancials(a))
 			r.Delete("/{id}/delete", web.DeleteFinReport(a))
 			r.Patch("/{id}/update", web.UpdateFinReport(a))
 		})

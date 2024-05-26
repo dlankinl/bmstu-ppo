@@ -7,8 +7,9 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import 'primevue/resources/primevue.min.css'  
 import PrimeVue from 'primevue/config';
 import { FontAwesomeIcon } from './plugins/font-awesome'
-import 'primevue/resources/themes/lara-light-green/theme.css';
+import "primevue/resources/themes/aura-light-green/theme.css";
 import 'primeicons/primeicons.css';
+import "primeflex/primeflex.css";
 
 const app = createApp(App)
   .use(router)

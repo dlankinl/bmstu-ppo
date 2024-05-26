@@ -16,7 +16,7 @@ type Company struct {
 type ICompanyRepository interface {
 	Create(context.Context, *Company) error
 	GetById(context.Context, uuid.UUID) (*Company, error)
-	GetByOwnerId(context.Context, uuid.UUID, int, bool) ([]*Company, error)
+	GetByOwnerId(context.Context, uuid.UUID, int, bool) ([]*Company, int, error)
 	GetAll(context.Context, int) ([]*Company, error)
 	Update(context.Context, *Company) error
 	DeleteById(context.Context, uuid.UUID) error
@@ -25,7 +25,7 @@ type ICompanyRepository interface {
 type ICompanyService interface {
 	Create(context.Context, *Company) error
 	GetById(context.Context, uuid.UUID) (*Company, error)
-	GetByOwnerId(context.Context, uuid.UUID, int, bool) ([]*Company, error)
+	GetByOwnerId(context.Context, uuid.UUID, int, bool) ([]*Company, int, error)
 	GetAll(context.Context, int) ([]*Company, error)
 	Update(context.Context, *Company) error
 	DeleteById(context.Context, uuid.UUID) error

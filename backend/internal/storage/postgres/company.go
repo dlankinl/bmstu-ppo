@@ -61,7 +61,7 @@ func (r *CompanyRepository) GetById(ctx context.Context, id uuid.UUID) (company 
 	return company, nil
 }
 
-func (r *CompanyRepository) GetByOwnerId(ctx context.Context, id uuid.UUID, page int, isPaginated bool) (companies []*domain.Company, err error) {
+func (r *CompanyRepository) GetByOwnerId(ctx context.Context, id uuid.UUID, page int, isPaginated bool) (companies []*domain.Company, numPages int, err error) {
 	query :=
 		`select 
     		id, 
@@ -88,7 +88,7 @@ func (r *CompanyRepository) GetByOwnerId(ctx context.Context, id uuid.UUID, page
 		)
 	}
 	if err != nil {
-		return nil, fmt.Errorf("получение компаний: %w", err)
+		return nil, 0, fmt.Errorf("получение компаний: %w", err)
 	}
 
 	companies = make([]*domain.Company, 0)
@@ -104,13 +104,28 @@ func (r *CompanyRepository) GetByOwnerId(ctx context.Context, id uuid.UUID, page
 		tmp.OwnerID = id
 
 		if err != nil {
-			return nil, fmt.Errorf("сканирование полученных строк: %w", err)
+			return nil, 0, fmt.Errorf("сканирование полученных строк: %w", err)
 		}
 
 		companies = append(companies, tmp)
 	}
 
-	return companies, nil
+	var numRecords int
+	err = r.db.QueryRow(
+		ctx,
+		`select count(*) from ppo.companies where owner_id = $1`,
+		id,
+	).Scan(&numRecords)
+	if err != nil {
+		return nil, 0, fmt.Errorf("получение списка компаний предпринимателя: %w", err)
+	}
+
+	numPages = numRecords / config.PageSize
+	if numRecords%config.PageSize != 0 {
+		numPages++
+	}
+
+	return companies, numPages, nil
 }
 
 func (r *CompanyRepository) Update(ctx context.Context, company *domain.Company) (err error) {

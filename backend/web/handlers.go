@@ -545,20 +545,8 @@ func GetContact(app *app.App) http.HandlerFunc {
 
 func ListEntrepreneurContacts(app *app.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		page := r.URL.Query().Get("page")
-		if page == "" {
-			errorResponse(w, fmt.Errorf("empty page number").Error(), http.StatusBadRequest)
-			return
-		}
-
-		pageInt, err := strconv.Atoi(page)
-		if err != nil {
-			errorResponse(w, fmt.Errorf("converting page to int: %w", err).Error(), http.StatusBadRequest)
-			return
-		}
-
 		entId := r.URL.Query().Get("entrepreneur-id")
-		if page == "" {
+		if entId == "" {
 			errorResponse(w, fmt.Errorf("empty entrepreneur id").Error(), http.StatusBadRequest)
 			return
 		}
@@ -569,7 +557,7 @@ func ListEntrepreneurContacts(app *app.App) http.HandlerFunc {
 			return
 		}
 
-		contacts, err := app.ConSvc.GetByOwnerId(r.Context(), entUuid, pageInt, true)
+		contacts, err := app.ConSvc.GetByOwnerId(r.Context(), entUuid)
 		if err != nil {
 			errorResponse(w, fmt.Errorf("getting contacts: %w", err).Error(), http.StatusInternalServerError)
 			return
@@ -932,7 +920,7 @@ func ListEntrepreneurCompanies(app *app.App) http.HandlerFunc {
 			return
 		}
 
-		companies, err := app.CompSvc.GetByOwnerId(r.Context(), entUuid, pageInt, true)
+		companies, numPages, err := app.CompSvc.GetByOwnerId(r.Context(), entUuid, pageInt, true)
 		if err != nil {
 			errorResponse(w, fmt.Errorf("getting companies: %w", err).Error(), http.StatusInternalServerError)
 			return
@@ -943,7 +931,7 @@ func ListEntrepreneurCompanies(app *app.App) http.HandlerFunc {
 			companiesTransport[i] = toCompanyTransport(company)
 		}
 
-		successResponse(w, http.StatusOK, map[string]interface{}{"entrepreneur_id": entId, "companies": companiesTransport})
+		successResponse(w, http.StatusOK, map[string]interface{}{"entrepreneur_id": entId, "companies": companiesTransport, "num_pages": numPages})
 	}
 }
 
@@ -1347,5 +1335,38 @@ func CalculateRating(app *app.App) http.HandlerFunc {
 		}
 
 		successResponse(w, http.StatusOK, map[string]float32{"rating": rating})
+	}
+}
+
+func GetEntrepreneurFinancials(app *app.App) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id := r.URL.Query().Get("entrepreneur-id")
+		fmt.Println("ID: ", id)
+		if id == "" {
+			errorResponse(w, fmt.Errorf("empty entrepreneur id").Error(), http.StatusBadRequest)
+			return
+		}
+
+		idUuid, err := uuid.Parse(id)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("converting id to uuid: %w", err).Error(), http.StatusBadRequest)
+			return
+		}
+
+		prevYear := time.Now().AddDate(-1, 0, 0).Year()
+		period := &domain.Period{
+			StartYear:    prevYear,
+			EndYear:      prevYear,
+			StartQuarter: 1,
+			EndQuarter:   4,
+		}
+
+		rep, err := app.Interactor.GetUserFinancialReport(r.Context(), idUuid, period)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("getting entrepreneur financial report: %w", err).Error(), http.StatusInternalServerError)
+			return
+		}
+
+		successResponse(w, http.StatusOK, map[string]float32{"revenue": rep.Revenue(), "costs": rep.Costs(), "profit": rep.Profit()})
 	}
 }

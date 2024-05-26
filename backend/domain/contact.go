@@ -15,7 +15,7 @@ type Contact struct {
 type IContactsRepository interface {
 	Create(context.Context, *Contact) error
 	GetById(context.Context, uuid.UUID) (*Contact, error)
-	GetByOwnerId(context.Context, uuid.UUID, int, bool) ([]*Contact, error)
+	GetByOwnerId(context.Context, uuid.UUID) ([]*Contact, error)
 	Update(context.Context, *Contact) error
 	DeleteById(context.Context, uuid.UUID) error
 }
@@ -23,7 +23,7 @@ type IContactsRepository interface {
 type IContactsService interface {
 	Create(context.Context, *Contact) error
 	GetById(context.Context, uuid.UUID) (*Contact, error)
-	GetByOwnerId(context.Context, uuid.UUID, int, bool) ([]*Contact, error)
+	GetByOwnerId(context.Context, uuid.UUID) ([]*Contact, error)
 	Update(context.Context, *Contact) error
 	DeleteById(context.Context, uuid.UUID) error
 }

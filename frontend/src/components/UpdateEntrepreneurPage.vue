@@ -1,5 +1,6 @@
 <template>
   <div class="card flex flex-column md:flex-row gap-3">
+  <Message v-if="message" :severity="message.severity" :life="3000">{{ message.content }}</Message>
   <InputGroup>
     <InputGroupAddon>
       <i class="pi pi-user"></i>
@@ -41,6 +42,7 @@ import Dropdown from 'primevue/dropdown';
 import Calendar from 'primevue/calendar';
 import Button from 'primevue/button';
 import UserModel from '../models/UserModel.js'
+import Message from 'primevue/message';
 import { ref } from 'vue';
 
 export default {
@@ -51,7 +53,8 @@ export default {
     InputGroupAddon,
     InputText,
     Dropdown,
-    Calendar
+    Calendar,
+    Message
   },
   setup() {
     const fullName = ref('');
@@ -60,13 +63,15 @@ export default {
     const selectedDate = ref(null);
     const genders = ref(['мужской', 'женский']);
     const username = "";
+    const message = ref(null);
 
     return {
       fullName,
       city,
       selectedGender,
       selectedDate,
-      genders
+      genders,
+      message
     };
   },
   created() {
@@ -93,9 +98,11 @@ export default {
 
       EntrepreneurService.updateEntrepreneur(this.$route.params.id, user)
       .then(response => {
-        console.log(response.status)
+        this.message = { severity: 'success', content: 'Данные успешно обновлены' }
+        // console.log(response.status)
       })
       .catch(error => {
+        this.message = { severity: 'error', content: `Произошла ошибка при обновлении данных: ${error.response.data.error}` }
         console.error(error)
       })
     }

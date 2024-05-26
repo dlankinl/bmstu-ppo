@@ -53,13 +53,13 @@ func (s *Service) GetById(ctx context.Context, id uuid.UUID) (company *domain.Co
 	return company, nil
 }
 
-func (s *Service) GetByOwnerId(ctx context.Context, id uuid.UUID, page int, isPaginated bool) (companies []*domain.Company, err error) {
-	companies, err = s.companyRepo.GetByOwnerId(ctx, id, page, isPaginated)
+func (s *Service) GetByOwnerId(ctx context.Context, id uuid.UUID, page int, isPaginated bool) (companies []*domain.Company, numPages int, err error) {
+	companies, numPages, err = s.companyRepo.GetByOwnerId(ctx, id, page, isPaginated)
 	if err != nil {
-		return nil, fmt.Errorf("получение списка компаний по id владельца: %w", err)
+		return nil, 0, fmt.Errorf("получение списка компаний по id владельца: %w", err)
 	}
 
-	return companies, nil
+	return companies, numPages, nil
 }
 
 func (s *Service) GetAll(ctx context.Context, page int) (companies []*domain.Company, err error) {

@@ -165,7 +165,6 @@ func (t *TUI) Run() (err error) {
 	reader := bufio.NewReader(os.Stdin)
 	_ = reader
 	for {
-		fmt.Println(authPrompt)
 		_, err = fmt.Scanf("%d", &choice)
 		if err != nil {
 			fmt.Println("ошибка ввода: %w", err)

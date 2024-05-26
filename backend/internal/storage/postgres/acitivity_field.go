@@ -3,10 +3,11 @@ package postgres
 import (
 	"context"
 	"fmt"
-	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"ppo/domain"
 	"ppo/internal/config"
+
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type ActivityFieldRepository struct {
@@ -61,7 +62,6 @@ func (r *ActivityFieldRepository) Update(ctx context.Context, data *domain.Activ
 			    cost = $3
 			where id = $4`
 
-	fmt.Println("HERE", data.ID, data.Name, data.Description, data.Cost)
 	_, err = r.db.Exec(
 		ctx,
 		query,
