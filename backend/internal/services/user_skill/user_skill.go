@@ -3,8 +3,9 @@ package user_skill
 import (
 	"context"
 	"fmt"
-	"github.com/google/uuid"
 	"ppo/domain"
+
+	"github.com/google/uuid"
 )
 
 type Service struct {
@@ -59,7 +60,7 @@ func (s *Service) GetSkillsForUser(ctx context.Context, userId uuid.UUID, page i
 		skills[i] = skill
 	}
 
-	return skills, 0, nil
+	return skills, numPages, nil
 }
 
 func (s *Service) GetUsersForSkill(ctx context.Context, skillId uuid.UUID, page int) (users []*domain.User, err error) {

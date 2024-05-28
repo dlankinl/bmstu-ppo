@@ -3,10 +3,11 @@ package postgres
 import (
 	"context"
 	"fmt"
-	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"ppo/domain"
 	"ppo/internal/config"
+
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type SkillRepository struct {
@@ -56,7 +57,7 @@ func (r *SkillRepository) GetById(ctx context.Context, id uuid.UUID) (skill *dom
 	return skill, nil
 }
 
-func (r *SkillRepository) GetAll(ctx context.Context, page int) (skills []*domain.Skill, err error) {
+func (r *SkillRepository) GetAll(ctx context.Context, page int) (skills []*domain.Skill, numPages int, err error) {
 	query := `select id, name, description from ppo.skills offset $1 limit $2`
 
 	rows, err := r.db.Query(
@@ -66,7 +67,7 @@ func (r *SkillRepository) GetAll(ctx context.Context, page int) (skills []*domai
 		config.PageSize,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("получение навыков: %w", err)
+		return nil, 0, fmt.Errorf("получение навыков: %w", err)
 	}
 
 	skills = make([]*domain.Skill, 0)
@@ -80,12 +81,26 @@ func (r *SkillRepository) GetAll(ctx context.Context, page int) (skills []*domai
 		)
 
 		if err != nil {
-			return nil, fmt.Errorf("сканирование полученных строк: %w", err)
+			return nil, 0, fmt.Errorf("сканирование полученных строк: %w", err)
 		}
 		skills = append(skills, tmp)
 	}
 
-	return skills, nil
+	var numRecords int
+	err = r.db.QueryRow(
+		ctx,
+		`select count(*) from ppo.skills`,
+	).Scan(&numRecords)
+	if err != nil {
+		return nil, 0, fmt.Errorf("получение количества навыков предпринимателя: %w", err)
+	}
+
+	numPages = numRecords / config.PageSize
+	if numRecords%config.PageSize != 0 {
+		numPages++
+	}
+
+	return skills, numPages, nil
 }
 
 func (r *SkillRepository) Update(ctx context.Context, skill *domain.Skill) (err error) {

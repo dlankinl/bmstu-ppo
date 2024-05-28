@@ -11,6 +11,16 @@ import CompaniesPage from './components/CompaniesPage.vue';
 import ProfilePage from "./components/ProfilePage.vue";
 import CompanyCreatePage from './components/CompanyCreatePage.vue';
 import UserSkillsPage from './components/UserSkillsPage.vue';
+import SkillsPage from './components/SkillsPage.vue';
+import UpdateSkillPage from './components/UpdateSkillPage.vue';
+import CreateSkillPage from "./components/CreateSkillPage.vue";
+import NotFound from "./components/NotFound.vue";
+import ActivityFieldsPage from "./components/ActivityFieldsPage.vue";
+import CreateActivityFieldPage from './components/CreateActivityFieldPage.vue';
+import UpdateActivityFieldPage from './components/UpdateActivityFieldPage.vue';
+import CreateFinReportPage from './components/CreateFinReportPage.vue';
+import UpdateFinReportPage from './components/UpdateFinReportPage.vue';
+import CompanyFinancialsPage from './components/CompanyFinancialsPage.vue';
 
 const routes = [
   {
@@ -80,6 +90,64 @@ const routes = [
     path: '/entrepreneurs/:id/skills',
     name: 'UserSkillsPage',
     component: UserSkillsPage,
+    props: true
+  },
+  {
+    path: '/skills',
+    name: 'SkillsPage',
+    component: SkillsPage,
+    props: true
+  },
+  {
+    path: '/skills/:id/update',
+    name: 'UpdateSkillPage',
+    component: UpdateSkillPage,
+    props: true
+  },
+  {
+    path: '/skills/create',
+    name: 'CreateSkillPage',
+    component: CreateSkillPage,
+    props: true
+  },
+  {
+    path: '/:notFound',
+    component: NotFound
+  },
+  {
+    path: '/activity-fields',
+    name: 'ActivityFieldsPage',
+    component: ActivityFieldsPage,
+    props: true
+  },
+  {
+    path: '/activity-fields/create',
+    name: 'CreateActivityFieldPage',
+    component: CreateActivityFieldPage,
+    props: true
+  },
+  {
+    path: '/activity-fields/:id/update',
+    name: 'UpdateActivityFieldPage',
+    component: UpdateActivityFieldPage,
+    props: true
+  },
+  {
+    path: '/companies/:id/financials/create',
+    name: 'CreateFinReportPage',
+    component: CreateFinReportPage,
+    props: true
+  },
+  {
+    path: '/companies/:id/financials',
+    name: 'CompanyFinancialsPage',
+    component: CompanyFinancialsPage,
+    props: true
+  },
+  {
+    path: '/financials/:id',
+    name: 'UpdateFinReportPage',
+    component: UpdateFinReportPage,
     props: true
   }
   // {

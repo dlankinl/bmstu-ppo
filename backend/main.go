@@ -64,7 +64,8 @@ func main() {
 
 	mux.Route("/skills", func(r chi.Router) {
 		r.Get("/{id}", web.GetSkill(a))
-		r.Get("/", web.ListEntrepreneurSkills(a))
+		// r.Get("/", web.ListEntrepreneurSkills(a))
+		r.Get("/", web.ListSkills(a))
 
 		r.Group(func(r chi.Router) {
 			r.Use(jwtauth.Verifier(tokenAuth))

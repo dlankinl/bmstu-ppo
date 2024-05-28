@@ -7,8 +7,8 @@ class UserSkillsService {
     return axios.post(
       API_URL + `/create`,
       {
-        user_id: userSkill.user_id,
-        skill_id: userSkill.skill_id
+        user_id: userSkill.userId,
+        skill_id: userSkill.skillId
       },
       {
         headers: {

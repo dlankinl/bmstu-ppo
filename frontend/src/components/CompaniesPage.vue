@@ -27,6 +27,7 @@
                       <template v-if="item==null"></template>
                       <template v-else="item.name">
                         {{ item.name }} <Chip :label="`${item.activity_field.name}`" />
+                        <RouterLink :to="`/companies/${item.id}`"><Button icon="pi pi-info-circle" class="p-button-rounded p-button-secondary p-button-text"></Button></RouterLink>
                         <template v-if="entId==visitorId">
                           <Button icon="pi pi-trash" class="p-button-rounded p-button-secondary p-button-text" @click="deleteCompany(item)"></Button>
                           <RouterLink :to="`/companies/${item.id}/update`"><Button icon="pi pi-wrench" class="p-button-rounded p-button-secondary p-button-text"></Button></RouterLink>
@@ -105,7 +106,9 @@ export default {
     }
   },
   created() {
-    this.visitorId = Utils.getUserIdJWT();
+    if (Utils.isAuth()) {
+      this.visitorId = Utils.getUserIdJWT();
+    }
     this.fetchCompanies();
   },
   methods: {

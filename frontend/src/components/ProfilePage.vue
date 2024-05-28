@@ -21,6 +21,12 @@
       <RouterLink :to="`/entrepreneurs/${entrepreneur.id}/companies`"><Button label="Компании" icon="pi pi-building"></Button></RouterLink>
     </ButtonGroup>
   </div>
+  <div v-if="role=='admin'">
+    <ButtonGroup>
+      <RouterLink :to="`/activity-fields`"><Button label="Все сферы деятельности" icon="pi pi-address-book"></Button></RouterLink>
+      <RouterLink :to="`/skills`"><Button label="Все навыки" icon="pi pi-bolt"></Button></RouterLink>
+    </ButtonGroup>
+  </div>
 </template>
 
 <script>
@@ -40,10 +46,14 @@ export default {
   data() {
     return {
       entrepreneur: {},
-      isAuthValue: null
+      isAuthValue: null,
+      role: 'guest'
     }
   },
   created() {
+    if (Utils.isAuth()) {
+      this.role = Utils.getUserRoleJWT();
+    }
     this.fetchEntrepreneurDetails()
   },
   methods: {

@@ -9,6 +9,10 @@ class SkillsService {
     )
   }
 
+  getSkills(page) {
+    return axios.get(API_URL + `?page=${page}`)
+  }
+
   createSkill(skill) {
     return axios.post(
       API_URL + `/create`,
@@ -35,11 +39,11 @@ class SkillsService {
     )
   }
 
-  updateSkill(id, contact) {
+  updateSkill(id, skill) {
     return axios.patch(
       API_URL + `/${id}/update`,
       {
-        name: contact.name,
+        name: skill.name,
         description: skill.description
       },
       {

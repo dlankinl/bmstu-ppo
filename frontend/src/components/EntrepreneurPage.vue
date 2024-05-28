@@ -13,16 +13,6 @@
       <template v-else>
           <h1>Информация о данном предпринимателе не заполнена.</h1>
       </template>
-      <template v-if="role==='admin'">
-        <RouterLink :to="`/entrepreneurs/${entrepreneur.id}/update`">
-        <Button 
-          icon="pi pi-cog"
-          label="Обновить информацию"
-          class="flex-auto md:flex-initial white-space-nowrap"
-        >
-        </Button>
-        </RouterLink>
-      </template>
     </div>
     <div class="contacts">
         <Accordion :multiple="true">
@@ -43,7 +33,9 @@
                 <div v-else>
                   <p>Выручка: {{ financials.revenue }}</p>
                   <p>Расходы: {{ financials.costs }}</p>
-                  <p>Прибыль: {{ financials.profit }}</p>   
+                  <p>Прибыль: {{ financials.profit }}</p>
+                  <p>Налоги: {{ financials.taxes }}</p>
+                  <p>Налоговая нагрузка: {{ financials.taxLoad }}</p>
                 </div>               
               </p>
           </AccordionTab>
@@ -65,6 +57,16 @@
             >
             </Button>
           </RouterLink>
+          <template v-if="role=='admin'">
+            <RouterLink :to="`/entrepreneurs/${entrepreneur.id}/update`">
+              <Button 
+                icon="pi pi-cog"
+                label="Обновить информацию"
+                class="flex-auto md:flex-initial white-space-nowrap"
+              >
+              </Button>
+            </RouterLink>
+          </template>
         </ButtonGroup>
       </div>
   </template>
@@ -72,9 +74,7 @@
   <script>
   import EntrepreneurService from '../services/entrepreneur.service'
   import ContactsService from '../services/contacts.service';
-  import FinancialsService from '../services/financials.service';
-  import CompaniesService from '../services/companies.service';
-  import ActivityFieldsService from '../services/activity-fields.service';
+  import FinReportService from '../services/fin-report.service';
   import DataTable from 'primevue/datatable';
   import Column from 'primevue/column';
   import Button from 'primevue/button';
@@ -95,21 +95,23 @@
       return {
         entrepreneur: {},
         contacts: {},
-        financials: {"revenue": 0.0, "profit": 0.0, "costs": 0.0},
+        financials: {"revenue": 0.0, "profit": 0.0, "costs": 0.0, "taxes": 0.0, "taxLoad": 0.0},
         companies: {},
         currentPage: 1,
         rows: 3,
         totalPages: 0,
         isAuthValue: null,
-        role: null
+        role: 'guest'
       }
     },
     created() {
-      this.isAuth()
+      this.isAuthValue = this.isAuth()
       this.fetchEntrepreneurDetails()
       this.fetchContacts()
       this.fetchFinancials()
-      this.role = Utils.getUserRoleJWT();
+      if (this.isAuthValue) {
+        this.role = Utils.getUserRoleJWT();
+      }
     },
     methods: {
       fetchEntrepreneurDetails() {
@@ -159,8 +161,9 @@
       fetchFinancials() {
         const id = this.$route.params.id;
         if (this.isAuthValue) {
-          FinancialsService.getLastYearReport(id)
+          FinReportService.getLastYearReport(id)
             .then(response => {
+              console.log(response.data.data)
               this.financials = response.data.data;
             })
             .catch(error => {

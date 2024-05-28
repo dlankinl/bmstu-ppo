@@ -3,8 +3,9 @@ package skill
 import (
 	"context"
 	"fmt"
-	"github.com/google/uuid"
 	"ppo/domain"
+
+	"github.com/google/uuid"
 )
 
 type Service struct {
@@ -43,13 +44,13 @@ func (s *Service) GetById(ctx context.Context, id uuid.UUID) (skill *domain.Skil
 	return skill, nil
 }
 
-func (s *Service) GetAll(ctx context.Context, page int) (skills []*domain.Skill, err error) {
-	skills, err = s.skillRepo.GetAll(ctx, page)
+func (s *Service) GetAll(ctx context.Context, page int) (skills []*domain.Skill, numPages int, err error) {
+	skills, numPages, err = s.skillRepo.GetAll(ctx, page)
 	if err != nil {
-		return nil, fmt.Errorf("получение списка всех навыков: %w", err)
+		return nil, 0, fmt.Errorf("получение списка всех навыков: %w", err)
 	}
 
-	return skills, nil
+	return skills, numPages, nil
 }
 
 func (s *Service) Update(ctx context.Context, skill *domain.Skill) (err error) {

@@ -2,7 +2,7 @@
     <div class="card">
       <Message v-if="message" :severity="message.severity" :life="3000">{{ message.content }}</Message>
       <template v-if="entId==visitorId">
-        <RouterLink :to="`/user-skills/create`"><Button label="Добавить" icon="pi pi-plus-circle"></Button></RouterLink>
+        <RouterLink :to="`/skills`"><Button label="Добавить" icon="pi pi-plus-circle"></Button></RouterLink>
       </template>
       <DataView :value="skills" paginator :rows="rows" :totalRecords="totalPages*rows" @page="onPageChange">
         <template #list="slotProps">
@@ -58,29 +58,12 @@
     </div>
   </template>
   
-  <style scoped>
-  .rating-container {
-    position: absolute;
-    top: 10px; /* Adjust the top position as needed */
-    right: 10px; /* Adjust the right position as needed */
-    background-color: #fff; /* Set the background color */
-    padding: 5px 10px; /* Add some padding */
-    border-radius: 5px; /* Add border-radius for a rounded corner */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a box-shadow for a subtle elevation */
-    display: flex;
-    align-items: center;
-    gap: 5px; /* Add some gap between the icon and rating value */
-  }
-  </style>
-  
-    
+
   <script>
   import UserSkillsService from '../services/user-skills.service';
-  import SkillsService from '../services/skills.service'
   import Utils from '../services/auth-header';
   import Button from 'primevue/button';
   import DataView from 'primevue/dataview';
-  import Chip from 'primevue/chip';
   import Message from 'primevue/message';
   
   export default {
@@ -88,7 +71,6 @@
     components: {
       Button,
       DataView,
-      Chip,
       Message
     },
     data() {
@@ -104,7 +86,9 @@
       }
     },
     created() {
-      this.visitorId = Utils.getUserIdJWT();
+      if (Utils.isAuth()) {
+        this.visitorId = Utils.getUserIdJWT();
+      }
       this.fetchSkills();
     },
     methods: {
@@ -121,7 +105,7 @@
       },
       onPageChange(event) {
         this.currentPage = event.page + 1;
-        this.fetchCompanies();
+        this.fetchSkills();
       },
       deleteSkill(skillId) {
         UserSkillsService.deleteSkill(skillId)

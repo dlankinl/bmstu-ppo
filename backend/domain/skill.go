@@ -2,6 +2,7 @@ package domain
 
 import (
 	"context"
+
 	"github.com/google/uuid"
 )
 
@@ -14,7 +15,7 @@ type Skill struct {
 type ISkillRepository interface {
 	Create(context.Context, *Skill) error
 	GetById(context.Context, uuid.UUID) (*Skill, error)
-	GetAll(context.Context, int) ([]*Skill, error)
+	GetAll(context.Context, int) ([]*Skill, int, error)
 	Update(context.Context, *Skill) error
 	DeleteById(context.Context, uuid.UUID) error
 }
@@ -22,7 +23,7 @@ type ISkillRepository interface {
 type ISkillService interface {
 	Create(context.Context, *Skill) error
 	GetById(context.Context, uuid.UUID) (*Skill, error)
-	GetAll(context.Context, int) ([]*Skill, error)
+	GetAll(context.Context, int) ([]*Skill, int, error)
 	Update(context.Context, *Skill) error
 	DeleteById(context.Context, uuid.UUID) error
 }

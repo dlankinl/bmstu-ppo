@@ -18,7 +18,7 @@
 </template>
   
   <script>
-  import FinancialsService from '../services/financials.service';
+  import FinReportService from '../services/financials.service';
   import CompaniesService from '../services/companies.service';
   import ActivityFieldsService from '../services/activity-fields.service';
   import DataTable from 'primevue/datatable';

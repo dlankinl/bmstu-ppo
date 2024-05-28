@@ -363,6 +363,37 @@ func UpdateSkill(app *app.App) http.HandlerFunc {
 	}
 }
 
+func ListSkills(app *app.App) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		prompt := "получение списка навыков"
+
+		page := r.URL.Query().Get("page")
+		if page == "" {
+			errorResponse(w, fmt.Errorf("%s: пустой номер страницы", prompt).Error(), http.StatusBadRequest)
+			return
+		}
+
+		pageInt, err := strconv.Atoi(page)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("%s: преобразование номера страницы к int: %w", prompt, err).Error(), http.StatusBadRequest)
+			return
+		}
+
+		skills, numPages, err := app.SkillSvc.GetAll(r.Context(), pageInt)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("%s: %w", prompt, err).Error(), http.StatusInternalServerError)
+			return
+		}
+
+		skillsTransport := make([]Skill, len(skills))
+		for i, skill := range skills {
+			skillsTransport[i] = toSkillTransport(skill)
+		}
+
+		successResponse(w, http.StatusOK, map[string]interface{}{"num_pages": numPages, "skills": skillsTransport})
+	}
+}
+
 func GetSkill(app *app.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		prompt := "получение навыка"
@@ -1276,17 +1307,17 @@ func GetFinReport(app *app.App) http.HandlerFunc {
 
 func ListCompanyReports(app *app.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		//page := r.URL.Query().Get("page")
-		//if page == "" {
-		//	errorResponse(w, fmt.Errorf("empty page number").Error(), http.StatusBadRequest)
-		//	return
-		//}
-		//
-		//pageInt, err := strconv.Atoi(page)
-		//if err != nil {
-		//	errorResponse(w, fmt.Errorf("converting page to int: %w", err).Error(), http.StatusBadRequest)
-		//	return
-		//}
+		// 	page := r.URL.Query().Get("page")
+		// 	if page == "" {
+		// 		errorResponse(w, fmt.Errorf("empty page number").Error(), http.StatusBadRequest)
+		// 		return
+		// 	}
+
+		// 	pageInt, err := strconv.Atoi(page)
+		// 	if err != nil {
+		// 		errorResponse(w, fmt.Errorf("converting page to int: %w", err).Error(), http.StatusBadRequest)
+		// 		return
+		// 	}
 
 		period, err := parsePeriodFromURL(r)
 		if err != nil {
@@ -1387,6 +1418,12 @@ func GetEntrepreneurFinancials(app *app.App) http.HandlerFunc {
 			return
 		}
 
-		successResponse(w, http.StatusOK, map[string]float32{"revenue": rep.Revenue(), "costs": rep.Costs(), "profit": rep.Profit()})
+		successResponse(w, http.StatusOK, map[string]float32{
+			"revenue": rep.Revenue(),
+			"costs":   rep.Costs(),
+			"profit":  rep.Profit(),
+			"taxes":   rep.Taxes,
+			"taxLoad": rep.TaxLoad,
+		})
 	}
 }
