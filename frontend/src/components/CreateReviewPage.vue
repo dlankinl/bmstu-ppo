@@ -66,13 +66,11 @@ export default {
     };
   },
   created() {
-    console.log("HERE")
     if (Utils.isAuth()) {
       this.role = Utils.getUserRoleJWT();
       this.visitorId = Utils.getUserIdJWT();
     }
     this.entId = this.$route.params.id;
-    console.log(this.entId, this.visitorId)
   },
   methods: {
     createReview() {

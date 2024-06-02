@@ -25,6 +25,7 @@ import CreateContactPage from './components/CreateContactPage.vue';
 import UpdateContactPage from './components/UpdateContactPage.vue';
 import ReviewPage from "./components/ReviewPage.vue";
 import CreateReviewPage from './components/CreateReviewPage.vue';
+import MyReviewsPage from './components/MyReviewsPage.vue';
 
 const routes = [
   {
@@ -174,6 +175,12 @@ const routes = [
     path: '/entrepreneurs/:id/reviews/create',
     name: 'CreateReviewPage',
     component: CreateReviewPage,
+    props: true
+  },
+  {
+    path: '/profile/reviews',
+    name: 'MyReviewsPage',
+    component: MyReviewsPage,
     props: true
   }
 ];

@@ -1,9 +1,6 @@
 <template>
   <div class="card">
     <Message v-if="message" :severity="message.severity" :life="3000">{{ message.content }}</Message>
-    <template v-if="entId!=visitorId && role!='admin'">
-      <RouterLink :to="`/entrepreneurs/${entId}/reviews/create`"><Button label="Добавить" icon="pi pi-plus-circle"></Button></RouterLink>
-    </template>
     <DataView :value="reviews" paginator :rows="rows" :totalRecords="totalPages*rows" @page="onPageChange">
       <template #list="slotProps">
         <div class="grid grid-nogutter">
@@ -26,16 +23,13 @@
                     <div class="text-lg font-medium text-900 mt-2">
                       <template v-if="item==null"></template>
                       <template v-else="item">
-                        Автор: <a :href="`/entrepreneurs/${item.reviewer_id}`">{{ item.author.full_name }}</a>
+                        Рецензируемый: <a :href="`/entrepreneurs/${item.entrepreneur.id}`">{{ item.entrepreneur.full_name }}</a>
                         <div class="flex flex-column">
                           <p>Понравилось: {{ item.pros }}</p>
                           <p>Не понравилось: {{ item.cons }}</p>
                           <p v-if="item.description">Описание: {{ item.description }}</p>
                           <Rating v-model="item.rating" readonly :cancel="false" />
                         </div>
-                        <template v-if="role=='admin'">
-                          <Button icon="pi pi-trash" class="p-button-rounded p-button-secondary p-button-text" @click="deleteReview(item.id)"></Button>
-                        </template>
                       </template>
                     </div>
                   </div>
@@ -91,7 +85,7 @@ export default {
   },
   methods: {
     fetchReviews() {
-      ReviewsService.getEntrepreneurReviews(this.$route.params.id, this.currentPage)
+      ReviewsService.getAuthorReviews(this.currentPage)
         .then(response => {
           this.reviews = [...Array((this.currentPage - 1) * 3).fill(null), ...response.data.data.reviews];
           this.totalPages = response.data.data.num_pages;
@@ -99,8 +93,8 @@ export default {
             this.reviews
               .filter(rev => rev !== null)
               .map(rev =>
-                EntrepreneurService.getEntrepreneurDetails(rev.reviewer_id).then(response => {
-                  rev.author = response.data.data.entrepreneur;
+                EntrepreneurService.getEntrepreneurDetails(rev.target_id).then(response => {
+                  rev.entrepreneur = response.data.data.entrepreneur;
                 })
               )
             )
@@ -112,17 +106,6 @@ export default {
     onPageChange(event) {
       this.currentPage = event.page + 1;
       this.fetchReviews();
-    },
-    deleteReview(id) {
-      ReviewsService.deleteReview(id)
-        .then(response => {
-          this.message = { severity: 'success', content: 'Отзыв удален.' };
-          this.fetchReviews();
-        })
-        .catch(error => {
-          this.message = { severity: 'error', content: `Произошла ошибка при удалении отзыва: ${error.response.data.error}` };
-          console.error("Ошибка при удалении отзыва:", error);
-        })
     }
   }
 }

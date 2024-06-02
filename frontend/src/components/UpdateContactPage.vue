@@ -66,7 +66,6 @@ export default {
     },
     updateContact() {
       const contact = new ContactModel(this.$route.params.id, this.name, this.value);
-      console.log(contact);
 
       ContactsService.updateContact(this.$route.params.id, contact)
         .then(response => {

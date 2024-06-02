@@ -19,6 +19,8 @@
       <RouterLink :to="`/entrepreneurs/${entrepreneur.id}/contacts`"><Button label="Средства связи" icon="pi pi-address-book"></Button></RouterLink>
       <RouterLink :to="`/entrepreneurs/${entrepreneur.id}/skills`"><Button label="Навыки" icon="pi pi-bolt"></Button></RouterLink>
       <RouterLink :to="`/entrepreneurs/${entrepreneur.id}/companies`"><Button label="Компании" icon="pi pi-building"></Button></RouterLink>
+      <RouterLink :to="`/entrepreneurs/${entrepreneur.id}/reviews`"><Button label="Отзывы" icon="pi pi-star"></Button></RouterLink>     
+      <RouterLink :to="`/profile/reviews`"><Button label="Мои отзывы" icon="pi pi-star"></Button></RouterLink>            
     </ButtonGroup>
   </div>
   <div v-if="role=='admin'">
