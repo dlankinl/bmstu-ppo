@@ -1426,3 +1426,151 @@ func GetEntrepreneurFinancials(app *app.App) http.HandlerFunc {
 		})
 	}
 }
+
+func GetEntrepreneurReviews(app *app.App) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id := r.URL.Query().Get("entrepreneur-id")
+		if id == "" {
+			errorResponse(w, fmt.Errorf("empty entrepreneur id").Error(), http.StatusBadRequest)
+			return
+		}
+
+		entUuid, err := uuid.Parse(id)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("converting id to uuid: %w", err).Error(), http.StatusBadRequest)
+			return
+		}
+
+		page := r.URL.Query().Get("page")
+		if page == "" {
+			errorResponse(w, fmt.Errorf("empty page number").Error(), http.StatusBadRequest)
+			return
+		}
+
+		pageInt, err := strconv.Atoi(page)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("converting page to int: %w", err).Error(), http.StatusBadRequest)
+			return
+		}
+
+		revs, numPages, err := app.RevSvc.GetAllForTarget(r.Context(), entUuid, pageInt)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("getting reviews: %w", err).Error(), http.StatusBadRequest)
+			return
+		}
+
+		reviewsTransport := make([]Review, len(revs))
+		for i, rev := range revs {
+			reviewsTransport[i] = toReviewTransport(rev)
+		}
+
+		successResponse(w, http.StatusOK, map[string]interface{}{"entrepreneur_id": entUuid, "reviews": reviewsTransport, "num_pages": numPages})
+	}
+}
+
+func GetAuthorReviews(app *app.App) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		prompt := "получение собственных отзывов"
+
+		idStr, err := getStringClaimFromJWT(r.Context(), "sub")
+		if err != nil {
+			errorResponse(w, fmt.Errorf("%s: получение записей из JWT: %w", prompt, err).Error(), http.StatusBadRequest)
+			return
+		}
+
+		entUuid, err := uuid.Parse(idStr)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("%s: преобразование id к uuid: %w", prompt, err).Error(), http.StatusInternalServerError)
+			return
+		}
+
+		page := r.URL.Query().Get("page")
+		if page == "" {
+			errorResponse(w, fmt.Errorf("пустой номер страницы").Error(), http.StatusBadRequest)
+			return
+		}
+
+		pageInt, err := strconv.Atoi(page)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("преобразование страницы к int: %w", err).Error(), http.StatusBadRequest)
+			return
+		}
+
+		revs, numPages, err := app.RevSvc.GetAllForReviewer(r.Context(), entUuid, pageInt)
+
+		reviewsTransport := make([]Review, len(revs))
+		for i, rev := range revs {
+			reviewsTransport[i] = toReviewTransport(rev)
+		}
+
+		successResponse(w, http.StatusOK, map[string]interface{}{"entrepreneur_id": entUuid, "reviews": reviewsTransport, "num_pages": numPages})
+	}
+}
+
+func CreateReview(app *app.App) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		prompt := "создание отзыва"
+
+		idStr, err := getStringClaimFromJWT(r.Context(), "sub")
+		if err != nil {
+			errorResponse(w, fmt.Errorf("%s: получение записей из JWT: %w", prompt, err).Error(), http.StatusBadRequest)
+			return
+		}
+
+		idUuid, err := uuid.Parse(idStr)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("%s: преобразование id к uuid: %w", prompt, err).Error(), http.StatusInternalServerError)
+			return
+		}
+
+		var req Review
+		err = json.NewDecoder(r.Body).Decode(&req)
+		if err != nil {
+			errorResponse(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		rev := toReviewModel(&req)
+		rev.Reviewer = idUuid
+
+		err = app.RevSvc.Create(r.Context(), &rev)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("%s: %w", prompt, err).Error(), http.StatusBadRequest)
+			return
+		}
+
+		successResponse(w, http.StatusOK, nil)
+	}
+}
+
+func DeleteReview(app *app.App) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		prompt := "удаление отзыва"
+
+		id := chi.URLParam(r, "id")
+		if id == "" {
+			errorResponse(w, fmt.Errorf("%s: пустой id", prompt).Error(), http.StatusBadRequest)
+			return
+		}
+
+		idUuid, err := uuid.Parse(id)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("%s: преобразование id к uuid: %w", prompt, err).Error(), http.StatusBadRequest)
+			return
+		}
+
+		_, err = app.RevSvc.Get(r.Context(), idUuid)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("%s: %w", prompt, err).Error(), http.StatusBadRequest)
+			return
+		}
+
+		err = app.RevSvc.Delete(r.Context(), idUuid)
+		if err != nil {
+			errorResponse(w, fmt.Errorf("%s: %w", prompt, err).Error(), http.StatusInternalServerError)
+			return
+		}
+
+		successResponse(w, http.StatusOK, nil)
+	}
+}

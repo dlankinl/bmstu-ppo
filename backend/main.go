@@ -173,6 +173,27 @@ func main() {
 		})
 	})
 
+	mux.Route("/reviews", func(r chi.Router) {
+		r.Get("/", web.GetEntrepreneurReviews(a))
+
+		r.Group(func(r chi.Router) {
+			r.Use(jwtauth.Verifier(tokenAuth))
+			r.Use(jwtauth.Authenticator(tokenAuth))
+			r.Use(web.ValidateUserRoleJWT)
+
+			r.Get("/my", web.GetAuthorReviews(a))
+			r.Post("/create", web.CreateReview(a))
+		})
+
+		r.Group(func(r chi.Router) {
+			r.Use(jwtauth.Verifier(tokenAuth))
+			r.Use(jwtauth.Authenticator(tokenAuth))
+			r.Use(web.ValidateAdminRoleJWT)
+
+			r.Delete("/{id}/delete", web.DeleteReview(a))
+		})
+	})
+
 	mux.Post("/login", web.LoginHandler(a))
 	mux.Post("/signup", web.RegisterHandler(a))
 

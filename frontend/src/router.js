@@ -23,6 +23,8 @@ import CompanyFinancialsPage from './components/CompanyFinancialsPage.vue';
 import ContactsPage from "./components/ContactsPage.vue";
 import CreateContactPage from './components/CreateContactPage.vue';
 import UpdateContactPage from './components/UpdateContactPage.vue';
+import ReviewPage from "./components/ReviewPage.vue";
+import CreateReviewPage from './components/CreateReviewPage.vue';
 
 const routes = [
   {
@@ -160,6 +162,18 @@ const routes = [
     path: '/contacts/:id/update',
     name: 'UpdateContactPage',
     component: UpdateContactPage,
+    props: true
+  },
+  {
+    path: '/entrepreneurs/:id/reviews',
+    name: 'ReviewPage',
+    component: ReviewPage,
+    props: true
+  },
+  {
+    path: '/entrepreneurs/:id/reviews/create',
+    name: 'CreateReviewPage',
+    component: CreateReviewPage,
     props: true
   }
 ];

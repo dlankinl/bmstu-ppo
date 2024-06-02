@@ -57,6 +57,14 @@
             >
             </Button>
           </RouterLink>
+          <RouterLink :to="`/entrepreneurs/${entrepreneur.id}/reviews`">
+            <Button 
+              icon="pi pi-bookmark"
+              label="Отзывы"
+              class="flex-auto md:flex-initial white-space-nowrap"
+            >
+            </Button>
+          </RouterLink>
           <template v-if="role=='admin'">
             <RouterLink :to="`/entrepreneurs/${entrepreneur.id}/update`">
               <Button 

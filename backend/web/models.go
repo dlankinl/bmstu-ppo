@@ -1,9 +1,10 @@
 package web
 
 import (
-	"github.com/google/uuid"
 	"ppo/domain"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type User struct {
@@ -63,6 +64,16 @@ type Period struct {
 	StartQuarter int `json:"start_quarter"`
 	EndYear      int `json:"end_year"`
 	EndQuarter   int `json:"end_quarter"`
+}
+
+type Review struct {
+	ID          uuid.UUID `json:"id"`
+	Target      uuid.UUID `json:"target_id"`
+	Reviewer    uuid.UUID `json:"reviewer_id"`
+	Pros        string    `json:"pros"`
+	Cons        string    `json:"cons"`
+	Description string    `json:"description"`
+	Rating      int       `json:"rating"`
 }
 
 func toUserTransport(user *domain.User) User {
@@ -203,5 +214,29 @@ func toPeriodTransport(per *domain.Period) Period {
 		StartQuarter: per.StartQuarter,
 		EndYear:      per.EndYear,
 		EndQuarter:   per.EndQuarter,
+	}
+}
+
+func toReviewTransport(rev *domain.Review) Review {
+	return Review{
+		ID:          rev.ID,
+		Target:      rev.Target,
+		Reviewer:    rev.Reviewer,
+		Pros:        rev.Pros,
+		Cons:        rev.Cons,
+		Description: rev.Description,
+		Rating:      rev.Rating,
+	}
+}
+
+func toReviewModel(rev *Review) domain.Review {
+	return domain.Review{
+		ID:          rev.ID,
+		Target:      rev.Target,
+		Reviewer:    rev.Reviewer,
+		Pros:        rev.Pros,
+		Cons:        rev.Cons,
+		Description: rev.Description,
+		Rating:      rev.Rating,
 	}
 }

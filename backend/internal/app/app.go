@@ -1,7 +1,6 @@
 package app
 
 import (
-	"github.com/jackc/pgx/v5/pgxpool"
 	"ppo/domain"
 	"ppo/internal/config"
 	"ppo/internal/interactors/user_activity_field"
@@ -10,11 +9,14 @@ import (
 	"ppo/internal/services/company"
 	"ppo/internal/services/contact"
 	"ppo/internal/services/fin_report"
+	"ppo/internal/services/review"
 	"ppo/internal/services/skill"
 	"ppo/internal/services/user"
 	"ppo/internal/services/user_skill"
 	"ppo/internal/storage/postgres"
 	"ppo/pkg/base"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type App struct {
@@ -26,6 +28,7 @@ type App struct {
 	UserSkillSvc domain.IUserSkillService
 	ActFieldSvc  domain.IActivityFieldService
 	CompSvc      domain.ICompanyService
+	RevSvc       domain.IReviewService
 	Interactor   domain.IInteractor
 	Config       config.Config
 }
@@ -39,6 +42,7 @@ func NewApp(db *pgxpool.Pool, cfg *config.Config) *App {
 	userSkillRepo := postgres.NewUserSkillRepository(db)
 	actFieldRepo := postgres.NewActivityFieldRepository(db)
 	compRepo := postgres.NewCompanyRepository(db)
+	revRepo := postgres.NewReviewRepository(db)
 
 	crypto := base.NewHashCrypto()
 
@@ -50,6 +54,7 @@ func NewApp(db *pgxpool.Pool, cfg *config.Config) *App {
 	userSkillSvc := user_skill.NewService(userSkillRepo, userRepo, skillRepo)
 	actFieldSvc := activity_field.NewService(actFieldRepo, compRepo)
 	compSvc := company.NewService(compRepo, actFieldRepo)
+	revSvc := review.NewService(revRepo)
 	interactor := user_activity_field.NewInteractor(userSvc, actFieldSvc, compSvc, finSvc)
 
 	return &App{
@@ -61,6 +66,7 @@ func NewApp(db *pgxpool.Pool, cfg *config.Config) *App {
 		UserSkillSvc: userSkillSvc,
 		ActFieldSvc:  actFieldSvc,
 		CompSvc:      compSvc,
+		RevSvc:       revSvc,
 		Interactor:   interactor,
 		Config:       *cfg,
 	}

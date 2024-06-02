@@ -56,5 +56,15 @@ create table if not exists ppo.activity_fields(
     cost float4 not null
 );
 
+create table if not exists ppo.reviews(
+    id uuid primary key default gen_random_uuid(),
+    target_id uuid not null,
+    reviewer_id uuid not null,
+    pros text not null,
+    cons text not null,
+    description text,
+    rating int not null
+);
+
 insert into ppo.users(username, password, role)
 values ('admin', '$2a$10$4MYWtRfOlgU9smD01vZCFel4WmfsXc2RHuQm6Wq.uUezTeYb3HrNm', 'admin');
