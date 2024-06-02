@@ -1,4 +1,5 @@
 import { createWebHistory, createRouter } from "vue-router";
+import HomePage from './components/HomePage.vue';
 import Login from "./components/Login.vue";
 import Register from "./components/Register.vue";
 import EntrepreneursPage from './components/EntrepreneursPage.vue';
@@ -46,6 +47,11 @@ const routes = [
     name: 'EntrepreneursPage',
     component: EntrepreneursPage,
     props: route => ({ page: parseInt(route.query.page) || 1 })
+  },
+  {
+    path: '/home',
+    name: 'HomePage',
+    component: HomePage,
   },
   {
     path: '/entrepreneurs/:id',
