@@ -1,83 +1,168 @@
 <template>
-    <div>
-      <template v-if="entrepreneur.full_name">
+  <div class="entrepreneur-details">
+    <template v-if="entrepreneur.full_name">
+      <div class="header">
         <h1>Информация о предпринимателе</h1>
-        <div>
-          <h2>Полное имя: {{ entrepreneur.full_name }}</h2>
-          <p>Дата рождения: {{ formatBirthday(entrepreneur.birthday) }}</p>
-          <p>Город: {{ entrepreneur.city }}</p>
-          <p>Пол: {{ formatGender(entrepreneur.gender) }}</p>
-          <p>Рейтинг: {{ (5 * entrepreneur.rating).toFixed(1) }}</p>
+        <div class="rating">
+          <i class="pi pi-star"></i>
+          {{ (5 * entrepreneur.rating).toFixed(1) }}
         </div>
-      </template>
-      <template v-else>
-          <h1>Информация о данном предпринимателе не заполнена.</h1>
-      </template>
-    </div>
-    <div class="contacts">
-        <Accordion :multiple="true">
-          <AccordionTab header="Контактные данные">
-            <p class="m-0">
-              <div v-if="role=='guest'">Войдите в аккаунт, чтобы увидеть список средств связи.</div>
-              <DataTable v-else :value="contacts" tableStyle="min-width: 30rem">
-                <Column field="name" header="Название"></Column>
-                <Column field="value" header="Значение"></Column>
-              </DataTable>
-            </p>
-          </AccordionTab>
-          <AccordionTab header="Финансовые показатели">
-              <p class="m-0">
-                <div v-if="role=='guest'">
-                  Войдите в аккаунт, чтобы увидеть финансовые показатели предпринимателя.
-                </div>
-                <div v-else>
-                  <p>Выручка: {{ financials.revenue }}</p>
-                  <p>Расходы: {{ financials.costs }}</p>
-                  <p>Прибыль: {{ financials.profit }}</p>
-                  <p>Налоги: {{ financials.taxes }}</p>
-                  <p>Налоговая нагрузка: {{ (financials.taxLoad * 100).toFixed(2) }}%</p>
-                </div>               
-              </p>
-          </AccordionTab>
-        </Accordion>
-        <ButtonGroup>
-          <RouterLink :to="`/entrepreneurs/${entrepreneur.id}/companies`">
-            <Button 
-              icon="pi pi-building"
-              label="Компании"
-              class="flex-auto md:flex-initial white-space-nowrap"
-            >
-            </Button>
-          </RouterLink>
-          <RouterLink :to="`/entrepreneurs/${entrepreneur.id}/skills`">
-            <Button 
-              icon="pi pi-building"
-              label="Навыки"
-              class="flex-auto md:flex-initial white-space-nowrap"
-            >
-            </Button>
-          </RouterLink>
-          <RouterLink :to="`/entrepreneurs/${entrepreneur.id}/reviews`">
-            <Button 
-              icon="pi pi-bookmark"
-              label="Отзывы"
-              class="flex-auto md:flex-initial white-space-nowrap"
-            >
-            </Button>
-          </RouterLink>
-          <template v-if="role=='admin'">
-            <RouterLink :to="`/entrepreneurs/${entrepreneur.id}/update`">
-              <Button 
-                icon="pi pi-cog"
-                label="Обновить информацию"
-                class="flex-auto md:flex-initial white-space-nowrap"
-              >
-              </Button>
-            </RouterLink>
-          </template>
-        </ButtonGroup>
       </div>
-  </template>
+      <div class="info-card">
+        <h2>{{ entrepreneur.full_name }}</h2>
+        <p><i class="pi pi-calendar"></i> {{ formatBirthday(entrepreneur.birthday) }}</p>
+        <p><i class="pi pi-map-marker"></i> {{ entrepreneur.city }}</p>
+        <p><i class="pi pi-venus-mars"></i> {{ formatGender(entrepreneur.gender) }}</p>
+      </div>
+    </template>
+    <template v-else>
+      <h1 class="no-info">Информация о данном предпринимателе не заполнена.</h1>
+    </template>
+    <div class="accordion-container">
+      <Accordion :multiple="true">
+        <AccordionTab header="Контактные данные">
+          <p class="m-0">
+            <div v-if="role == 'guest'" class="guest-message">
+              Войдите в аккаунт, чтобы увидеть список средств связи.
+            </div>
+            <DataTable v-else :value="contacts" tableStyle="min-width: 30rem">
+              <Column field="name" header="Название"></Column>
+              <Column field="value" header="Значение"></Column>
+            </DataTable>
+          </p>
+        </AccordionTab>
+        <AccordionTab header="Финансовые показатели">
+          <p class="m-0">
+            <div v-if="role == 'guest'" class="guest-message">
+              Войдите в аккаунт, чтобы увидеть финансовые показатели предпринимателя.
+            </div>
+            <div v-else class="financials">
+              <p><span class="label">Выручка:</span> {{ financials.revenue }}</p>
+              <p><span class="label">Расходы:</span> {{ financials.costs }}</p>
+              <p><span class="label">Прибыль:</span> {{ financials.profit }}</p>
+              <p><span class="label">Налоги:</span> {{ financials.taxes }}</p>
+              <p><span class="label">Налоговая нагрузка:</span> {{ (financials.taxLoad * 100).toFixed(2) }}%</p>
+            </div>
+          </p>
+        </AccordionTab>
+      </Accordion>
+    </div>
+    <div class="button-group">
+      <ButtonGroup>
+        <RouterLink :to="`/entrepreneurs/${entrepreneur.id}/companies`">
+          <Button icon="pi pi-building" label="Компании" class="button"></Button>
+        </RouterLink>
+        <RouterLink :to="`/entrepreneurs/${entrepreneur.id}/skills`">
+          <Button icon="pi pi-building" label="Навыки" class="button"></Button>
+        </RouterLink>
+        <RouterLink :to="`/entrepreneurs/${entrepreneur.id}/reviews`">
+          <Button icon="pi pi-bookmark" label="Отзывы" class="button"></Button>
+        </RouterLink>
+        <template v-if="role == 'admin'">
+          <RouterLink :to="`/entrepreneurs/${entrepreneur.id}/update`">
+            <Button icon="pi pi-cog" label="Обновить информацию" class="button"></Button>
+          </RouterLink>
+        </template>
+      </ButtonGroup>
+    </div>
+  </div>
+</template>
+
+<style scoped>
+.entrepreneur-details {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f8f8f8;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.rating {
+  background-color: #fff;
+  padding: 5px 10px;
+  border-radius: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.info-card {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.info-card h2 {
+  margin-top: 0;
+}
+
+.info-card p {
+  margin-bottom: 10px;
+}
+
+.info-card p i {
+  margin-right: 5px;
+}
+
+.no-info {
+  text-align: center;
+  color: #888;
+}
+
+.accordion-container {
+  margin-bottom: 20px;
+}
+
+.guest-message {
+  text-align: center;
+  color: #888;
+  padding: 20px;
+}
+
+.financials {
+  padding: 20px;
+}
+
+.financials p {
+  margin-bottom: 10px;
+}
+
+.financials .label {
+  font-weight: bold;
+}
+
+.button-group {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.button {
+  flex: 1;
+}
+
+@media (max-width: 768px) {
+  .button-group {
+    flex-wrap: wrap;
+  }
+
+  .button {
+    flex: 0 0 calc(50% - 5px);
+  }
+}
+</style>
+
   
 <script>
   import EntrepreneurService from '../services/entrepreneur.service'
