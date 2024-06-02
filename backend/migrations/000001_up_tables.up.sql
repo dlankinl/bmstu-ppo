@@ -66,5 +66,19 @@ create table if not exists ppo.reviews(
     rating int not null
 );
 
+alter table ppo.user_skills add constraint fk_user foreign key (user_id) references ppo.users(id);
+alter table ppo.user_skills add constraint fk_skill foreign key (skill_id) references ppo.skills(id);
+
+alter table ppo.contacts add constraint fk_user foreign key (owner_id) references ppo.users(id);
+
+alter table ppo.fin_reports add constraint fk_company foreign key (company_id) references ppo.companies(id);
+
+alter table ppo.companies add constraint fk_owner foreign key (owner_id) references ppo.users(id);
+alter table ppo.companies add constraint fk_activity_field foreign key (activity_field_id) references ppo.activity_fields(id);
+
+alter table ppo.reviews add constraint fk_target foreign key (target_id) references ppo.users(id);
+alter table ppo.reviews add constraint fk_reviewer foreign key (reviewer_id) references ppo.users(id);
+
+
 insert into ppo.users(username, password, role)
 values ('admin', '$2a$10$4MYWtRfOlgU9smD01vZCFel4WmfsXc2RHuQm6Wq.uUezTeYb3HrNm', 'admin');
