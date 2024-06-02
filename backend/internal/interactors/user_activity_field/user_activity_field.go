@@ -3,6 +3,7 @@ package user_activity_field
 import (
 	"context"
 	"fmt"
+	"math"
 	"ppo/domain"
 	"time"
 
@@ -160,7 +161,6 @@ func (i *Interactor) CalculateUserRating(ctx context.Context, id uuid.UUID) (rat
 		return 0, fmt.Errorf("поиск наиболее прибыльной компании: %w", err)
 	}
 	if mostProfitableCompany == nil {
-		// return 0, fmt.Errorf("у предпринимателя не найдены компании")
 		return 0.0, nil
 	}
 
@@ -209,7 +209,9 @@ func (i *Interactor) GetUserFinancialReport(ctx context.Context, id uuid.UUID, p
 	}
 
 	report.Period = period
-	report.TaxLoad = report.Taxes / revenueForTaxLoad * 100
+	if math.Abs(float64(revenueForTaxLoad)) >= 1e-6 {
+		report.TaxLoad = report.Taxes / revenueForTaxLoad * 100
+	}
 
 	return report, nil
 }

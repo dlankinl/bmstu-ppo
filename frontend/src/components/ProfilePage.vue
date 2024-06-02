@@ -7,14 +7,14 @@
         <p>Дата рождения: {{ formatBirthday(entrepreneur.birthday) }}</p>
         <p>Город: {{ entrepreneur.city }}</p>
         <p>Пол: {{ formatGender(entrepreneur.gender) }}</p>
-        <p>Рейтинг: {{ entrepreneur.rating }}</p>
+        <p>Рейтинг: {{ (5 * entrepreneur.rating).toFixed(1) }}</p>
       </div>
     </template>
     <template v-else>
         <h1>Ваш профиль не заполнен. Обратитесь к администратору.</h1>
     </template>
   </div>
-  <div class="settings">
+  <div v-if="entrepreneur.full_name" class="settings">
     <ButtonGroup>
       <RouterLink :to="`/entrepreneurs/${entrepreneur.id}/contacts`"><Button label="Средства связи" icon="pi pi-address-book"></Button></RouterLink>
       <RouterLink :to="`/entrepreneurs/${entrepreneur.id}/skills`"><Button label="Навыки" icon="pi pi-bolt"></Button></RouterLink>

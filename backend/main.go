@@ -84,34 +84,12 @@ func main() {
 		r.Get("/{id}/rating", web.CalculateRating(a))
 
 		r.Group(func(r chi.Router) {
-			var printHeaders = func(next http.Handler) http.Handler {
-				return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-					for key, values := range r.Header {
-						for _, value := range values {
-							fmt.Printf("%s: %s\n", key, value)
-						}
-					}
-					next.ServeHTTP(w, r)
-				})
-			}
-
-			r.Use(printHeaders)
 			r.Use(jwtauth.Verifier(tokenAuth))
 			r.Use(jwtauth.Authenticator(tokenAuth))
+			r.Use(web.ValidateAdminRoleJWT)
 
-			r.Group(func(r chi.Router) {
-				r.Use(web.ValidateAdminRoleJWT)
-
-				r.Patch("/{id}/update", web.UpdateEntrepreneur(a))
-				r.Delete("/{id}/delete", web.DeleteEntrepreneur(a))
-				r.Get("/empty", web.ListEmptyEntrepreneurs(a))
-			})
-
-			//r.Group(func(r chi.Router) {
-			//	r.Use(web.ValidateUserRoleJWT)
-			//
-			//	r.Post("/{id}/skills/create", web.CreateUserSkill(a))
-			//})
+			r.Patch("/{id}/update", web.UpdateEntrepreneur(a))
+			r.Delete("/{id}/delete", web.DeleteEntrepreneur(a))
 		})
 	})
 

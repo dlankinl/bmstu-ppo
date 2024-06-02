@@ -4,7 +4,7 @@ const API_URL = 'http://localhost:8081';
 
 class FinReportService {
   getFinReport(id) {
-    return axios.get(API_URL + `/financials/{id}`, {
+    return axios.get(API_URL + `/financials/${id}`, {
         headers: {
             Authorization: `Bearer ${localStorage.getItem('user')}`
         }
@@ -57,7 +57,7 @@ class FinReportService {
   }
 
   getLastYearReport(id) {
-    return axios.get(API_URL + `/financials/?entrepreneur-id=${id}`, {
+    return axios.get(API_URL + `/financials?entrepreneur-id=${id}`, {
         headers: {
             Authorization: `Bearer ${localStorage.getItem('user').replace(/"/g, '')}`
         }

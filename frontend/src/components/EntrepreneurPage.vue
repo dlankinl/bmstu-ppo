@@ -7,7 +7,7 @@
           <p>Дата рождения: {{ formatBirthday(entrepreneur.birthday) }}</p>
           <p>Город: {{ entrepreneur.city }}</p>
           <p>Пол: {{ formatGender(entrepreneur.gender) }}</p>
-          <p>Рейтинг: {{ entrepreneur.rating }}</p>
+          <p>Рейтинг: {{ (5 * entrepreneur.rating).toFixed(1) }}</p>
         </div>
       </template>
       <template v-else>
@@ -18,7 +18,7 @@
         <Accordion :multiple="true">
           <AccordionTab header="Контактные данные">
             <p class="m-0">
-              <div v-if="isAuthValue==false">Войдите в аккаунт, чтобы увидеть список средств связи.</div>
+              <div v-if="role=='guest'">Войдите в аккаунт, чтобы увидеть список средств связи.</div>
               <DataTable v-else :value="contacts" tableStyle="min-width: 30rem">
                 <Column field="name" header="Название"></Column>
                 <Column field="value" header="Значение"></Column>
@@ -27,7 +27,7 @@
           </AccordionTab>
           <AccordionTab header="Финансовые показатели">
               <p class="m-0">
-                <div v-if="isAuthValue==false">
+                <div v-if="role=='guest'">
                   Войдите в аккаунт, чтобы увидеть финансовые показатели предпринимателя.
                 </div>
                 <div v-else>
@@ -35,7 +35,7 @@
                   <p>Расходы: {{ financials.costs }}</p>
                   <p>Прибыль: {{ financials.profit }}</p>
                   <p>Налоги: {{ financials.taxes }}</p>
-                  <p>Налоговая нагрузка: {{ financials.taxLoad }}</p>
+                  <p>Налоговая нагрузка: {{ (financials.taxLoad * 100).toFixed(2) }}%</p>
                 </div>               
               </p>
           </AccordionTab>
@@ -71,7 +71,7 @@
       </div>
   </template>
   
-  <script>
+<script>
   import EntrepreneurService from '../services/entrepreneur.service'
   import ContactsService from '../services/contacts.service';
   import FinReportService from '../services/fin-report.service';
@@ -105,13 +105,13 @@
       }
     },
     created() {
-      this.isAuthValue = this.isAuth()
-      this.fetchEntrepreneurDetails()
-      this.fetchContacts()
-      this.fetchFinancials()
+      this.isAuth();
       if (this.isAuthValue) {
         this.role = Utils.getUserRoleJWT();
       }
+      this.fetchEntrepreneurDetails()
+      this.fetchContacts()
+      this.fetchFinancials()
     },
     methods: {
       fetchEntrepreneurDetails() {
@@ -163,7 +163,6 @@
         if (this.isAuthValue) {
           FinReportService.getLastYearReport(id)
             .then(response => {
-              console.log(response.data.data)
               this.financials = response.data.data;
             })
             .catch(error => {

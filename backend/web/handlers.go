@@ -1392,7 +1392,6 @@ func CalculateRating(app *app.App) http.HandlerFunc {
 func GetEntrepreneurFinancials(app *app.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := r.URL.Query().Get("entrepreneur-id")
-		fmt.Println("ID: ", id)
 		if id == "" {
 			errorResponse(w, fmt.Errorf("empty entrepreneur id").Error(), http.StatusBadRequest)
 			return

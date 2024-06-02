@@ -6,14 +6,25 @@
       <p>Сфера деятельности: {{ company.activity_field.name }}</p>
       <p>Город: {{ company.city }}</p>
     </div>
-    <RouterLink :to="`/companies/${company.id}/update`">
-    <Button 
-      icon="pi pi-cog"
-      label="Обновить информацию"
-      class="flex-auto md:flex-initial white-space-nowrap"
-    >
-    </Button>
-    </RouterLink>
+    <ButtonGroup>
+      <RouterLink :to="`/companies/${company.id}/update`">
+        <Button 
+          icon="pi pi-cog"
+          label="Обновить информацию"
+          class="flex-auto md:flex-initial white-space-nowrap"
+        >
+        </Button>
+      </RouterLink>
+      <RouterLink :to="`/companies/${company.id}/financials/create`">
+        <Button 
+          icon="pi pi-money-bill"
+          label="Добавить отчет"
+          class="flex-auto md:flex-initial white-space-nowrap"
+        >
+        </Button>
+      </RouterLink>
+    </ButtonGroup> 
+    <CompanyFinancialsPage />
   </div>
 </template>
   
@@ -24,7 +35,8 @@
   import DataTable from 'primevue/datatable';
   import Column from 'primevue/column';
   import Button from 'primevue/button';
-  // import isAuth from '../services/auth-header';
+  import Buttongroup from 'primevue/buttongroup';
+  import CompanyFinancialsPage from './CompanyFinancialsPage.vue';
   import Utils from '../services/auth-header';
   
   export default {
@@ -33,6 +45,8 @@
       Button,
       DataTable,
       Column,
+      Buttongroup,
+      CompanyFinancialsPage
     },
     data() {
       return {

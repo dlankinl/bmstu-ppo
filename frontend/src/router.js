@@ -1,5 +1,4 @@
 import { createWebHistory, createRouter } from "vue-router";
-import Home from "./components/Home.vue";
 import Login from "./components/Login.vue";
 import Register from "./components/Register.vue";
 import EntrepreneursPage from './components/EntrepreneursPage.vue';
@@ -21,16 +20,11 @@ import UpdateActivityFieldPage from './components/UpdateActivityFieldPage.vue';
 import CreateFinReportPage from './components/CreateFinReportPage.vue';
 import UpdateFinReportPage from './components/UpdateFinReportPage.vue';
 import CompanyFinancialsPage from './components/CompanyFinancialsPage.vue';
+import ContactsPage from "./components/ContactsPage.vue";
+import CreateContactPage from './components/CreateContactPage.vue';
+import UpdateContactPage from './components/UpdateContactPage.vue';
 
 const routes = [
-  {
-    path: "/",
-    component: Home,
-  },
-  {
-    path: "/home",
-    component: Home,
-  },
   {
     path: "/login",
     component: Login,
@@ -78,6 +72,12 @@ const routes = [
     path: '/entrepreneurs/:id/companies',
     name: 'CompaniesPage',
     component: CompaniesPage,
+    props: true
+  },
+  {
+    path: '/entrepreneurs/:id/contacts',
+    name: 'ContactsPage',
+    component: ContactsPage,
     props: true
   },
   {
@@ -149,13 +149,19 @@ const routes = [
     name: 'UpdateFinReportPage',
     component: UpdateFinReportPage,
     props: true
+  },
+  {
+    path: '/contacts/create',
+    name: 'CreateContactPage',
+    component: CreateContactPage,
+    props: true
+  },
+  {
+    path: '/contacts/:id/update',
+    name: 'UpdateContactPage',
+    component: UpdateContactPage,
+    props: true
   }
-  // {
-  //   path: '/entrepreneurs/:id/update',
-  //   name: 'EntrepreneurUpdatePage',
-  //   component: EntrepreneurUpdatePage,
-  //   meta: { requiresAdmin: true }
-  // }
 ];
 
 const router = createRouter({

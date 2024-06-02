@@ -63,7 +63,7 @@
             <div v-if="item==null"></div>
             <div v-else class="rating-container">
               <i class="pi pi-star"></i>
-              {{ item.rating }}
+              {{ (5 * item.rating).toFixed(1) }}
             </div>
           </div>
         </div>
