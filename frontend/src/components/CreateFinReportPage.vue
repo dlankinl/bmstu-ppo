@@ -1,37 +1,89 @@
 <template>
-  <div class="card flex flex-column md:flex-row gap-3">
-    <Message v-if="message" :severity="message.severity" :life="3000">{{ message.content }}</Message>
-    <InputGroup>
-      <InputGroupAddon>
-        <i class="pi pi-money-bill"></i>
-      </InputGroupAddon>
-      <InputNumber v-model="revenue" :minFractionDigits="0" :maxFractionDigits="2" placeholder="Выручка" :class="{ 'p-invalid': !revenue }"/>
-    </InputGroup>
+  <div class="create-fin-report-container">
+    <!-- <div class="card flex flex-column md:flex-row gap-3"> -->
+    <div class="card">
+      <Message v-if="message" :severity="message.severity" :life="3000">{{ message.content }}</Message>
+      <h2 class="form-title">Добавить отчет</h2>
+      <div class="form-group">
+        <InputGroup>
+          <InputGroupAddon>
+            <i class="pi pi-money-bill"></i>
+          </InputGroupAddon>
+          <InputNumber v-model="revenue" :minFractionDigits="0" :maxFractionDigits="2" placeholder="Выручка" :class="{ 'p-invalid': !revenue }"/>
+        </InputGroup>
+      </div>
 
-    <InputGroup>
-      <InputGroupAddon>
-        <i class="pi pi-money-bill"></i>
-      </InputGroupAddon>
-      <InputNumber v-model="costs" :minFractionDigits="0" :maxFractionDigits="2" placeholder="Расходы" :class="{ 'p-invalid': !costs }"/>
-    </InputGroup>
+      <div class="form-group">
+        <InputGroup>
+          <InputGroupAddon>
+            <i class="pi pi-money-bill"></i>
+          </InputGroupAddon>
+          <InputNumber v-model="costs" :minFractionDigits="0" :maxFractionDigits="2" placeholder="Расходы" :class="{ 'p-invalid': !costs }"/>
+        </InputGroup>
+      </div>
 
-    <InputGroup>
-      <InputGroupAddon>
-        <i class="pi pi-calendar"></i>
-      </InputGroupAddon>
-      <InputNumber v-model="year" :useGrouping="false" :min="1900" :max="`${new Date().getFullYear()}`" placeholder="Год" :class="{ 'p-invalid': !year }"/>
-    </InputGroup>
+      <div class="form-group">
+        <InputGroup>
+          <InputGroupAddon>
+            <i class="pi pi-calendar"></i>
+          </InputGroupAddon>
+          <InputNumber v-model="year" :useGrouping="false" :min="1900" :max="`${new Date().getFullYear()}`" placeholder="Год" :class="{ 'p-invalid': !year }"/>
+        </InputGroup>
+      </div>
 
-    <InputGroup>
-      <InputGroupAddon>
-        <i class="pi pi-calendar-clock"></i>
-      </InputGroupAddon>
-      <InputNumber v-model="quarter" :min="1" :max="4" placeholder="Квартал" :class="{ 'p-invalid': !quarter }"/>
-    </InputGroup>
-    <Button @click="createFinReport">Создать</Button>
+      <div class="form-group">
+        <InputGroup>
+          <InputGroupAddon>
+            <i class="pi pi-calendar-clock"></i>
+          </InputGroupAddon>
+          <InputNumber v-model="quarter" :min="1" :max="4" placeholder="Квартал" :class="{ 'p-invalid': !quarter }"/>
+        </InputGroup>
+      </div>
+      <div class="form-group">
+        <Button @click="createFinReport">Создать</Button>
+      </div>
+    </div>
   </div>
 </template>
   
+<style scoped>
+.create-fin-report-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.card {
+  max-width: 500px;
+  width: 100%;
+  padding: 20px;
+  background-color: #f8f8f8;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.form-title {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.create-button {
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .create-company-container {
+    height: auto;
+    padding: 20px;
+  }
+}
+</style>
+
 <script>
 import InputGroup from 'primevue/inputgroup';
 import InputGroupAddon from 'primevue/inputgroupaddon';

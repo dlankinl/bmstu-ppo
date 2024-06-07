@@ -1,33 +1,3 @@
-<!-- <template>
-  <div class="card flex flex-column md:flex-row gap-3">
-    <Message v-if="message" :severity="message.severity" :life="3000">{{ message.content }}</Message>
-    <InputGroup>
-      <InputGroupAddon>
-        <i class="pi pi-user"></i>
-      </InputGroupAddon>
-      <InputText v-model="name" placeholder="Название" :class="{ 'p-invalid': !name }" />
-    </InputGroup>
-
-    <InputGroup>
-      <InputGroupAddon>
-        <i class="pi pi-map"></i>
-      </InputGroupAddon>
-      <InputText v-model="city" placeholder="Город" :class="{ 'p-invalid': !city }"/>
-    </InputGroup>
-
-    <InputGroup>
-      <InputGroupAddon>
-        <i class="pi pi-venus"></i>
-      </InputGroupAddon>
-      <Dropdown v-model="selectedField" placeholder="Сфера деятельности" :options="fields" optionLabel="name" :class="{ 'p-invalid': !selectedField }" />
-    </InputGroup>
-
-    <Button @click="createCompany">Создать</Button>
-  </div>
-</template> -->
-  
-
-
 <template>
   <div class="create-company-container">
     <div class="card">
