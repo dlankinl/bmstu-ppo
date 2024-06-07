@@ -1,32 +1,64 @@
 <template>
   <div class="card">
     <Message v-if="message" :severity="message.severity" :life="3000">{{ message.content }}</Message>
-    <InputGroup>
-      <InputNumber v-model="startYear" :useGrouping="false" :min="1900" :max="`${new Date().getFullYear()}`" placeholder="Начальный год" :class="{ 'p-invalid': !startYear }"/>
-    </InputGroup>
+    <div class="form-group">
+      <InputGroup>
+        <InputNumber v-model="startYear" :useGrouping="false" :min="1900" :max="`${new Date().getFullYear()}`" placeholder="Начальный год" :class="{ 'p-invalid': !startYear }"/>
+      </InputGroup>
+    </div>
 
-    <InputGroup>
-      <InputNumber v-model="startQuarter" :min="1" :max="4" placeholder="Начальный квартал" :class="{ 'p-invalid': !startQuarter }"/>
-    </InputGroup>
+    <div class="form-group">
+      <InputGroup>
+        <InputNumber v-model="startQuarter" :min="1" :max="4" placeholder="Начальный квартал" :class="{ 'p-invalid': !startQuarter }"/>
+      </InputGroup>
+    </div>
 
-    <InputGroup>
-      <InputNumber v-model="endYear" :useGrouping="false" :min="1900" :max="`${new Date().getFullYear()}`" placeholder="Конечный год" :class="{ 'p-invalid': !endYear }"/>
-    </InputGroup>
+    <div class="form-group">
+      <InputGroup>
+        <InputNumber v-model="endYear" :useGrouping="false" :min="1900" :max="`${new Date().getFullYear()}`" placeholder="Конечный год" :class="{ 'p-invalid': !endYear }"/>
+      </InputGroup>
+    </div>
 
-    <InputGroup>
-      <InputNumber v-model="endQuarter" :min="1" :max="4" placeholder="Конечный квартал" :class="{ 'p-invalid': !endQuarter }"/>
-    </InputGroup>
+    <div class="form-group">
+      <InputGroup>
+        <InputNumber v-model="endQuarter" :min="1" :max="4" placeholder="Конечный квартал" :class="{ 'p-invalid': !endQuarter }"/>
+      </InputGroup>
+    </div>
 
-    <Button @click="fetchReport">Получить отчёт</Button>
-    
+    <Button @click="fetchReport" class="fetch-button">Получить отчёт</Button>
+
     <template v-if="financialsAvailable">
-      <p>Выручка: {{ revenue }}</p>
-      <p>Расходы: {{ costs }}</p>
-      <p>Прибыль: {{ profit }}</p>
+      <div class="financials">
+        <p>Выручка: {{ revenue }}</p>
+        <p>Расходы: {{ costs }}</p>
+        <p>Прибыль: {{ profit }}</p>
+      </div>
     </template>
   </div>
 </template>
 
+<style scoped>
+.card {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f8f8f8;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.fetch-button {
+  width: 100%;
+}
+
+.financials {
+  margin-top: 20px;
+}
+</style>
   
 <script>
 import FinReportService from '../services/fin-report.service';

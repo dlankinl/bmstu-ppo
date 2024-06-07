@@ -28,8 +28,8 @@ add constraint u_s_pk primary key (user_id, skill_id);
 create table if not exists ppo.contacts(
     id uuid primary key default gen_random_uuid(),
     owner_id uuid not null,
-    name varchar(64),
-    value varchar(128)
+    name varchar(64) not null,
+    value varchar(128) not null
 );
 
 create table if not exists ppo.fin_reports(
@@ -45,8 +45,8 @@ create table if not exists ppo.companies(
     id uuid primary key default gen_random_uuid(),
     owner_id uuid not null,
     activity_field_id uuid not null,
-    name varchar(128),
-    city varchar(128)
+    name varchar(128) not null ,
+    city varchar(128) not null
 );
 
 create table if not exists ppo.activity_fields(
@@ -66,19 +66,28 @@ create table if not exists ppo.reviews(
     rating int not null
 );
 
+alter table ppo.activity_fields add constraint chck_cost check ( cost >= 0.0 );
+
 alter table ppo.user_skills add constraint fk_user foreign key (user_id) references ppo.users(id);
 alter table ppo.user_skills add constraint fk_skill foreign key (skill_id) references ppo.skills(id);
 
 alter table ppo.contacts add constraint fk_user foreign key (owner_id) references ppo.users(id);
 
 alter table ppo.fin_reports add constraint fk_company foreign key (company_id) references ppo.companies(id);
+alter table ppo.fin_reports add constraint chk_revenue check ( revenue >= 0.0 );
+alter table ppo.fin_reports add constraint chk_costs check ( costs >= 0.0 );
+alter table ppo.fin_reports add constraint chk_year check ( year > 0 );
+alter table ppo.fin_reports add constraint chk_quarter check ( quarter >= 1 and quarter <= 4 );
 
 alter table ppo.companies add constraint fk_owner foreign key (owner_id) references ppo.users(id);
 alter table ppo.companies add constraint fk_activity_field foreign key (activity_field_id) references ppo.activity_fields(id);
 
 alter table ppo.reviews add constraint fk_target foreign key (target_id) references ppo.users(id);
 alter table ppo.reviews add constraint fk_reviewer foreign key (reviewer_id) references ppo.users(id);
+alter table ppo.reviews add constraint chk_rating check ( rating >= 1 and rating <= 5 );
 
 
 insert into ppo.users(username, password, role)
 values ('admin', '$2a$10$4MYWtRfOlgU9smD01vZCFel4WmfsXc2RHuQm6Wq.uUezTeYb3HrNm', 'admin');
+
+insert into ppo.contacts(owner_id) VALUES ('7e1ae551-5412-4aea-8425-300000ef8059');

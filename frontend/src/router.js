@@ -147,12 +147,12 @@ const routes = [
     component: CreateFinReportPage,
     props: true
   },
-  {
-    path: '/companies/:id/financials',
-    name: 'CompanyFinancialsPage',
-    component: CompanyFinancialsPage,
-    props: true
-  },
+  // {
+  //   path: '/companies/:id/financials',
+  //   name: 'CompanyFinancialsPage',
+  //   component: CompanyFinancialsPage,
+  //   props: true
+  // },
   {
     path: '/financials/:id',
     name: 'UpdateFinReportPage',

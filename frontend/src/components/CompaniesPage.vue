@@ -1,16 +1,20 @@
 <template>
   <div class="card">
     <Message v-if="message" :severity="message.severity" :life="3000">{{ message.content }}</Message>
-    <template v-if="entId==visitorId">
-      <RouterLink :to="`/companies/create`"><Button label="Добавить" icon="pi pi-plus-circle"></Button></RouterLink>
-    </template>
-    <DataView :value="companies" paginator :rows="rows" :totalRecords="totalPages*rows" @page="onPageChange">
+    <div class="add-button-container">
+      <template v-if="entId == visitorId">
+        <RouterLink :to="`/companies/create`">
+          <Button label="Добавить" icon="pi pi-plus-circle" class="add-button"></Button>
+        </RouterLink>
+      </template>
+    </div>
+    <DataView :value="companies" paginator :rows="rows" :totalRecords="totalPages * rows" @page="onPageChange">
       <template #list="slotProps">
         <div class="grid grid-nogutter">
           <div
             v-for="(item, index) in slotProps.items"
             :key="index"
-            class="col-12 relative"
+            class="col-12 relative company-card"
           >
             <div
               class="flex flex-column sm:flex-row sm:align-items-center p-4 gap-3"
@@ -24,32 +28,42 @@
                 >
                   <div>
                     <div class="text-lg font-medium text-900 mt-2">
-                      <template v-if="item==null"></template>
+                      <template v-if="item == null"></template>
                       <template v-else="item.name">
-                        {{ item.name }} <Chip :label="`${item.activity_field.name}`" />
-                        <RouterLink :to="`/companies/${item.id}`"><Button icon="pi pi-info-circle" class="p-button-rounded p-button-secondary p-button-text"></Button></RouterLink>
-                        <template v-if="entId==visitorId">
-                          <Button icon="pi pi-trash" class="p-button-rounded p-button-secondary p-button-text" @click="deleteCompany(item)"></Button>
-                          <RouterLink :to="`/companies/${item.id}/update`"><Button icon="pi pi-wrench" class="p-button-rounded p-button-secondary p-button-text"></Button></RouterLink>
+                        {{ item.name }}
+                        <Chip :label="`${item.activity_field.name}`" class="company-chip" />
+                        <RouterLink :to="`/companies/${item.id}`">
+                          <Button
+                            icon="pi pi-info-circle"
+                            class="p-button-rounded p-button-secondary p-button-text company-button"
+                          ></Button>
+                        </RouterLink>
+                        <template v-if="entId == visitorId">
+                          <Button
+                            icon="pi pi-trash"
+                            class="p-button-rounded p-button-secondary p-button-text company-button"
+                            @click="deleteCompany(item)"
+                          ></Button>
+                          <RouterLink :to="`/companies/${item.id}/update`">
+                            <Button
+                              icon="pi pi-wrench"
+                              class="p-button-rounded p-button-secondary p-button-text company-button"
+                            ></Button>
+                          </RouterLink>
                         </template>
                       </template>
                     </div>
                   </div>
-                  <div
-                    class="surface-100 p-1"
-                    style="border-radius: 30px"
-                  ></div>
+                  <div class="surface-100 p-1" style="border-radius: 30px"></div>
                 </div>
                 <div class="flex flex-column md:align-items-end gap-5">
-                  <span class="text-xl font-semibold text-900"
-                    >
-                      <template v-if="item==null"></template>
-                      <template v-else>
-                        <i class="pi pi-map-marker"></i>
+                  <span class="text-xl font-semibold text-900">
+                    <template v-if="item == null"></template>
+                    <template v-else>
+                      <i class="pi pi-map-marker"></i>
                       {{ item.city }}
-                      </template>
-                    </span
-                  >
+                    </template>
+                  </span>
                 </div>
               </div>
             </div>
@@ -61,20 +75,52 @@
 </template>
 
 <style scoped>
-.rating-container {
-  position: absolute;
-  top: 10px; /* Adjust the top position as needed */
-  right: 10px; /* Adjust the right position as needed */
-  background-color: #fff; /* Set the background color */
-  padding: 5px 10px; /* Add some padding */
-  border-radius: 5px; /* Add border-radius for a rounded corner */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a box-shadow for a subtle elevation */
+.card {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f8f8f8;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.add-button-container {
   display: flex;
-  align-items: center;
-  gap: 5px; /* Add some gap between the icon and rating value */
+  justify-content: flex-end;
+  margin-bottom: 20px;
+}
+
+.add-button {
+  background-color: #2196f3;
+  color: #fff;
+}
+
+.company-card {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+}
+
+.company-card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.company-chip {
+  margin-left: 10px;
+}
+
+.company-button {
+  margin-left: 5px;
+}
+
+@media (max-width: 768px) {
+  .company-button {
+    margin-top: 5px;
+    margin-left: 0;
+  }
 }
 </style>
-
   
 <script>
 import CompaniesService from '../services/companies.service';

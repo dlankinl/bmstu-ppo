@@ -35,7 +35,7 @@
         </li>
         <li class="nav-item">
           <a class="nav-link" @click.prevent="logOut">
-            <font-awesome-icon icon="sign-out-alt" /> LogOut
+            <font-awesome-icon icon="sign-out-alt" /> Выйти
           </a>
         </li>
       </div>
@@ -46,6 +46,56 @@
     </div>
   </div>
 </template>
+
+<style scoped>
+.navbar {
+  padding: 0.5rem 1rem;
+}
+
+.navbar-brand {
+  font-size: 1.5rem;
+}
+
+.navbar-nav {
+  display: flex;
+  align-items: center;
+}
+
+.nav-item {
+  margin-right: 1rem;
+}
+
+.nav-link {
+  color: #fff;
+  text-decoration: none;
+}
+
+.container {
+  margin-top: 1rem;
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .navbar-brand {
+    margin-bottom: 1rem;
+  }
+
+  .navbar-nav {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .nav-item {
+    margin-right: 0;
+    margin-bottom: 0.5rem;
+  }
+}
+</style>
+
 
 <script>
 export default {
