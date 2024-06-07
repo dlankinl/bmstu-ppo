@@ -125,12 +125,11 @@ export default {
   },
   methods: {
     fetchCompanyDetails() {
-      this.entId = this.$route.params.id;
-      console.log(this.entId, this.visitorId);
       const companyId = this.$route.params.id
       CompaniesService.getCompanyDetails(companyId)
         .then(response => {
           this.company = response.data.data.company;
+          this.entId = this.company.owner_id;
           ActivityFieldsService.getActivityField(this.company.activity_field_id)
             .then((response) => {
               this.company.activity_field = response.data.data.activity_field;
