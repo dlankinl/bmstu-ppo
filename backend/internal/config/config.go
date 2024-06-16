@@ -5,7 +5,10 @@ import (
 	"os"
 )
 
-const PageSize = 3
+const (
+	PageSize    = 3
+	MaxContacts = 5
+)
 
 type DBConfig struct {
 	User     string

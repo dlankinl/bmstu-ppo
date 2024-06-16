@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"github.com/google/uuid"
 	"os"
@@ -12,6 +13,7 @@ import (
 )
 
 func AddSkill(a *app.App, args ...any) (err error) {
+	ctx := context.Background()
 	reader := bufio.NewReader(os.Stdin)
 
 	var name, description string
@@ -32,7 +34,7 @@ func AddSkill(a *app.App, args ...any) (err error) {
 	skill.Name = name
 	skill.Description = description
 
-	err = a.SkillSvc.Create(&skill)
+	err = a.SkillSvc.Create(ctx, &skill)
 	if err != nil {
 		return fmt.Errorf("ошибка добавления навыка: %w", err)
 	}
@@ -41,6 +43,7 @@ func AddSkill(a *app.App, args ...any) (err error) {
 }
 
 func DeleteSkill(a *app.App, args ...any) (err error) {
+	ctx := context.Background()
 	err = GetSkills(a, args...)
 	if err != nil {
 		return fmt.Errorf("удаление навыка: %w", err)
@@ -60,7 +63,7 @@ func DeleteSkill(a *app.App, args ...any) (err error) {
 		return fmt.Errorf("парсинг uuid из строки: %w", err)
 	}
 
-	err = a.SkillSvc.DeleteById(skillUuid)
+	err = a.SkillSvc.DeleteById(ctx, skillUuid)
 	if err != nil {
 		return fmt.Errorf("удаление навыка: %w", err)
 	}
@@ -69,6 +72,7 @@ func DeleteSkill(a *app.App, args ...any) (err error) {
 }
 
 func UpdateSkill(a *app.App, args ...any) (err error) {
+	ctx := context.Background()
 	err = GetSkills(a, args...)
 	if err != nil {
 		return fmt.Errorf("обновление информации о навыке: %w", err)
@@ -88,7 +92,7 @@ func UpdateSkill(a *app.App, args ...any) (err error) {
 		return fmt.Errorf("парсинг uuid из строки: %w", err)
 	}
 
-	skill, err := a.SkillSvc.GetById(skillUuid)
+	skill, err := a.SkillSvc.GetById(ctx, skillUuid)
 	if err != nil {
 		return fmt.Errorf("получение навыка по id: %w", err)
 	}
@@ -114,7 +118,7 @@ func UpdateSkill(a *app.App, args ...any) (err error) {
 		skill.Description = description
 	}
 
-	err = a.SkillSvc.Update(skill)
+	err = a.SkillSvc.Update(ctx, skill)
 	if err != nil {
 		return fmt.Errorf("ошибка обновления навыка: %w", err)
 	}
@@ -123,7 +127,8 @@ func UpdateSkill(a *app.App, args ...any) (err error) {
 }
 
 func GetSkills(a *app.App, args ...any) (err error) {
-	err = utils.PrintPaginatedCollection("Навыки", a.SkillSvc.GetAll)
+	ctx := context.Background()
+	err = utils.PrintPaginatedCollection("Навыки", a.SkillSvc.GetAll, ctx)
 	if err != nil {
 		return fmt.Errorf("вывод навыков с пагинацией: %w", err)
 	}

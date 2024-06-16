@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"github.com/google/uuid"
 	"os"
@@ -12,6 +13,7 @@ import (
 )
 
 func AddCompany(a *app.App, args ...any) (err error) {
+	ctx := context.Background()
 	reader := bufio.NewReader(os.Stdin)
 
 	var username string
@@ -23,7 +25,7 @@ func AddCompany(a *app.App, args ...any) (err error) {
 		}
 	}
 
-	user, err := a.UserSvc.GetByUsername(username)
+	user, err := a.UserSvc.GetByUsername(ctx, username)
 	if err != nil {
 		return fmt.Errorf("пользователь не найден: %w", err)
 	}
@@ -65,7 +67,7 @@ func AddCompany(a *app.App, args ...any) (err error) {
 	company.City = city
 	company.ActivityFieldId = activityFieldUuid
 
-	err = a.CompSvc.Create(&company)
+	err = a.CompSvc.Create(ctx, &company)
 	if err != nil {
 		return fmt.Errorf("ошибка добавления компании: %w", err)
 	}
@@ -74,6 +76,7 @@ func AddCompany(a *app.App, args ...any) (err error) {
 }
 
 func DeleteCompany(a *app.App, args ...any) (err error) {
+	ctx := context.Background()
 	err = GetMyCompanies(a, args...)
 	if err != nil {
 		return fmt.Errorf("удаление компании: %w", err)
@@ -93,7 +96,7 @@ func DeleteCompany(a *app.App, args ...any) (err error) {
 		return fmt.Errorf("парсинг uuid из строки: %w", err)
 	}
 
-	err = a.CompSvc.DeleteById(companyUuid)
+	err = a.CompSvc.DeleteById(ctx, companyUuid)
 	if err != nil {
 		return fmt.Errorf("удаление компании: %w", err)
 	}
@@ -102,6 +105,7 @@ func DeleteCompany(a *app.App, args ...any) (err error) {
 }
 
 func UpdateCompany(a *app.App, args ...any) (err error) {
+	ctx := context.Background()
 	err = GetMyCompanies(a, args...)
 	if err != nil {
 		return fmt.Errorf("обновление информации о компании: %w", err)
@@ -121,7 +125,7 @@ func UpdateCompany(a *app.App, args ...any) (err error) {
 		return fmt.Errorf("парсинг uuid из строки: %w", err)
 	}
 
-	comp, err := a.CompSvc.GetById(companyUuid)
+	comp, err := a.CompSvc.GetById(ctx, companyUuid)
 	if err != nil {
 		return fmt.Errorf("получение компании по id: %w", err)
 	}
@@ -152,7 +156,7 @@ func UpdateCompany(a *app.App, args ...any) (err error) {
 		return fmt.Errorf("обновление компании: %w", err)
 	}
 
-	field, err := a.ActFieldSvc.GetById(comp.ActivityFieldId)
+	field, err := a.ActFieldSvc.GetById(ctx, comp.ActivityFieldId)
 	if err != nil {
 		return fmt.Errorf("обновление компании: %w", err)
 	}
@@ -173,7 +177,7 @@ func UpdateCompany(a *app.App, args ...any) (err error) {
 		comp.ActivityFieldId = activityFieldUuid
 	}
 
-	err = a.CompSvc.Update(comp)
+	err = a.CompSvc.Update(ctx, comp)
 	if err != nil {
 		return fmt.Errorf("ошибка обновления компании: %w", err)
 	}
@@ -182,6 +186,7 @@ func UpdateCompany(a *app.App, args ...any) (err error) {
 }
 
 func GetMyCompanies(a *app.App, args ...any) (err error) {
+	ctx := context.Background()
 	var username string
 	var ok bool
 	if len(args) > 0 {
@@ -191,12 +196,12 @@ func GetMyCompanies(a *app.App, args ...any) (err error) {
 		}
 	}
 
-	user, err := a.UserSvc.GetByUsername(username)
+	user, err := a.UserSvc.GetByUsername(ctx, username)
 	if err != nil {
 		return fmt.Errorf("пользователь не найден")
 	}
 
-	err = utils.PrintPaginatedCollectionArgs("Компании", a.CompSvc.GetByOwnerId, user.ID, true)
+	err = utils.PrintPaginatedCollectionArgs("Компании", a.CompSvc.GetByOwnerId, ctx, user.ID, true)
 	if err != nil {
 		return fmt.Errorf("вывод компаний предпринимателя с пагинацией: %w", err)
 	}

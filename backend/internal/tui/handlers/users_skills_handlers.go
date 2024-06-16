@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"github.com/google/uuid"
 	"os"
@@ -12,6 +13,7 @@ import (
 )
 
 func AddUserSkill(a *app.App, args ...any) (err error) {
+	ctx := context.Background()
 	reader := bufio.NewReader(os.Stdin)
 
 	var username string
@@ -23,7 +25,7 @@ func AddUserSkill(a *app.App, args ...any) (err error) {
 		}
 	}
 
-	user, err := a.UserSvc.GetByUsername(username)
+	user, err := a.UserSvc.GetByUsername(ctx, username)
 	if err != nil {
 		return fmt.Errorf("пользователь не найден: %w", err)
 	}
@@ -49,7 +51,7 @@ func AddUserSkill(a *app.App, args ...any) (err error) {
 	userSkill.UserId = user.ID
 	userSkill.SkillId = skillUuid
 
-	err = a.UserSkillSvc.Create(&userSkill)
+	err = a.UserSkillSvc.Create(ctx, &userSkill)
 	if err != nil {
 		return fmt.Errorf("ошибка добавления навыка пользователю: %w", err)
 	}
@@ -58,6 +60,7 @@ func AddUserSkill(a *app.App, args ...any) (err error) {
 }
 
 func DeleteUserSkill(a *app.App, args ...any) (err error) {
+	ctx := context.Background()
 	var username string
 	var ok bool
 	if len(args) > 0 {
@@ -67,7 +70,7 @@ func DeleteUserSkill(a *app.App, args ...any) (err error) {
 		}
 	}
 
-	user, err := a.UserSvc.GetByUsername(username)
+	user, err := a.UserSvc.GetByUsername(ctx, username)
 	if err != nil {
 		return fmt.Errorf("пользователь не найден: %w", err)
 	}
@@ -96,7 +99,7 @@ func DeleteUserSkill(a *app.App, args ...any) (err error) {
 		SkillId: skillUuid,
 	}
 
-	err = a.UserSkillSvc.Delete(pair)
+	err = a.UserSkillSvc.Delete(ctx, pair)
 	if err != nil {
 		return fmt.Errorf("удаление навыка пользователя: %w", err)
 	}
@@ -105,6 +108,7 @@ func DeleteUserSkill(a *app.App, args ...any) (err error) {
 }
 
 func GetMySkills(a *app.App, args ...any) (err error) {
+	ctx := context.Background()
 	var username string
 	var ok bool
 	if len(args) > 0 {
@@ -114,12 +118,12 @@ func GetMySkills(a *app.App, args ...any) (err error) {
 		}
 	}
 
-	user, err := a.UserSvc.GetByUsername(username)
+	user, err := a.UserSvc.GetByUsername(ctx, username)
 	if err != nil {
 		return fmt.Errorf("пользователь не найден")
 	}
 
-	err = utils.PrintPaginatedCollectionArgs("Навыки", a.UserSkillSvc.GetSkillsForUser, user.ID, true)
+	err = utils.PrintPaginatedCollectionArgs("Навыки", a.UserSkillSvc.GetSkillsForUser, ctx, user.ID, true)
 	if err != nil {
 		return fmt.Errorf("вывод навыков с пагинацией: %w", err)
 	}

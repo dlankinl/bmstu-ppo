@@ -208,11 +208,12 @@ func TestInteractor_CalculateUserRating(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			ctx := context.Background()
 			if tc.beforeTest != nil {
 				tc.beforeTest(*userRepo, *finRepo, *compRepo, *actFieldRepo)
 			}
 
-			val, err := interactor.CalculateUserRating(tc.userId)
+			val, err := interactor.CalculateUserRating(ctx, tc.userId)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -370,11 +371,12 @@ func TestInteractor_GetMostProfitableCompany(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			ctx := context.Background()
 			if tc.beforeTest != nil {
 				tc.beforeTest(*finRepo)
 			}
 
-			company, err := interactor.GetMostProfitableCompany(tc.period, tc.companies)
+			company, err := interactor.GetMostProfitableCompany(ctx, tc.period, tc.companies)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -665,11 +667,12 @@ func TestInteractor_GetUserFinancialReport(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			ctx := context.Background()
 			if tc.beforeTest != nil {
 				tc.beforeTest(*userRepo, *finRepo, *compRepo, *actFieldRepo)
 			}
 
-			report, err := interactor.GetUserFinancialReport(tc.userId, tc.period)
+			report, err := interactor.GetUserFinancialReport(ctx, tc.userId, tc.period)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())

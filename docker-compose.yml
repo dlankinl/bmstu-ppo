@@ -10,3 +10,27 @@ services:
       - POSTGRES_USERNAME=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DATABASE=postgres
+  backend:
+    image: ppo-backend
+    container_name: "backend"
+    ports:
+      - '8081:8081'
+    environment:
+      - JWT_KEY=324mIOjkm34k677NkfsJf3
+      - DB_NAME=postgres
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_DRIVER=postgres
+      - DB_HOST=db
+      - DB_PORT=5432
+    depends_on:
+      - db
+  frontend:
+    image: ppo-frontend
+    container_name: frontend
+    ports:
+      - '8080:80'
+    depends_on: 
+      - backend
+    environment:
+      - API_URL=http://localhost:8081/

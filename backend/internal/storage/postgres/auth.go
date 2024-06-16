@@ -34,7 +34,7 @@ func (r *AuthRepository) Register(ctx context.Context, authInfo *domain.UserAuth
 }
 
 func (r *AuthRepository) GetByUsername(ctx context.Context, username string) (data *domain.UserAuth, err error) {
-	query := `select password, role from ppo.users where username = $1`
+	query := `select id, password, role from ppo.users where username = $1`
 
 	tmp := new(UserAuth)
 	err = r.db.QueryRow(
@@ -42,6 +42,7 @@ func (r *AuthRepository) GetByUsername(ctx context.Context, username string) (da
 		query,
 		username,
 	).Scan(
+		&tmp.ID,
 		&tmp.HashedPass,
 		&tmp.Role,
 	)

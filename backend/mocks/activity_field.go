@@ -152,103 +152,103 @@ func (m *MockIActivityFieldService) EXPECT() *MockIActivityFieldServiceMockRecor
 }
 
 // Create mocks base method.
-func (m *MockIActivityFieldService) Create(arg0 *domain.ActivityField) error {
+func (m *MockIActivityFieldService) Create(arg0 context.Context, arg1 *domain.ActivityField) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create", arg0)
+	ret := m.ctrl.Call(m, "Create", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Create indicates an expected call of Create.
-func (mr *MockIActivityFieldServiceMockRecorder) Create(arg0 any) *gomock.Call {
+func (mr *MockIActivityFieldServiceMockRecorder) Create(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockIActivityFieldService)(nil).Create), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockIActivityFieldService)(nil).Create), arg0, arg1)
 }
 
 // DeleteById mocks base method.
-func (m *MockIActivityFieldService) DeleteById(arg0 uuid.UUID) error {
+func (m *MockIActivityFieldService) DeleteById(arg0 context.Context, arg1 uuid.UUID) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteById", arg0)
+	ret := m.ctrl.Call(m, "DeleteById", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // DeleteById indicates an expected call of DeleteById.
-func (mr *MockIActivityFieldServiceMockRecorder) DeleteById(arg0 any) *gomock.Call {
+func (mr *MockIActivityFieldServiceMockRecorder) DeleteById(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteById", reflect.TypeOf((*MockIActivityFieldService)(nil).DeleteById), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteById", reflect.TypeOf((*MockIActivityFieldService)(nil).DeleteById), arg0, arg1)
 }
 
 // GetAll mocks base method.
-func (m *MockIActivityFieldService) GetAll(page int) ([]*domain.ActivityField, error) {
+func (m *MockIActivityFieldService) GetAll(arg0 context.Context, arg1 int) ([]*domain.ActivityField, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAll", page)
+	ret := m.ctrl.Call(m, "GetAll", arg0, arg1)
 	ret0, _ := ret[0].([]*domain.ActivityField)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetAll indicates an expected call of GetAll.
-func (mr *MockIActivityFieldServiceMockRecorder) GetAll(page any) *gomock.Call {
+func (mr *MockIActivityFieldServiceMockRecorder) GetAll(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockIActivityFieldService)(nil).GetAll), page)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockIActivityFieldService)(nil).GetAll), arg0, arg1)
 }
 
 // GetById mocks base method.
-func (m *MockIActivityFieldService) GetById(arg0 uuid.UUID) (*domain.ActivityField, error) {
+func (m *MockIActivityFieldService) GetById(arg0 context.Context, arg1 uuid.UUID) (*domain.ActivityField, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetById", arg0)
+	ret := m.ctrl.Call(m, "GetById", arg0, arg1)
 	ret0, _ := ret[0].(*domain.ActivityField)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetById indicates an expected call of GetById.
-func (mr *MockIActivityFieldServiceMockRecorder) GetById(arg0 any) *gomock.Call {
+func (mr *MockIActivityFieldServiceMockRecorder) GetById(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetById", reflect.TypeOf((*MockIActivityFieldService)(nil).GetById), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetById", reflect.TypeOf((*MockIActivityFieldService)(nil).GetById), arg0, arg1)
 }
 
 // GetCostByCompanyId mocks base method.
-func (m *MockIActivityFieldService) GetCostByCompanyId(arg0 uuid.UUID) (float32, error) {
+func (m *MockIActivityFieldService) GetCostByCompanyId(arg0 context.Context, arg1 uuid.UUID) (float32, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetCostByCompanyId", arg0)
+	ret := m.ctrl.Call(m, "GetCostByCompanyId", arg0, arg1)
 	ret0, _ := ret[0].(float32)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetCostByCompanyId indicates an expected call of GetCostByCompanyId.
-func (mr *MockIActivityFieldServiceMockRecorder) GetCostByCompanyId(arg0 any) *gomock.Call {
+func (mr *MockIActivityFieldServiceMockRecorder) GetCostByCompanyId(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCostByCompanyId", reflect.TypeOf((*MockIActivityFieldService)(nil).GetCostByCompanyId), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCostByCompanyId", reflect.TypeOf((*MockIActivityFieldService)(nil).GetCostByCompanyId), arg0, arg1)
 }
 
 // GetMaxCost mocks base method.
-func (m *MockIActivityFieldService) GetMaxCost() (float32, error) {
+func (m *MockIActivityFieldService) GetMaxCost(arg0 context.Context) (float32, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetMaxCost")
+	ret := m.ctrl.Call(m, "GetMaxCost", arg0)
 	ret0, _ := ret[0].(float32)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetMaxCost indicates an expected call of GetMaxCost.
-func (mr *MockIActivityFieldServiceMockRecorder) GetMaxCost() *gomock.Call {
+func (mr *MockIActivityFieldServiceMockRecorder) GetMaxCost(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMaxCost", reflect.TypeOf((*MockIActivityFieldService)(nil).GetMaxCost))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMaxCost", reflect.TypeOf((*MockIActivityFieldService)(nil).GetMaxCost), arg0)
 }
 
 // Update mocks base method.
-func (m *MockIActivityFieldService) Update(arg0 *domain.ActivityField) error {
+func (m *MockIActivityFieldService) Update(arg0 context.Context, arg1 *domain.ActivityField) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Update", arg0)
+	ret := m.ctrl.Call(m, "Update", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Update indicates an expected call of Update.
-func (mr *MockIActivityFieldServiceMockRecorder) Update(arg0 any) *gomock.Call {
+func (mr *MockIActivityFieldServiceMockRecorder) Update(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockIActivityFieldService)(nil).Update), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockIActivityFieldService)(nil).Update), arg0, arg1)
 }

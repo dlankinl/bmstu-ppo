@@ -3,9 +3,10 @@ package user
 import (
 	"context"
 	"fmt"
-	"github.com/google/uuid"
 	"ppo/domain"
 	"strings"
+
+	"github.com/google/uuid"
 )
 
 type Service struct {
@@ -26,7 +27,7 @@ func NewService(
 	}
 }
 
-func (s *Service) Create(user *domain.User) (err error) {
+func (s *Service) Create(ctx context.Context, user *domain.User) (err error) {
 	if user.Gender != "m" && user.Gender != "w" {
 		return fmt.Errorf("неизвестный пол")
 	}
@@ -47,8 +48,6 @@ func (s *Service) Create(user *domain.User) (err error) {
 		return fmt.Errorf("некорректное количество слов (должны быть фамилия, имя и отчество)")
 	}
 
-	ctx := context.Background()
-
 	err = s.userRepo.Create(ctx, user)
 	if err != nil {
 		return fmt.Errorf("создание пользователя: %w", err)
@@ -57,9 +56,7 @@ func (s *Service) Create(user *domain.User) (err error) {
 	return nil
 }
 
-func (s *Service) GetByUsername(username string) (user *domain.User, err error) {
-	ctx := context.Background()
-
+func (s *Service) GetByUsername(ctx context.Context, username string) (user *domain.User, err error) {
 	user, err = s.userRepo.GetByUsername(ctx, username)
 	if err != nil {
 		return nil, fmt.Errorf("получение пользователя по username: %w", err)
@@ -68,9 +65,7 @@ func (s *Service) GetByUsername(username string) (user *domain.User, err error) 
 	return user, nil
 }
 
-func (s *Service) GetById(userId uuid.UUID) (user *domain.User, err error) {
-	ctx := context.Background()
-
+func (s *Service) GetById(ctx context.Context, userId uuid.UUID) (user *domain.User, err error) {
 	user, err = s.userRepo.GetById(ctx, userId)
 	if err != nil {
 		return nil, fmt.Errorf("получение пользователя по id: %w", err)
@@ -79,19 +74,35 @@ func (s *Service) GetById(userId uuid.UUID) (user *domain.User, err error) {
 	return user, nil
 }
 
-func (s *Service) GetAll(page int) (users []*domain.User, err error) {
-	ctx := context.Background()
-
-	users, err = s.userRepo.GetAll(ctx, page)
+func (s *Service) GetAll(ctx context.Context, page int) (users []*domain.User, numPages int, err error) {
+	users, numPages, err = s.userRepo.GetAll(ctx, page)
 	if err != nil {
-		return nil, fmt.Errorf("получение списка всех пользователей: %w", err)
+		return nil, 0, fmt.Errorf("получение списка всех пользователей: %w", err)
 	}
 
-	return users, nil
+	return users, numPages, nil
 }
 
-func (s *Service) Update(user *domain.User) (err error) {
-	ctx := context.Background()
+func (s *Service) Update(ctx context.Context, user *domain.User) (err error) {
+	if user.Gender != "m" && user.Gender != "w" {
+		return fmt.Errorf("неизвестный пол")
+	}
+
+	if user.City == "" {
+		return fmt.Errorf("должно быть указано название города")
+	}
+
+	if user.Birthday.IsZero() {
+		return fmt.Errorf("должна быть указана дата рождения")
+	}
+
+	if user.FullName == "" {
+		return fmt.Errorf("должны быть указаны ФИО")
+	}
+
+	if len(strings.Split(user.FullName, " ")) != 3 {
+		return fmt.Errorf("некорректное количество слов (должны быть фамилия, имя и отчество)")
+	}
 
 	if user.Role != "admin" && user.Role != "user" {
 		return fmt.Errorf("невалидная роль")
@@ -105,9 +116,7 @@ func (s *Service) Update(user *domain.User) (err error) {
 	return nil
 }
 
-func (s *Service) DeleteById(id uuid.UUID) (err error) {
-	ctx := context.Background()
-
+func (s *Service) DeleteById(ctx context.Context, id uuid.UUID) (err error) {
 	err = s.userRepo.DeleteById(ctx, id)
 	if err != nil {
 		return fmt.Errorf("удаление пользователя по id: %w", err)

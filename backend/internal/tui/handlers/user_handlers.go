@@ -2,19 +2,22 @@ package handlers
 
 import (
 	"bufio"
+	"context"
 	"fmt"
-	"github.com/google/uuid"
 	"os"
 	"ppo/internal/app"
 	"ppo/internal/config"
 	"ppo/internal/tui/utils"
 	"strings"
+
+	"github.com/google/uuid"
 )
 
 func GetAllUsers(a *app.App, args ...any) (err error) {
+	ctx := context.Background()
 	page := 1
 	for {
-		users, err := a.UserSvc.GetAll(page)
+		users, err := a.UserSvc.GetAll(ctx, page)
 		if err != nil {
 			return fmt.Errorf("получение пользователей: %w", err)
 		}
@@ -44,6 +47,7 @@ func GetAllUsers(a *app.App, args ...any) (err error) {
 }
 
 func CalculateRating(a *app.App, args ...any) (err error) {
+	ctx := context.Background()
 	reader := bufio.NewReader(os.Stdin)
 	var idStr string
 
@@ -64,7 +68,7 @@ func CalculateRating(a *app.App, args ...any) (err error) {
 		return fmt.Errorf("парсинг uuid из строки: %w", err)
 	}
 
-	rating, err := a.Interactor.CalculateUserRating(id)
+	rating, err := a.Interactor.CalculateUserRating(ctx, id)
 	if err != nil {
 		return fmt.Errorf("расчёт рейтинга: %w", err)
 	}

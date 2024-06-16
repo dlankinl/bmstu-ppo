@@ -2,6 +2,7 @@ package domain
 
 import (
 	"context"
+
 	"github.com/google/uuid"
 )
 
@@ -18,15 +19,15 @@ type IActivityFieldRepository interface {
 	Update(context.Context, *ActivityField) error
 	GetById(context.Context, uuid.UUID) (*ActivityField, error)
 	GetMaxCost(context.Context) (float32, error)
-	GetAll(context.Context, int) ([]*ActivityField, error)
+	GetAll(context.Context, int, bool) ([]*ActivityField, int, error)
 }
 
 type IActivityFieldService interface {
-	Create(*ActivityField) error
-	DeleteById(uuid.UUID) error
-	Update(*ActivityField) error
-	GetById(uuid.UUID) (*ActivityField, error)
-	GetCostByCompanyId(uuid.UUID) (float32, error)
-	GetMaxCost() (float32, error)
-	GetAll(page int) ([]*ActivityField, error)
+	Create(context.Context, *ActivityField) error
+	DeleteById(context.Context, uuid.UUID) error
+	Update(context.Context, *ActivityField) error
+	GetById(context.Context, uuid.UUID) (*ActivityField, error)
+	GetCostByCompanyId(context.Context, uuid.UUID) (float32, error)
+	GetMaxCost(context.Context) (float32, error)
+	GetAll(context.Context, int, bool) ([]*ActivityField, int, error)
 }

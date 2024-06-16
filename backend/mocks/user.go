@@ -42,90 +42,90 @@ func (m *MockIUserRepository) EXPECT() *MockIUserRepositoryMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockIUserRepository) Create(ctx context.Context, user *domain.User) error {
+func (m *MockIUserRepository) Create(arg0 context.Context, arg1 *domain.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create", ctx, user)
+	ret := m.ctrl.Call(m, "Create", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Create indicates an expected call of Create.
-func (mr *MockIUserRepositoryMockRecorder) Create(ctx, user any) *gomock.Call {
+func (mr *MockIUserRepositoryMockRecorder) Create(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockIUserRepository)(nil).Create), ctx, user)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockIUserRepository)(nil).Create), arg0, arg1)
 }
 
 // DeleteById mocks base method.
-func (m *MockIUserRepository) DeleteById(ctx context.Context, id uuid.UUID) error {
+func (m *MockIUserRepository) DeleteById(arg0 context.Context, arg1 uuid.UUID) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteById", ctx, id)
+	ret := m.ctrl.Call(m, "DeleteById", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // DeleteById indicates an expected call of DeleteById.
-func (mr *MockIUserRepositoryMockRecorder) DeleteById(ctx, id any) *gomock.Call {
+func (mr *MockIUserRepositoryMockRecorder) DeleteById(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteById", reflect.TypeOf((*MockIUserRepository)(nil).DeleteById), ctx, id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteById", reflect.TypeOf((*MockIUserRepository)(nil).DeleteById), arg0, arg1)
 }
 
 // GetAll mocks base method.
-func (m *MockIUserRepository) GetAll(ctx context.Context, page int) ([]*domain.User, error) {
+func (m *MockIUserRepository) GetAll(arg0 context.Context, arg1 int) ([]*domain.User, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAll", ctx, page)
+	ret := m.ctrl.Call(m, "GetAll", arg0, arg1)
 	ret0, _ := ret[0].([]*domain.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetAll indicates an expected call of GetAll.
-func (mr *MockIUserRepositoryMockRecorder) GetAll(ctx, page any) *gomock.Call {
+func (mr *MockIUserRepositoryMockRecorder) GetAll(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockIUserRepository)(nil).GetAll), ctx, page)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockIUserRepository)(nil).GetAll), arg0, arg1)
 }
 
 // GetById mocks base method.
-func (m *MockIUserRepository) GetById(ctx context.Context, userId uuid.UUID) (*domain.User, error) {
+func (m *MockIUserRepository) GetById(arg0 context.Context, arg1 uuid.UUID) (*domain.User, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetById", ctx, userId)
+	ret := m.ctrl.Call(m, "GetById", arg0, arg1)
 	ret0, _ := ret[0].(*domain.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetById indicates an expected call of GetById.
-func (mr *MockIUserRepositoryMockRecorder) GetById(ctx, userId any) *gomock.Call {
+func (mr *MockIUserRepositoryMockRecorder) GetById(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetById", reflect.TypeOf((*MockIUserRepository)(nil).GetById), ctx, userId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetById", reflect.TypeOf((*MockIUserRepository)(nil).GetById), arg0, arg1)
 }
 
 // GetByUsername mocks base method.
-func (m *MockIUserRepository) GetByUsername(ctx context.Context, username string) (*domain.User, error) {
+func (m *MockIUserRepository) GetByUsername(arg0 context.Context, arg1 string) (*domain.User, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetByUsername", ctx, username)
+	ret := m.ctrl.Call(m, "GetByUsername", arg0, arg1)
 	ret0, _ := ret[0].(*domain.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetByUsername indicates an expected call of GetByUsername.
-func (mr *MockIUserRepositoryMockRecorder) GetByUsername(ctx, username any) *gomock.Call {
+func (mr *MockIUserRepositoryMockRecorder) GetByUsername(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByUsername", reflect.TypeOf((*MockIUserRepository)(nil).GetByUsername), ctx, username)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByUsername", reflect.TypeOf((*MockIUserRepository)(nil).GetByUsername), arg0, arg1)
 }
 
 // Update mocks base method.
-func (m *MockIUserRepository) Update(ctx context.Context, user *domain.User) error {
+func (m *MockIUserRepository) Update(arg0 context.Context, arg1 *domain.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Update", ctx, user)
+	ret := m.ctrl.Call(m, "Update", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Update indicates an expected call of Update.
-func (mr *MockIUserRepositoryMockRecorder) Update(ctx, user any) *gomock.Call {
+func (mr *MockIUserRepositoryMockRecorder) Update(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockIUserRepository)(nil).Update), ctx, user)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockIUserRepository)(nil).Update), arg0, arg1)
 }
 
 // MockIUserService is a mock of IUserService interface.
@@ -152,88 +152,88 @@ func (m *MockIUserService) EXPECT() *MockIUserServiceMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockIUserService) Create(user *domain.User) error {
+func (m *MockIUserService) Create(arg0 context.Context, arg1 *domain.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create", user)
+	ret := m.ctrl.Call(m, "Create", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Create indicates an expected call of Create.
-func (mr *MockIUserServiceMockRecorder) Create(user any) *gomock.Call {
+func (mr *MockIUserServiceMockRecorder) Create(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockIUserService)(nil).Create), user)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockIUserService)(nil).Create), arg0, arg1)
 }
 
 // DeleteById mocks base method.
-func (m *MockIUserService) DeleteById(id uuid.UUID) error {
+func (m *MockIUserService) DeleteById(arg0 context.Context, arg1 uuid.UUID) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteById", id)
+	ret := m.ctrl.Call(m, "DeleteById", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // DeleteById indicates an expected call of DeleteById.
-func (mr *MockIUserServiceMockRecorder) DeleteById(id any) *gomock.Call {
+func (mr *MockIUserServiceMockRecorder) DeleteById(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteById", reflect.TypeOf((*MockIUserService)(nil).DeleteById), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteById", reflect.TypeOf((*MockIUserService)(nil).DeleteById), arg0, arg1)
 }
 
 // GetAll mocks base method.
-func (m *MockIUserService) GetAll(page int) ([]*domain.User, error) {
+func (m *MockIUserService) GetAll(arg0 context.Context, arg1 int) ([]*domain.User, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAll", page)
+	ret := m.ctrl.Call(m, "GetAll", arg0, arg1)
 	ret0, _ := ret[0].([]*domain.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetAll indicates an expected call of GetAll.
-func (mr *MockIUserServiceMockRecorder) GetAll(page any) *gomock.Call {
+func (mr *MockIUserServiceMockRecorder) GetAll(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockIUserService)(nil).GetAll), page)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockIUserService)(nil).GetAll), arg0, arg1)
 }
 
 // GetById mocks base method.
-func (m *MockIUserService) GetById(userId uuid.UUID) (*domain.User, error) {
+func (m *MockIUserService) GetById(arg0 context.Context, arg1 uuid.UUID) (*domain.User, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetById", userId)
+	ret := m.ctrl.Call(m, "GetById", arg0, arg1)
 	ret0, _ := ret[0].(*domain.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetById indicates an expected call of GetById.
-func (mr *MockIUserServiceMockRecorder) GetById(userId any) *gomock.Call {
+func (mr *MockIUserServiceMockRecorder) GetById(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetById", reflect.TypeOf((*MockIUserService)(nil).GetById), userId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetById", reflect.TypeOf((*MockIUserService)(nil).GetById), arg0, arg1)
 }
 
 // GetByUsername mocks base method.
-func (m *MockIUserService) GetByUsername(username string) (*domain.User, error) {
+func (m *MockIUserService) GetByUsername(arg0 context.Context, arg1 string) (*domain.User, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetByUsername", username)
+	ret := m.ctrl.Call(m, "GetByUsername", arg0, arg1)
 	ret0, _ := ret[0].(*domain.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetByUsername indicates an expected call of GetByUsername.
-func (mr *MockIUserServiceMockRecorder) GetByUsername(username any) *gomock.Call {
+func (mr *MockIUserServiceMockRecorder) GetByUsername(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByUsername", reflect.TypeOf((*MockIUserService)(nil).GetByUsername), username)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByUsername", reflect.TypeOf((*MockIUserService)(nil).GetByUsername), arg0, arg1)
 }
 
 // Update mocks base method.
-func (m *MockIUserService) Update(user *domain.User) error {
+func (m *MockIUserService) Update(arg0 context.Context, arg1 *domain.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Update", user)
+	ret := m.ctrl.Call(m, "Update", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Update indicates an expected call of Update.
-func (mr *MockIUserServiceMockRecorder) Update(user any) *gomock.Call {
+func (mr *MockIUserServiceMockRecorder) Update(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockIUserService)(nil).Update), user)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockIUserService)(nil).Update), arg0, arg1)
 }

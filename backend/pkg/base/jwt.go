@@ -7,15 +7,15 @@ import (
 )
 
 type JwtPayload struct {
-	Username string
-	Role     string
+	ID   string
+	Role string
 }
 
-func GenerateAuthToken(username, jwtKey, role string) (tokenString string, err error) {
+func GenerateAuthToken(id, jwtKey, role string) (tokenString string, err error) {
 	token := jwt.NewWithClaims(
 		jwt.SigningMethodHS256,
 		jwt.MapClaims{
-			"sub":  username,
+			"sub":  id,
 			"exp":  time.Now().Add(time.Hour * 24).Unix(),
 			"role": role,
 		})
@@ -43,7 +43,7 @@ func VerifyAuthToken(tokenString, jwtKey string) (payload *JwtPayload, err error
 
 	payload = new(JwtPayload)
 	if claims, ok := token.Claims.(jwt.MapClaims); ok {
-		payload.Username = fmt.Sprint(claims["sub"])
+		payload.ID = fmt.Sprint(claims["sub"])
 		payload.Role = fmt.Sprint(claims["role"])
 	}
 

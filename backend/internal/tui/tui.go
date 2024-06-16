@@ -2,10 +2,12 @@ package tui
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"os"
 	"ppo/domain"
 	"ppo/internal/app"
+	"ppo/internal/config"
 	"ppo/internal/tui/handlers"
 	"ppo/internal/tui/utils"
 	"ppo/pkg/base"
@@ -157,11 +159,12 @@ var actions = []Action{
 }
 
 func (t *TUI) Run() (err error) {
+	ctx := context.Background()
+
 	var choice int
 	reader := bufio.NewReader(os.Stdin)
 	_ = reader
 	for {
-		fmt.Println(authPrompt)
 		_, err = fmt.Scanf("%d", &choice)
 		if err != nil {
 			fmt.Println("ошибка ввода: %w", err)
@@ -192,7 +195,7 @@ func (t *TUI) Run() (err error) {
 			}
 
 			ua := &domain.UserAuth{Username: login, Password: password}
-			token, err := t.app.AuthSvc.Login(ua)
+			token, err := t.app.AuthSvc.Login(ctx, ua)
 			if err != nil {
 				fmt.Printf("ошибка авторизации: %v\n", err)
 				continue
@@ -239,6 +242,8 @@ func (t *TUI) userMenu() (err error) {
 }
 
 func (t *TUI) guestMenu() (err error) {
+	ctx := context.Background()
+
 	var choice int
 	for {
 		fmt.Println(guestPrompt)
@@ -264,15 +269,48 @@ func (t *TUI) guestMenu() (err error) {
 			}
 
 			ua := &domain.UserAuth{Username: login, Password: password}
-			err = t.app.AuthSvc.Register(ua)
+			err = t.app.AuthSvc.Register(ctx, ua)
 			if err != nil {
 				return fmt.Errorf("ошибка регистрации: %w", err)
 			}
 			return nil
 		case 2:
-			err = utils.PrintPaginatedCollection("Предприниматели", t.app.UserSvc.GetAll)
+			err = printPaginatedUsers(ctx, t.app)
 			if err != nil {
 				return fmt.Errorf("ошибка просмотра списка предпринимателей: %w", err)
+			}
+		case 0:
+			return nil
+		}
+	}
+}
+
+func printPaginatedUsers(ctx context.Context, app *app.App) (err error) {
+	page := 1
+
+	for {
+		tmp, err := app.UserSvc.GetAll(ctx, page)
+		if err != nil {
+			return fmt.Errorf("получение пагинированных данных: %w", err)
+		}
+
+		utils.PrintCollection("Предприниматели", tmp)
+
+		fmt.Printf("1. Предыдущая страница.\n2. Следующая страница.\n0. Назад.\n\nВыберите действие: ")
+		var option int
+		_, err = fmt.Scanf("%d", &option)
+		if err != nil {
+			return fmt.Errorf("ошибка ввода следующего действия: %w", err)
+		}
+
+		switch option {
+		case 1:
+			if page > 1 {
+				page--
+			}
+		case 2:
+			if len(tmp) == config.PageSize {
+				page++
 			}
 		case 0:
 			return nil

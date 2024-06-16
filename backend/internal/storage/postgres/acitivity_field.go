@@ -3,10 +3,12 @@ package postgres
 import (
 	"context"
 	"fmt"
-	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"ppo/domain"
 	"ppo/internal/config"
+
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type ActivityFieldRepository struct {
@@ -61,7 +63,6 @@ func (r *ActivityFieldRepository) Update(ctx context.Context, data *domain.Activ
 			    cost = $3
 			where id = $4`
 
-	fmt.Println("HERE", data.ID, data.Name, data.Description, data.Cost)
 	_, err = r.db.Exec(
 		ctx,
 		query,
@@ -115,17 +116,31 @@ func (r *ActivityFieldRepository) GetMaxCost(ctx context.Context) (cost float32,
 	return cost, nil
 }
 
-func (r *ActivityFieldRepository) GetAll(ctx context.Context, page int) (fields []*domain.ActivityField, err error) {
-	query := `select id, name, description, cost from ppo.activity_fields offset $1 limit $2`
+func (r *ActivityFieldRepository) GetAll(ctx context.Context, page int, isPaginated bool) (fields []*domain.ActivityField, numPages int, err error) {
+	query :=
+		`select 
+    		id, 
+    		name,
+    		description,
+    		cost 
+		from ppo.activity_fields`
 
-	rows, err := r.db.Query(
-		ctx,
-		query,
-		(page-1)*config.PageSize,
-		config.PageSize,
-	)
+	var rows pgx.Rows
+	if !isPaginated {
+		rows, err = r.db.Query(
+			ctx,
+			query,
+		)
+	} else {
+		rows, err = r.db.Query(
+			ctx,
+			query+` offset $1 limit $2`,
+			(page-1)*config.PageSize,
+			config.PageSize,
+		)
+	}
 	if err != nil {
-		return nil, fmt.Errorf("получение сфер деятельности: %w", err)
+		return nil, 0, fmt.Errorf("получение сфер деятельности: %w", err)
 	}
 
 	fields = make([]*domain.ActivityField, 0)
@@ -140,11 +155,25 @@ func (r *ActivityFieldRepository) GetAll(ctx context.Context, page int) (fields 
 		)
 
 		if err != nil {
-			return nil, fmt.Errorf("сканирование полученных строк: %w", err)
+			return nil, 0, fmt.Errorf("сканирование полученных строк: %w", err)
 		}
 
 		fields = append(fields, tmp)
 	}
 
-	return fields, nil
+	var numRecords int
+	err = r.db.QueryRow(
+		ctx,
+		`select count(*) from ppo.activity_fields`,
+	).Scan(&numRecords)
+	if err != nil {
+		return nil, 0, fmt.Errorf("получение числа сфер деятельности: %w", err)
+	}
+
+	numPages = numRecords / config.PageSize
+	if numRecords%config.PageSize != 0 {
+		numPages++
+	}
+
+	return fields, numPages, nil
 }

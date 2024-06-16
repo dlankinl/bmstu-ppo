@@ -14,19 +14,19 @@ type Company struct {
 }
 
 type ICompanyRepository interface {
-	Create(ctx context.Context, company *Company) error
-	GetById(ctx context.Context, id uuid.UUID) (*Company, error)
-	GetByOwnerId(ctx context.Context, id uuid.UUID, page int, isPaginated bool) ([]*Company, error)
-	GetAll(ctx context.Context, page int) ([]*Company, error)
-	Update(ctx context.Context, company *Company) error
-	DeleteById(ctx context.Context, id uuid.UUID) error
+	Create(context.Context, *Company) error
+	GetById(context.Context, uuid.UUID) (*Company, error)
+	GetByOwnerId(context.Context, uuid.UUID, int, bool) ([]*Company, int, error)
+	GetAll(context.Context, int) ([]*Company, error)
+	Update(context.Context, *Company) error
+	DeleteById(context.Context, uuid.UUID) error
 }
 
 type ICompanyService interface {
-	Create(company *Company) error
-	GetById(id uuid.UUID) (*Company, error)
-	GetByOwnerId(id uuid.UUID, page int, isPaginated bool) ([]*Company, error)
-	GetAll(page int) ([]*Company, error)
-	Update(company *Company) error
-	DeleteById(id uuid.UUID) error
+	Create(context.Context, *Company) error
+	GetById(context.Context, uuid.UUID) (*Company, error)
+	GetByOwnerId(context.Context, uuid.UUID, int, bool) ([]*Company, int, error)
+	GetAll(context.Context, int) ([]*Company, error)
+	Update(context.Context, *Company) error
+	DeleteById(context.Context, uuid.UUID) error
 }

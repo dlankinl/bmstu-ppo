@@ -1,10 +1,13 @@
 package user_activity_field
 
 import (
+	"context"
 	"fmt"
-	"github.com/google/uuid"
+	"math"
 	"ppo/domain"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 const (
@@ -116,11 +119,11 @@ func calcRating(profit, revenue, cost, maxCost float32) float32 {
 	return (cost/maxCost + profit/revenue) / 2.0
 }
 
-func (i *Interactor) GetMostProfitableCompany(period *domain.Period, companies []*domain.Company) (company *domain.Company, err error) {
+func (i *Interactor) GetMostProfitableCompany(ctx context.Context, period *domain.Period, companies []*domain.Company) (company *domain.Company, err error) {
 	var maxProfit float32
 
 	for _, comp := range companies {
-		rep, err := i.finService.GetByCompany(comp.ID, period)
+		rep, err := i.finService.GetByCompany(ctx, comp.ID, period)
 		if err != nil {
 			return nil, fmt.Errorf("получение отчета компании: %w", err)
 		}
@@ -134,8 +137,8 @@ func (i *Interactor) GetMostProfitableCompany(period *domain.Period, companies [
 	return company, nil
 }
 
-func (i *Interactor) CalculateUserRating(id uuid.UUID) (rating float32, err error) {
-	companies, err := i.compService.GetByOwnerId(id, 0, false)
+func (i *Interactor) CalculateUserRating(ctx context.Context, id uuid.UUID) (rating float32, err error) {
+	companies, _, err := i.compService.GetByOwnerId(ctx, id, 0, false)
 	if err != nil {
 		return 0, fmt.Errorf("получение списка компаний: %w", err)
 	}
@@ -148,25 +151,25 @@ func (i *Interactor) CalculateUserRating(id uuid.UUID) (rating float32, err erro
 		EndQuarter:   lastQuarter,
 	}
 
-	report, err := i.GetUserFinancialReport(id, period)
+	report, err := i.GetUserFinancialReport(ctx, id, period)
 	if err != nil {
 		return 0, fmt.Errorf("получение финансового отчета пользователя: %w", err)
 	}
 
-	mostProfitableCompany, err := i.GetMostProfitableCompany(period, companies)
+	mostProfitableCompany, err := i.GetMostProfitableCompany(ctx, period, companies)
 	if err != nil {
 		return 0, fmt.Errorf("поиск наиболее прибыльной компании: %w", err)
 	}
 	if mostProfitableCompany == nil {
-		return 0, fmt.Errorf("у предпринимателя не найдены компании")
+		return 0.0, nil
 	}
 
-	maxCost, err := i.actFieldService.GetMaxCost()
+	maxCost, err := i.actFieldService.GetMaxCost(ctx)
 	if err != nil {
 		return 0, fmt.Errorf("поиск максимального веса: %w", err)
 	}
 
-	cost, err := i.actFieldService.GetCostByCompanyId(mostProfitableCompany.ID)
+	cost, err := i.actFieldService.GetCostByCompanyId(ctx, mostProfitableCompany.ID)
 	if err != nil {
 		return 0, fmt.Errorf("получение веса сферы деятельности компании: %w", err)
 	}
@@ -180,10 +183,10 @@ func (i *Interactor) CalculateUserRating(id uuid.UUID) (rating float32, err erro
 	return rating, nil
 }
 
-func (i *Interactor) GetUserFinancialReport(id uuid.UUID, period *domain.Period) (report *domain.FinancialReportByPeriod, err error) {
+func (i *Interactor) GetUserFinancialReport(ctx context.Context, id uuid.UUID, period *domain.Period) (report *domain.FinancialReportByPeriod, err error) {
 	report = new(domain.FinancialReportByPeriod)
 
-	companies, err := i.compService.GetByOwnerId(id, 0, false)
+	companies, _, err := i.compService.GetByOwnerId(ctx, id, 0, false)
 	if err != nil {
 		return nil, fmt.Errorf("получение списка компаний: %w", err)
 	}
@@ -191,7 +194,7 @@ func (i *Interactor) GetUserFinancialReport(id uuid.UUID, period *domain.Period)
 	var revenueForTaxLoad float32
 	report.Reports = make([]domain.FinancialReport, 0)
 	for _, comp := range companies {
-		rep, err := i.finService.GetByCompany(comp.ID, period)
+		rep, err := i.finService.GetByCompany(ctx, comp.ID, period)
 		if err != nil {
 			return nil, fmt.Errorf("получение отчета компании: %w", err)
 		}
@@ -206,7 +209,9 @@ func (i *Interactor) GetUserFinancialReport(id uuid.UUID, period *domain.Period)
 	}
 
 	report.Period = period
-	report.TaxLoad = report.Taxes / revenueForTaxLoad * 100
+	if math.Abs(float64(revenueForTaxLoad)) >= 1e-6 {
+		report.TaxLoad = report.Taxes / revenueForTaxLoad * 100
+	}
 
 	return report, nil
 }

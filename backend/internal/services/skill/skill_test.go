@@ -107,11 +107,12 @@ func TestSkillService_Create(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			ctx := context.Background()
 			if tc.beforeTest != nil {
 				tc.beforeTest(*skillRepo)
 			}
 
-			err := svc.Create(tc.skill)
+			err := svc.Create(ctx, tc.skill)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -162,11 +163,12 @@ func TestSkillService_DeleteById(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			ctx := context.Background()
 			if tc.beforeTest != nil {
 				tc.beforeTest(*skillRepo)
 			}
 
-			err := svc.DeleteById(tc.id)
+			err := svc.DeleteById(ctx, tc.id)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -246,11 +248,12 @@ func TestSkillService_GetAll(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			ctx := context.Background()
 			if tc.beforeTest != nil {
 				tc.beforeTest(*skillRepo)
 			}
 
-			skills, err := svc.GetAll(1)
+			skills, err := svc.GetAll(ctx, 1)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -316,11 +319,12 @@ func TestSkillService_GetById(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			ctx := context.Background()
 			if tc.beforeTest != nil {
 				tc.beforeTest(*skillRepo)
 			}
 
-			company, err := svc.GetById(tc.id)
+			company, err := svc.GetById(ctx, tc.id)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
@@ -386,11 +390,12 @@ func TestSkillService_Update(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			ctx := context.Background()
 			if tc.beforeTest != nil {
 				tc.beforeTest(*skillRepo)
 			}
 
-			err := svc.Update(tc.skill)
+			err := svc.Update(ctx, tc.skill)
 
 			if tc.wantErr {
 				require.Equal(t, tc.errStr.Error(), err.Error())
