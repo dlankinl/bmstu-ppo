@@ -3,13 +3,14 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
 	"ppo/internal/app"
 	"ppo/internal/config"
-	"ppo/pkg/logger"
+	loggerPackage "ppo/pkg/logger"
 	"ppo/web"
 
 	"github.com/go-chi/chi/v5"
@@ -57,19 +58,19 @@ func main() {
 	}
 	defer logFileW.Close()
 
-	log := logger.NewLogger(cfg.Logger.Level, logFileW)
+	logger := loggerPackage.NewLogger(cfg.Logger.Level, logFileW)
 	if err != nil {
-		log.Fatalf("cоздание логгера: %v", err)
+		log.Fatalln("cоздание логгера:", err)
 	}
 
 	tokenAuth = jwtauth.New("HS256", []byte(cfg.Server.JwtKey), nil)
 
 	pool, err := newConn(context.Background(), &cfg.Database)
 	if err != nil {
-		log.Fatalf(err.Error())
+		logger.Fatalf(err.Error())
 	}
 
-	a := app.NewApp(pool, cfg, log)
+	a := app.NewApp(pool, cfg, logger)
 
 	mux := chi.NewMux()
 
@@ -217,6 +218,18 @@ func main() {
 	mux.Post("/login", web.LoginHandler(a))
 	mux.Post("/signup", web.RegisterHandler(a))
 
-	fmt.Println("server was started")
-	http.ListenAndServe(":8081", mux)
+	go func() {
+		metricsAddress := fmt.Sprintf("%s:%s", cfg.Server.MetricsHost, cfg.Server.MetricsPort)
+
+		metricsMux := http.NewServeMux()
+		metricsMux.Handle("/metrics", promhttp.Handler())
+
+		fmt.Printf("сервер метрик прослушивает адрес: %s\n", metricsAddress)
+		http.ListenAndServe(metricsAddress, metricsMux)
+	}()
+
+	serverAddress := fmt.Sprintf("%s:%s", cfg.Server.ServerHost, cfg.Server.ServerPort)
+	fmt.Printf("сервер прослушивает адрес: %s\n", serverAddress)
+	logger.Infof("сервер прослушивает адрес: %s\n", serverAddress)
+	http.ListenAndServe(serverAddress, mux)
 }

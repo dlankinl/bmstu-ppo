@@ -19,6 +19,20 @@ const (
 
 const eps = 1e-6
 
+type statusResponseWriter struct {
+	http.ResponseWriter
+	statusCode int
+}
+
+func (w *statusResponseWriter) WriteHeader(code int) {
+	w.statusCode = code
+	w.ResponseWriter.WriteHeader(code)
+}
+
+func (w *statusResponseWriter) StatusCode() int {
+	return w.statusCode
+}
+
 type ErrorResponse struct {
 	Status string `json:"status"`
 	Error  string `json:"error"`
