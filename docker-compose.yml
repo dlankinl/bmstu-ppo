@@ -10,6 +10,8 @@ services:
       - POSTGRES_USERNAME=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DATABASE=postgres
+    volumes:
+      - ./postgres-db:/var/lib/postgresql/data
   backend:
     image: ppo-backend
     container_name: "backend"
@@ -34,3 +36,7 @@ services:
       - backend
     environment:
       - API_URL=http://localhost:8081/
+
+volumes:
+  postgres-db:
+    driver: local

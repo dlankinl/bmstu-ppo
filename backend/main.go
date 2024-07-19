@@ -5,8 +5,11 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 	"ppo/internal/app"
 	"ppo/internal/config"
+	"ppo/pkg/logger"
 	"ppo/web"
 
 	"github.com/go-chi/chi/v5"
@@ -18,8 +21,9 @@ import (
 
 var tokenAuth *jwtauth.JWTAuth
 
-func newConn(ctx context.Context, cfg *config.DBConfig) (pool *pgxpool.Pool, err error) {
-	connStr := fmt.Sprintf("%s://%s:%s@%s:%s/%s", cfg.Driver, cfg.User, cfg.Password, cfg.Host, cfg.Port, cfg.Database)
+func newConn(ctx context.Context, cfg *config.Database) (pool *pgxpool.Pool, err error) {
+	connStr := fmt.Sprintf("%s://%s:%s@%s:%s/%s", cfg.Driver, cfg.User, cfg.Password,
+		cfg.Host, cfg.Port, cfg.Name)
 
 	pool, err = pgxpool.New(ctx, connStr)
 	if err != nil {
@@ -40,14 +44,32 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	tokenAuth = jwtauth.New("HS256", []byte(cfg.JwtKey), nil)
-
-	pool, err := newConn(context.Background(), &cfg.DBConfig)
-	if err != nil {
-		log.Fatalln(err)
+	logDir := "logs"
+	if err := os.MkdirAll(logDir, 0755); err != nil {
+		log.Println("создание директории для логов:", err)
 	}
 
-	a := app.NewApp(pool, cfg)
+	logPath := filepath.Join(logDir, "logs.log")
+	logFileW, err := os.OpenFile(logPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Println("Failed to open log file:", err)
+		return
+	}
+	defer logFileW.Close()
+
+	log := logger.NewLogger(cfg.Logger.Level, logFileW)
+	if err != nil {
+		log.Fatalf("cоздание логгера: %v", err)
+	}
+
+	tokenAuth = jwtauth.New("HS256", []byte(cfg.Server.JwtKey), nil)
+
+	pool, err := newConn(context.Background(), &cfg.Database)
+	if err != nil {
+		log.Fatalf(err.Error())
+	}
+
+	a := app.NewApp(pool, cfg, log)
 
 	mux := chi.NewMux()
 
@@ -64,7 +86,6 @@ func main() {
 
 	mux.Route("/skills", func(r chi.Router) {
 		r.Get("/{id}", web.GetSkill(a))
-		// r.Get("/", web.ListEntrepreneurSkills(a))
 		r.Get("/", web.ListSkills(a))
 
 		r.Group(func(r chi.Router) {
@@ -148,7 +169,6 @@ func main() {
 	})
 
 	mux.Route("/user-skills", func(r chi.Router) {
-		//r.Get("/{id}", web.GetUserSkill(a))
 		r.Get("/", web.ListEntrepreneurSkills(a))
 
 		r.Group(func(r chi.Router) {

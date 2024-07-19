@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"gopkg.in/yaml.v3"
 	"os"
 )
 
@@ -10,67 +11,44 @@ const (
 	MaxContacts = 5
 )
 
-type DBConfig struct {
-	User     string
-	Password string
-	Database string
-	Host     string
-	Port     string
-	Driver   string
+type Server struct {
+	JwtKey string `yaml:"jwt_key"`
+}
+
+type Database struct {
+	Name     string `yaml:"db_name"`
+	User     string `yaml:"db_user"`
+	Password string `yaml:"db_password"`
+	Driver   string `yaml:"db_driver"`
+	Host     string `yaml:"db_host"`
+	Port     string `yaml:"db_port"`
+}
+
+type Logger struct {
+	Level string `yaml:"level"`
 }
 
 type Config struct {
-	JwtKey string
-	DBConfig
+	Server   Server   `yaml:"server"`
+	Database Database `yaml:"database"`
+	Logger   Logger   `yaml:"logger"`
 }
 
 func ReadConfig() (cfg *Config, err error) {
-	jwtKey := os.Getenv("JWT_KEY")
-	if jwtKey == "" {
-		return nil, fmt.Errorf("JWT_KEY должен быть заполнен")
+	cfg = new(Config)
+
+	var f *os.File
+	f, err = os.Open("config.yml")
+	if err != nil {
+		return nil, fmt.Errorf("открытие файла конфига: %w", err)
+	}
+	defer f.Close()
+
+	decoder := yaml.NewDecoder(f)
+	err = decoder.Decode(&cfg)
+	if err != nil {
+		return nil, fmt.Errorf("чтение файла конфига: %w", err)
 	}
 
-	dbUser := os.Getenv("DB_USER")
-	if dbUser == "" {
-		return nil, fmt.Errorf("DB_USER должен быть заполнен")
-	}
-
-	dbPassword := os.Getenv("DB_PASSWORD")
-	if dbPassword == "" {
-		return nil, fmt.Errorf("DB_PASSWORD должен быть заполнен")
-	}
-
-	dbName := os.Getenv("DB_NAME")
-	if dbName == "" {
-		return nil, fmt.Errorf("DB_NAME должен быть заполнен")
-	}
-
-	dbHost := os.Getenv("DB_HOST")
-	if dbHost == "" {
-		return nil, fmt.Errorf("DB_HOST должен быть заполнен")
-	}
-
-	dbPort := os.Getenv("DB_PORT")
-	if dbPort == "" {
-		return nil, fmt.Errorf("DB_PORT должен быть заполнен")
-	}
-
-	dbDriver := os.Getenv("DB_DRIVER")
-	if dbDriver == "" {
-		return nil, fmt.Errorf("DB_DRIVER должен быть заполнен")
-	}
-
-	dbCfg := DBConfig{
-		User:     dbUser,
-		Password: dbPassword,
-		Database: dbName,
-		Host:     dbHost,
-		Port:     dbPort,
-		Driver:   dbDriver,
-	}
-
-	return &Config{
-		JwtKey:   jwtKey,
-		DBConfig: dbCfg,
-	}, nil
+	return cfg, nil
 }

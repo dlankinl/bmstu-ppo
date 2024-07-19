@@ -17,7 +17,7 @@ import (
 
 func LoginHandler(app *app.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		prompt := "аутентификация"
+		prompt := "LoginHandler"
 
 		type Req struct {
 			Login    string `json:"login"`
@@ -27,6 +27,7 @@ func LoginHandler(app *app.App) http.HandlerFunc {
 
 		err := json.NewDecoder(r.Body).Decode(&req)
 		if err != nil {
+			app.Logger.Infof("%s: %v", prompt, err)
 			errorResponse(w, fmt.Errorf("%s: %w", prompt, err).Error(), http.StatusBadRequest)
 			return
 		}
@@ -34,12 +35,14 @@ func LoginHandler(app *app.App) http.HandlerFunc {
 		ua := &domain.UserAuth{Username: req.Login, Password: req.Password}
 		token, err := app.AuthSvc.Login(r.Context(), ua)
 		if err != nil {
+			app.Logger.Infof("%s: %v", prompt, err)
 			errorResponse(w, fmt.Errorf("%s: %w", prompt, err).Error(), http.StatusUnauthorized)
 			return
 		}
 
-		_, err = base.VerifyAuthToken(token, app.Config.JwtKey)
+		_, err = base.VerifyAuthToken(token, app.Config.Server.JwtKey)
 		if err != nil {
+			app.Logger.Infof("%s: проверка JWT-токена: %v", prompt, err)
 			errorResponse(w, fmt.Errorf("%s: проверка JWT-токена: %w", prompt, err).Error(), http.StatusInternalServerError)
 			return
 		}
@@ -59,7 +62,7 @@ func LoginHandler(app *app.App) http.HandlerFunc {
 
 func RegisterHandler(app *app.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		prompt := "регистрация"
+		prompt := "RegisterHandler"
 
 		type Req struct {
 			Login    string `json:"login"`
@@ -69,6 +72,7 @@ func RegisterHandler(app *app.App) http.HandlerFunc {
 
 		err := json.NewDecoder(r.Body).Decode(&req)
 		if err != nil {
+			app.Logger.Infof("%s: %v", prompt, err)
 			errorResponse(w, fmt.Errorf("%s: %w", prompt, err).Error(), http.StatusBadRequest)
 			return
 		}
@@ -76,6 +80,7 @@ func RegisterHandler(app *app.App) http.HandlerFunc {
 		ua := &domain.UserAuth{Username: req.Login, Password: req.Password}
 		err = app.AuthSvc.Register(r.Context(), ua)
 		if err != nil {
+			app.Logger.Infof("%s: %v", prompt, err)
 			errorResponse(w, fmt.Errorf("%s: %w", prompt, err).Error(), http.StatusBadRequest)
 			return
 		}
@@ -86,22 +91,25 @@ func RegisterHandler(app *app.App) http.HandlerFunc {
 
 func ListEntrepreneurs(app *app.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		prompt := "получение списка предпринимателей"
+		prompt := "ListEntrepreneursHandler"
 
 		page := r.URL.Query().Get("page")
 		if page == "" {
+			app.Logger.Infof("%s: пустой номер страницы", prompt)
 			errorResponse(w, fmt.Errorf("%s: пустой номер страницы", prompt).Error(), http.StatusBadRequest)
 			return
 		}
 
 		pageInt, err := strconv.Atoi(page)
 		if err != nil {
+			app.Logger.Infof("%s: преобразование номера страницы к int: %v", prompt, err)
 			errorResponse(w, fmt.Errorf("%s: преобразование номера страницы к int: %w", prompt, err).Error(), http.StatusBadRequest)
 			return
 		}
 
 		users, numPages, err := app.UserSvc.GetAll(r.Context(), pageInt)
 		if err != nil {
+			app.Logger.Infof("%s: %v", prompt, err)
 			errorResponse(w, fmt.Errorf("%s: %w", prompt, err).Error(), http.StatusInternalServerError)
 			return
 		}
@@ -115,53 +123,27 @@ func ListEntrepreneurs(app *app.App) http.HandlerFunc {
 	}
 }
 
-func ListEmptyEntrepreneurs(app *app.App) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		page := r.URL.Query().Get("page")
-		if page == "" {
-			errorResponse(w, fmt.Errorf("empty page number").Error(), http.StatusBadRequest)
-			return
-		}
-
-		pageInt, err := strconv.Atoi(page)
-		if err != nil {
-			errorResponse(w, fmt.Errorf("converting page to int: %w", err).Error(), http.StatusBadRequest)
-			return
-		}
-
-		users, _, err := app.UserSvc.GetAll(r.Context(), pageInt)
-		if err != nil {
-			errorResponse(w, fmt.Errorf("getting users: %w", err).Error(), http.StatusInternalServerError)
-			return
-		}
-
-		usersTransport := make([]User, len(users))
-		for i, user := range users {
-			usersTransport[i] = toUserTransport(user)
-		}
-
-		successResponse(w, http.StatusOK, map[string]interface{}{"users": usersTransport})
-	}
-}
-
 func UpdateEntrepreneur(app *app.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		prompt := "обновление информации о предпринимателе"
+		prompt := "UpdateEntrepreneurHandler"
 
 		id := chi.URLParam(r, "id")
 		if id == "" {
+			app.Logger.Infof("%s: пустой id", prompt)
 			errorResponse(w, fmt.Errorf("%s: пустой id", prompt).Error(), http.StatusBadRequest)
 			return
 		}
 
 		idUuid, err := uuid.Parse(id)
 		if err != nil {
+			app.Logger.Infof("%s: преобразование id к uuid: %v", prompt, err)
 			errorResponse(w, fmt.Errorf("%s: преобразование id к uuid: %w", prompt, err).Error(), http.StatusBadRequest)
 			return
 		}
 
 		userDb, err := app.UserSvc.GetById(r.Context(), idUuid)
 		if err != nil {
+			app.Logger.Infof("%s: %v", prompt, err)
 			errorResponse(w, fmt.Errorf("%s: %w", prompt, err).Error(), http.StatusInternalServerError)
 			return
 		}
@@ -170,6 +152,7 @@ func UpdateEntrepreneur(app *app.App) http.HandlerFunc {
 
 		err = json.NewDecoder(r.Body).Decode(&req)
 		if err != nil {
+			app.Logger.Infof("%s: %v", prompt, err)
 			errorResponse(w, err.Error(), http.StatusBadRequest)
 			return
 		}
@@ -195,6 +178,7 @@ func UpdateEntrepreneur(app *app.App) http.HandlerFunc {
 
 		err = app.UserSvc.Update(r.Context(), userDb)
 		if err != nil {
+			app.Logger.Infof("%s: %v", prompt, err)
 			errorResponse(w, fmt.Errorf("%s: %w", prompt, err).Error(), http.StatusBadRequest)
 			return
 		}
@@ -205,28 +189,32 @@ func UpdateEntrepreneur(app *app.App) http.HandlerFunc {
 
 func DeleteEntrepreneur(app *app.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		prompt := "удаление предпринимателя"
+		prompt := "удаление DeleteEntrepreneur"
 
 		id := chi.URLParam(r, "id")
 		if id == "" {
+			app.Logger.Infof("%s: пустой id", prompt)
 			errorResponse(w, fmt.Errorf("%s: пустой id", prompt).Error(), http.StatusBadRequest)
 			return
 		}
 
 		idUuid, err := uuid.Parse(id)
 		if err != nil {
+			app.Logger.Infof("%s: преобразование id к uuid: %v", prompt, err)
 			errorResponse(w, fmt.Errorf("%s: преобразование id к uuid: %w", prompt, err).Error(), http.StatusBadRequest)
 			return
 		}
 
 		_, err = app.UserSvc.GetById(r.Context(), idUuid)
 		if err != nil {
+			app.Logger.Infof("%s: %v", prompt, err)
 			errorResponse(w, fmt.Errorf("%s: %w", prompt, err).Error(), http.StatusBadRequest)
 			return
 		}
 
 		err = app.UserSvc.DeleteById(r.Context(), idUuid)
 		if err != nil {
+			app.Logger.Infof("%s: %v", prompt, err)
 			errorResponse(w, fmt.Errorf("%s: %w", prompt, err).Error(), http.StatusInternalServerError)
 			return
 		}
@@ -241,18 +229,21 @@ func GetEntrepreneur(app *app.App) http.HandlerFunc {
 
 		id := chi.URLParam(r, "id")
 		if id == "" {
+			app.Logger.Infof("%s: пустой id", prompt)
 			errorResponse(w, fmt.Errorf("%s: пустой id", prompt).Error(), http.StatusBadRequest)
 			return
 		}
 
 		idUuid, err := uuid.Parse(id)
 		if err != nil {
+			app.Logger.Infof("%s: преобразование id к uuid: %v", prompt, err)
 			errorResponse(w, fmt.Errorf("%s: преобразование id к uuid: %w", prompt, err).Error(), http.StatusBadRequest)
 			return
 		}
 
 		user, err := app.UserSvc.GetById(r.Context(), idUuid)
 		if err != nil {
+			app.Logger.Infof("%s: %v", prompt, err)
 			errorResponse(w, fmt.Errorf("%s: %w", prompt, err).Error(), http.StatusInternalServerError)
 			return
 		}
@@ -263,11 +254,12 @@ func GetEntrepreneur(app *app.App) http.HandlerFunc {
 
 func CreateSkill(app *app.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		prompt := "добавление навыка"
+		prompt := "CreateSkillHandler"
 		var req Skill
 
 		err := json.NewDecoder(r.Body).Decode(&req)
 		if err != nil {
+			app.Logger.Infof("%s: %v", prompt, err)
 			errorResponse(w, fmt.Errorf("%s: %w", prompt, err).Error(), http.StatusBadRequest)
 			return
 		}
@@ -276,6 +268,7 @@ func CreateSkill(app *app.App) http.HandlerFunc {
 
 		err = app.SkillSvc.Create(r.Context(), &skill)
 		if err != nil {
+			app.Logger.Infof("%s: %v", prompt, err)
 			errorResponse(w, fmt.Errorf("%s: %w", prompt, err).Error(), http.StatusBadRequest)
 			return
 		}
@@ -286,28 +279,32 @@ func CreateSkill(app *app.App) http.HandlerFunc {
 
 func DeleteSkill(app *app.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		prompt := "удаление навыка"
+		prompt := "DeleteSkillHandler"
 
 		id := chi.URLParam(r, "id")
 		if id == "" {
+			app.Logger.Infof("%s: пустой id", prompt)
 			errorResponse(w, fmt.Errorf("%s: пустой id", prompt).Error(), http.StatusBadRequest)
 			return
 		}
 
 		idUuid, err := uuid.Parse(id)
 		if err != nil {
+			app.Logger.Infof("%s: преобразование id к uuid: %v", prompt, err)
 			errorResponse(w, fmt.Errorf("%s: преобразование id к uuid: %w", prompt, err).Error(), http.StatusBadRequest)
 			return
 		}
 
 		_, err = app.SkillSvc.GetById(r.Context(), idUuid)
 		if err != nil {
+			app.Logger.Infof("%s: %v", prompt, err)
 			errorResponse(w, fmt.Errorf("%s: %w", prompt, err).Error(), http.StatusInternalServerError)
 			return
 		}
 
 		err = app.SkillSvc.DeleteById(r.Context(), idUuid)
 		if err != nil {
+			app.Logger.Infof("%s: %v", prompt, err)
 			errorResponse(w, fmt.Errorf("%s: %w", prompt, err).Error(), http.StatusInternalServerError)
 			return
 		}
@@ -322,18 +319,21 @@ func UpdateSkill(app *app.App) http.HandlerFunc {
 
 		id := chi.URLParam(r, "id")
 		if id == "" {
+			app.Logger.Infof("%s: пустой id", prompt)
 			errorResponse(w, fmt.Errorf("%s: пустой id", prompt).Error(), http.StatusBadRequest)
 			return
 		}
 
 		idUuid, err := uuid.Parse(id)
 		if err != nil {
+			app.Logger.Infof("%s: преобразование id к uuid: %v", prompt, err)
 			errorResponse(w, fmt.Errorf("%s: преобразование id к uuid: %w", prompt, err).Error(), http.StatusBadRequest)
 			return
 		}
 
 		skillDb, err := app.SkillSvc.GetById(r.Context(), idUuid)
 		if err != nil {
+			app.Logger.Infof("%s: %v", prompt, err)
 			errorResponse(w, fmt.Errorf("%s: %w", prompt, err).Error(), http.StatusInternalServerError)
 			return
 		}
@@ -342,6 +342,7 @@ func UpdateSkill(app *app.App) http.HandlerFunc {
 
 		err = json.NewDecoder(r.Body).Decode(&req)
 		if err != nil {
+			app.Logger.Infof("%s: %v", prompt, err)
 			errorResponse(w, err.Error(), http.StatusBadRequest)
 			return
 		}
@@ -355,6 +356,7 @@ func UpdateSkill(app *app.App) http.HandlerFunc {
 
 		err = app.SkillSvc.Update(r.Context(), skillDb)
 		if err != nil {
+			app.Logger.Infof("%s: %v", prompt, err)
 			errorResponse(w, fmt.Errorf("%s: %w", prompt, err).Error(), http.StatusInternalServerError)
 			return
 		}
@@ -365,22 +367,25 @@ func UpdateSkill(app *app.App) http.HandlerFunc {
 
 func ListSkills(app *app.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		prompt := "получение списка навыков"
+		prompt := "ListSkillsHandler"
 
 		page := r.URL.Query().Get("page")
 		if page == "" {
+			app.Logger.Infof("%s: пустой номер страницы", prompt)
 			errorResponse(w, fmt.Errorf("%s: пустой номер страницы", prompt).Error(), http.StatusBadRequest)
 			return
 		}
 
 		pageInt, err := strconv.Atoi(page)
 		if err != nil {
+			app.Logger.Infof("%s: преобразование номера страницы к int: %v", prompt, err)
 			errorResponse(w, fmt.Errorf("%s: преобразование номера страницы к int: %w", prompt, err).Error(), http.StatusBadRequest)
 			return
 		}
 
 		skills, numPages, err := app.SkillSvc.GetAll(r.Context(), pageInt)
 		if err != nil {
+			app.Logger.Infof("%s: %v", prompt, err)
 			errorResponse(w, fmt.Errorf("%s: %w", prompt, err).Error(), http.StatusInternalServerError)
 			return
 		}
@@ -396,22 +401,25 @@ func ListSkills(app *app.App) http.HandlerFunc {
 
 func GetSkill(app *app.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		prompt := "получение навыка"
+		prompt := "GetSkillHandler"
 
 		id := chi.URLParam(r, "id")
 		if id == "" {
+			app.Logger.Infof("%s: пустой id", prompt)
 			errorResponse(w, fmt.Errorf("%s: пустой id", prompt).Error(), http.StatusBadRequest)
 			return
 		}
 
 		idUuid, err := uuid.Parse(id)
 		if err != nil {
+			app.Logger.Infof("%s: преобразование id к uuid: %v", prompt, err)
 			errorResponse(w, fmt.Errorf("%s: преобразование id к uuid: %w", prompt, err).Error(), http.StatusBadRequest)
 			return
 		}
 
 		skill, err := app.SkillSvc.GetById(r.Context(), idUuid)
 		if err != nil {
+			app.Logger.Infof("%s: %v", prompt, err)
 			errorResponse(w, fmt.Errorf("%s: %w", prompt, err).Error(), http.StatusInternalServerError)
 			return
 		}
@@ -422,16 +430,18 @@ func GetSkill(app *app.App) http.HandlerFunc {
 
 func CreateContact(app *app.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		prompt := "добавление средства связи"
+		prompt := "CreateContactHandler"
 
 		idStr, err := getStringClaimFromJWT(r.Context(), "sub")
 		if err != nil {
+			app.Logger.Infof("%s: получение записей из JWT: %v", prompt, err)
 			errorResponse(w, fmt.Errorf("%s: получение записей из JWT: %w", prompt, err).Error(), http.StatusBadRequest)
 			return
 		}
 
 		idUuid, err := uuid.Parse(idStr)
 		if err != nil {
+			app.Logger.Infof("%s: преобразование id к uuid: %v", prompt, err)
 			errorResponse(w, fmt.Errorf("%s: преобразование id к uuid: %w", prompt, err).Error(), http.StatusInternalServerError)
 			return
 		}
@@ -439,6 +449,7 @@ func CreateContact(app *app.App) http.HandlerFunc {
 		var req Contact
 		err = json.NewDecoder(r.Body).Decode(&req)
 		if err != nil {
+			app.Logger.Infof("%s: %v", prompt, err)
 			errorResponse(w, err.Error(), http.StatusBadRequest)
 			return
 		}
@@ -448,6 +459,7 @@ func CreateContact(app *app.App) http.HandlerFunc {
 
 		err = app.ConSvc.Create(r.Context(), &contact)
 		if err != nil {
+			app.Logger.Infof("%s: %v", prompt, err)
 			errorResponse(w, fmt.Errorf("%s: %w", prompt, err).Error(), http.StatusBadRequest)
 			return
 		}
@@ -458,45 +470,52 @@ func CreateContact(app *app.App) http.HandlerFunc {
 
 func DeleteContact(app *app.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// prompt := "удаление средства связи"
+		prompt := "DeleteContactHandler"
 
 		ownerIdStr, err := getStringClaimFromJWT(r.Context(), "sub")
 		if err != nil {
+			app.Logger.Infof("%s: получение записей из JWT: %v", prompt, err)
 			errorResponse(w, fmt.Errorf("получение записей из JWT: %w", err).Error(), http.StatusBadRequest)
 			return
 		}
 
 		ownerIdUuid, err := uuid.Parse(ownerIdStr)
 		if err != nil {
+			app.Logger.Infof("%s: преобразование строки к uuid: %v", prompt, err)
 			errorResponse(w, fmt.Errorf("преобразование строки к uuid: %w", err).Error(), http.StatusInternalServerError)
 			return
 		}
 
 		id := chi.URLParam(r, "id")
 		if id == "" {
+			app.Logger.Infof("%s: пустой id", prompt)
 			errorResponse(w, fmt.Errorf("пустой id").Error(), http.StatusBadRequest)
 			return
 		}
 
 		idUuid, err := uuid.Parse(id)
 		if err != nil {
+			app.Logger.Infof("%s: преобразование строки к uuid: %v", prompt, err)
 			errorResponse(w, fmt.Errorf("преобразование строки к uuid: %w", err).Error(), http.StatusBadRequest)
 			return
 		}
 
 		contact, err := app.ConSvc.GetById(r.Context(), idUuid)
 		if err != nil {
+			app.Logger.Infof("%s: удаление средства связи по id: %v", prompt, err)
 			errorResponse(w, fmt.Errorf("удаление средства связи по id: %w", err).Error(), http.StatusInternalServerError)
 			return
 		}
 
 		if ownerIdUuid != contact.OwnerID {
+			app.Logger.Infof("%s: только владелец может удалить своё средство связи", prompt)
 			errorResponse(w, fmt.Errorf("только владелец может удалить своё средство связи").Error(), http.StatusInternalServerError)
 			return
 		}
 
 		err = app.ConSvc.DeleteById(r.Context(), idUuid)
 		if err != nil {
+			app.Logger.Infof("%s: удаление средства связи по id: %v", prompt, err)
 			errorResponse(w, fmt.Errorf("удаление средства связи по id: %w", err).Error(), http.StatusInternalServerError)
 			return
 		}
@@ -507,37 +526,45 @@ func DeleteContact(app *app.App) http.HandlerFunc {
 
 func UpdateContact(app *app.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		prompt := "UpdateContactHandler"
+
 		ownerIdStr, err := getStringClaimFromJWT(r.Context(), "sub")
 		if err != nil {
-			errorResponse(w, fmt.Errorf("getting claim from JWT: %w", err).Error(), http.StatusBadRequest)
+			app.Logger.Infof("%s: получение записей из JWT: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("получение записей из JWT: %w", err).Error(), http.StatusBadRequest)
 			return
 		}
 
 		ownerIdUuid, err := uuid.Parse(ownerIdStr)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("converting string to uuid: %w", err).Error(), http.StatusInternalServerError)
+			app.Logger.Infof("%s: преобразование строки к uuid: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("преобразование строки к uuid: %w", err).Error(), http.StatusInternalServerError)
 			return
 		}
 
 		id := chi.URLParam(r, "id")
 		if id == "" {
-			errorResponse(w, fmt.Errorf("empty id").Error(), http.StatusBadRequest)
+			app.Logger.Infof("%s: пустой id", prompt)
+			errorResponse(w, fmt.Errorf("пустой id").Error(), http.StatusBadRequest)
 			return
 		}
 
 		idUuid, err := uuid.Parse(id)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("converting id to uuid: %w", err).Error(), http.StatusBadRequest)
+			app.Logger.Infof("%s: преобразование id к uuid: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("преобразование id к uuid: %w", err).Error(), http.StatusBadRequest)
 			return
 		}
 
 		conDb, err := app.ConSvc.GetById(r.Context(), idUuid)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("getting contact from database by id: %w", err).Error(), http.StatusInternalServerError)
+			app.Logger.Infof("%s: получение средства связи по id: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("получение средства связи по id: %w", err).Error(), http.StatusInternalServerError)
 			return
 		}
 
 		if ownerIdUuid != conDb.OwnerID {
+			app.Logger.Infof("%s: только владелец может обновлять информацию о своих средствах связи", prompt)
 			errorResponse(w, fmt.Errorf("только владелец может обновлять информацию о своих средствах связи").Error(), http.StatusInternalServerError)
 			return
 		}
@@ -546,6 +573,7 @@ func UpdateContact(app *app.App) http.HandlerFunc {
 
 		err = json.NewDecoder(r.Body).Decode(&req)
 		if err != nil {
+			app.Logger.Infof("%s: %v", err)
 			errorResponse(w, err.Error(), http.StatusBadRequest)
 			return
 		}
@@ -559,7 +587,8 @@ func UpdateContact(app *app.App) http.HandlerFunc {
 
 		err = app.ConSvc.Update(r.Context(), conDb)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("updating contact info: %w", err).Error(), http.StatusInternalServerError)
+			app.Logger.Infof("%s: обновление информации о средстве связи: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("обновление информации о средстве связи: %w", err).Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -569,21 +598,26 @@ func UpdateContact(app *app.App) http.HandlerFunc {
 
 func GetContact(app *app.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		prompt := "GetContactHandler"
+
 		id := chi.URLParam(r, "id")
 		if id == "" {
-			errorResponse(w, fmt.Errorf("empty id").Error(), http.StatusBadRequest)
+			app.Logger.Infof("%s: пустой id", prompt)
+			errorResponse(w, fmt.Errorf("пустой id").Error(), http.StatusBadRequest)
 			return
 		}
 
 		idUuid, err := uuid.Parse(id)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("converting id to uuid: %w", err).Error(), http.StatusBadRequest)
+			app.Logger.Infof("%s: преобразование id к uuid: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("преобразование id к uuid: %w", err).Error(), http.StatusBadRequest)
 			return
 		}
 
 		contact, err := app.ConSvc.GetById(r.Context(), idUuid)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("getting contact by id: %w", err).Error(), http.StatusInternalServerError)
+			app.Logger.Infof("%s: получение средства связи по id: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("получение средства связи по id: %w", err).Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -593,21 +627,26 @@ func GetContact(app *app.App) http.HandlerFunc {
 
 func ListEntrepreneurContacts(app *app.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		prompt := "ListEntrepreneursContactsHandler"
+
 		entId := r.URL.Query().Get("entrepreneur-id")
 		if entId == "" {
-			errorResponse(w, fmt.Errorf("empty entrepreneur id").Error(), http.StatusBadRequest)
+			app.Logger.Infof("%s: пустой id предпринимателя", prompt)
+			errorResponse(w, fmt.Errorf("пустой id предпринимателя").Error(), http.StatusBadRequest)
 			return
 		}
 
 		entUuid, err := uuid.Parse(entId)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("converting entrepreneur id to uuid: %w", err).Error(), http.StatusInternalServerError)
+			app.Logger.Infof("%s: преобразование id к uuid: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("преобразование id к uuid: %w", err).Error(), http.StatusInternalServerError)
 			return
 		}
 
 		contacts, err := app.ConSvc.GetByOwnerId(r.Context(), entUuid)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("getting contacts: %w", err).Error(), http.StatusInternalServerError)
+			app.Logger.Infof("%s: получение списка контактов: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("получение списка контактов: %w", err).Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -622,9 +661,12 @@ func ListEntrepreneurContacts(app *app.App) http.HandlerFunc {
 
 func CreateActivityField(app *app.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		prompt := "CreateActivityFieldHandler"
+
 		var req ActivityField
 		err := json.NewDecoder(r.Body).Decode(&req)
 		if err != nil {
+			app.Logger.Infof("%s: %v", prompt, err)
 			errorResponse(w, err.Error(), http.StatusBadRequest)
 			return
 		}
@@ -633,7 +675,8 @@ func CreateActivityField(app *app.App) http.HandlerFunc {
 
 		err = app.ActFieldSvc.Create(r.Context(), &actField)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("creating activity field: %w", err).Error(), http.StatusBadRequest)
+			app.Logger.Infof("%s: создание сферы деятельности: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("создание сферы деятельности: %w", err).Error(), http.StatusBadRequest)
 			return
 		}
 
@@ -643,27 +686,33 @@ func CreateActivityField(app *app.App) http.HandlerFunc {
 
 func DeleteActivityField(app *app.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		prompt := "DeleteActivityFieldHandler"
+
 		id := chi.URLParam(r, "id")
 		if id == "" {
-			errorResponse(w, fmt.Errorf("empty id").Error(), http.StatusBadRequest)
+			app.Logger.Infof("%s: пустой id", prompt)
+			errorResponse(w, fmt.Errorf("пустой id").Error(), http.StatusBadRequest)
 			return
 		}
 
 		idUuid, err := uuid.Parse(id)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("converting id to uuid: %w", err).Error(), http.StatusBadRequest)
+			app.Logger.Infof("%s: преобразование id к uuid: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("преобразование id к uuid: %w", err).Error(), http.StatusBadRequest)
 			return
 		}
 
 		_, err = app.ActFieldSvc.GetById(r.Context(), idUuid)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("deleting activity field by id: %w", err).Error(), http.StatusInternalServerError)
+			app.Logger.Infof("%s: получение сферы деятельности по id: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("получение сферы деятельности по id: %w", err).Error(), http.StatusInternalServerError)
 			return
 		}
 
 		err = app.ActFieldSvc.DeleteById(r.Context(), idUuid)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("deleting activity field by id: %w", err).Error(), http.StatusInternalServerError)
+			app.Logger.Infof("%s: удаление сферы деятельности по id: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("удаление сферы деятельности по id: %w", err).Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -673,21 +722,26 @@ func DeleteActivityField(app *app.App) http.HandlerFunc {
 
 func UpdateActivityField(app *app.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		prompt := "UpdateActivityFieldHandler"
+
 		id := chi.URLParam(r, "id")
 		if id == "" {
-			errorResponse(w, fmt.Errorf("empty id").Error(), http.StatusBadRequest)
+			app.Logger.Infof("%s: пустой id", prompt)
+			errorResponse(w, fmt.Errorf("пустой id").Error(), http.StatusBadRequest)
 			return
 		}
 
 		idUuid, err := uuid.Parse(id)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("converting id to uuid: %w", err).Error(), http.StatusBadRequest)
+			app.Logger.Infof("%s: преобразование id к uuid: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("преобразование id к uuid: %w", err).Error(), http.StatusBadRequest)
 			return
 		}
 
 		actFieldDb, err := app.ActFieldSvc.GetById(r.Context(), idUuid)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("getting activity field from database by id: %w", err).Error(), http.StatusInternalServerError)
+			app.Logger.Infof("%s: получение сферы деятельности по id: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("получение сферы деятельности по id: %w", err).Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -695,6 +749,7 @@ func UpdateActivityField(app *app.App) http.HandlerFunc {
 
 		err = json.NewDecoder(r.Body).Decode(&req)
 		if err != nil {
+			app.Logger.Infof("%s: %v", prompt, err)
 			errorResponse(w, err.Error(), http.StatusBadRequest)
 			return
 		}
@@ -711,7 +766,8 @@ func UpdateActivityField(app *app.App) http.HandlerFunc {
 
 		err = app.ActFieldSvc.Update(r.Context(), actFieldDb)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("updating activity field info: %w", err).Error(), http.StatusInternalServerError)
+			app.Logger.Infof("%s: обновление информации о сфере деятельности: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("обновление информации о сфере деятельности: %w", err).Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -721,21 +777,26 @@ func UpdateActivityField(app *app.App) http.HandlerFunc {
 
 func GetActivityField(app *app.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		prompt := "GetActivityFieldHandler"
+
 		id := chi.URLParam(r, "id")
 		if id == "" {
-			errorResponse(w, fmt.Errorf("empty id").Error(), http.StatusBadRequest)
+			app.Logger.Infof("%s: пустой id", prompt)
+			errorResponse(w, fmt.Errorf("пустой id").Error(), http.StatusBadRequest)
 			return
 		}
 
 		idUuid, err := uuid.Parse(id)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("converting id to uuid: %w", err).Error(), http.StatusBadRequest)
+			app.Logger.Infof("%s: преобразование id к uuid: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("преобразование id к uuid: %w", err).Error(), http.StatusBadRequest)
 			return
 		}
 
 		actField, err := app.ActFieldSvc.GetById(r.Context(), idUuid)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("getting activity field by id: %w", err).Error(), http.StatusInternalServerError)
+			app.Logger.Infof("%s: получение сферы деятельности по id: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("получение сферы деятельности по id: %w", err).Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -745,6 +806,8 @@ func GetActivityField(app *app.App) http.HandlerFunc {
 
 func ListActivityFields(app *app.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		prompt := "ListActivityFieldsHandler"
+
 		var paginated bool
 		var pageInt int
 		var err error
@@ -755,14 +818,16 @@ func ListActivityFields(app *app.App) http.HandlerFunc {
 
 			pageInt, err = strconv.Atoi(page)
 			if err != nil {
-				errorResponse(w, fmt.Errorf("converting page to int: %w", err).Error(), http.StatusBadRequest)
+				app.Logger.Infof("%s: преобразование страницы к int: %v", prompt, err)
+				errorResponse(w, fmt.Errorf("преобразование страницы к int: %w", err).Error(), http.StatusBadRequest)
 				return
 			}
 		}
 
 		actFields, numPages, err := app.ActFieldSvc.GetAll(r.Context(), pageInt, paginated)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("getting activity fields: %w", err).Error(), http.StatusInternalServerError)
+			app.Logger.Infof("%s: получение списка сфер деятельности: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("получение списка сфер деятельности: %w", err).Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -777,21 +842,26 @@ func ListActivityFields(app *app.App) http.HandlerFunc {
 
 func CreateCompany(app *app.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		prompt := "CreateCompanyHandler"
+
 		idStr, err := getStringClaimFromJWT(r.Context(), "sub")
 		if err != nil {
-			errorResponse(w, fmt.Errorf("getting claim from JWT: %w", err).Error(), http.StatusBadRequest)
+			app.Logger.Infof("%s: получение записей из JWT: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("получение записей из JWT: %w", err).Error(), http.StatusBadRequest)
 			return
 		}
 
 		idUuid, err := uuid.Parse(idStr)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("converting string to uuid: %w", err).Error(), http.StatusInternalServerError)
+			app.Logger.Infof("%s: преобразование строки к uuid: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("преобразование строки к uuid: %w", err).Error(), http.StatusInternalServerError)
 			return
 		}
 
 		var req Company
 		err = json.NewDecoder(r.Body).Decode(&req)
 		if err != nil {
+			app.Logger.Infof("%s: %v", prompt, err)
 			errorResponse(w, err.Error(), http.StatusBadRequest)
 			return
 		}
@@ -801,7 +871,8 @@ func CreateCompany(app *app.App) http.HandlerFunc {
 
 		err = app.CompSvc.Create(r.Context(), &company)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("creating company: %w", err).Error(), http.StatusBadRequest)
+			app.Logger.Infof("%s: создание компании: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("создание компании: %w", err).Error(), http.StatusBadRequest)
 			return
 		}
 
@@ -811,44 +882,53 @@ func CreateCompany(app *app.App) http.HandlerFunc {
 
 func DeleteCompany(app *app.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		prompt := "DeleteCompanyHandler"
+
 		ownerIdStr, err := getStringClaimFromJWT(r.Context(), "sub")
 		if err != nil {
-			errorResponse(w, fmt.Errorf("getting claim from JWT: %w", err).Error(), http.StatusBadRequest)
+			app.Logger.Infof("%s: получение записей из JWT: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("получение записей из JWT: %w", err).Error(), http.StatusBadRequest)
 			return
 		}
 
 		ownerIdUuid, err := uuid.Parse(ownerIdStr)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("converting string to uuid: %w", err).Error(), http.StatusInternalServerError)
+			app.Logger.Infof("%s: преобразование строки к uuid: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("преобразование строки к uuid: %w", err).Error(), http.StatusInternalServerError)
 			return
 		}
 
 		id := chi.URLParam(r, "id")
 		if id == "" {
-			errorResponse(w, fmt.Errorf("empty id").Error(), http.StatusBadRequest)
+			app.Logger.Infof("%s: пустой id", prompt)
+			errorResponse(w, fmt.Errorf("пустой id").Error(), http.StatusBadRequest)
 			return
 		}
 
 		idUuid, err := uuid.Parse(id)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("converting id to uuid: %w", err).Error(), http.StatusBadRequest)
+			app.Logger.Infof("%s: преобразование id к uuid: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("преобразование id к uuid: %w", err).Error(), http.StatusBadRequest)
 			return
 		}
 
 		company, err := app.CompSvc.GetById(r.Context(), idUuid)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("deleting company by id: %w", err).Error(), http.StatusInternalServerError)
+			app.Logger.Infof("%s: удаление компании по id: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("удаление компании по id: %w", err).Error(), http.StatusInternalServerError)
 			return
 		}
 
 		if ownerIdUuid != company.OwnerID {
+			app.Logger.Infof("%s: только владелец может удалять свои компании", prompt)
 			errorResponse(w, fmt.Errorf("только владелец может удалять свои компании").Error(), http.StatusInternalServerError)
 			return
 		}
 
 		err = app.CompSvc.DeleteById(r.Context(), idUuid)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("deleting company by id: %w", err).Error(), http.StatusInternalServerError)
+			app.Logger.Infof("%s: удаление компании по id: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("удаление компании по id: %w", err).Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -858,37 +938,45 @@ func DeleteCompany(app *app.App) http.HandlerFunc {
 
 func UpdateCompany(app *app.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		prompt := "UpdateCompanyHandler"
+
 		ownerIdStr, err := getStringClaimFromJWT(r.Context(), "sub")
 		if err != nil {
-			errorResponse(w, fmt.Errorf("getting claim from JWT: %w", err).Error(), http.StatusBadRequest)
+			app.Logger.Infof("%s: получение записей из JWT: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("получение записей из JWT: %w", err).Error(), http.StatusBadRequest)
 			return
 		}
 
 		ownerIdUuid, err := uuid.Parse(ownerIdStr)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("converting string to uuid: %w", err).Error(), http.StatusInternalServerError)
+			app.Logger.Infof("%s: преобразование строки к uuid: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("преобразование строки к uuid: %w", err).Error(), http.StatusInternalServerError)
 			return
 		}
 
 		id := chi.URLParam(r, "id")
 		if id == "" {
-			errorResponse(w, fmt.Errorf("empty id").Error(), http.StatusBadRequest)
+			app.Logger.Infof("%s: пустой id", prompt)
+			errorResponse(w, fmt.Errorf("пустой id").Error(), http.StatusBadRequest)
 			return
 		}
 
 		idUuid, err := uuid.Parse(id)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("converting id to uuid: %w", err).Error(), http.StatusBadRequest)
+			app.Logger.Infof("%s: преобразование id к uuid: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("преобразование id к uuid: %w", err).Error(), http.StatusBadRequest)
 			return
 		}
 
 		compDb, err := app.CompSvc.GetById(r.Context(), idUuid)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("getting company from database by id: %w", err).Error(), http.StatusInternalServerError)
+			app.Logger.Infof("%s: получение компании по id: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("получение компании по id: %w", err).Error(), http.StatusInternalServerError)
 			return
 		}
 
 		if ownerIdUuid != compDb.OwnerID {
+			app.Logger.Infof("%s: только владелец может обновлять информацию о своих компаниях", prompt)
 			errorResponse(w, fmt.Errorf("только владелец может обновлять информацию о своих компаниях").Error(), http.StatusInternalServerError)
 			return
 		}
@@ -897,6 +985,7 @@ func UpdateCompany(app *app.App) http.HandlerFunc {
 
 		err = json.NewDecoder(r.Body).Decode(&req)
 		if err != nil {
+			app.Logger.Infof("%s: %v", prompt, err)
 			errorResponse(w, err.Error(), http.StatusBadRequest)
 			return
 		}
@@ -913,7 +1002,8 @@ func UpdateCompany(app *app.App) http.HandlerFunc {
 
 		err = app.CompSvc.Update(r.Context(), compDb)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("updating company info: %w", err).Error(), http.StatusInternalServerError)
+			app.Logger.Infof("%s: обновление информации о компании: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("обновление информации о компании: %w", err).Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -923,21 +1013,26 @@ func UpdateCompany(app *app.App) http.HandlerFunc {
 
 func GetCompany(app *app.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		prompt := "GetCompanyHandler"
+
 		id := chi.URLParam(r, "id")
 		if id == "" {
-			errorResponse(w, fmt.Errorf("empty id").Error(), http.StatusBadRequest)
+			app.Logger.Infof("%s: пустой id", prompt)
+			errorResponse(w, fmt.Errorf("пустой id").Error(), http.StatusBadRequest)
 			return
 		}
 
 		idUuid, err := uuid.Parse(id)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("converting id to uuid: %w", err).Error(), http.StatusBadRequest)
+			app.Logger.Infof("%s: преобразование id к uuid: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("преобразование id к uuid: %w", err).Error(), http.StatusBadRequest)
 			return
 		}
 
 		company, err := app.CompSvc.GetById(r.Context(), idUuid)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("getting company by id: %w", err).Error(), http.StatusInternalServerError)
+			app.Logger.Infof("%s: получение компании по id: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("получение компании по id: %w", err).Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -947,33 +1042,40 @@ func GetCompany(app *app.App) http.HandlerFunc {
 
 func ListEntrepreneurCompanies(app *app.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		prompt := "ListEntrepreneurCompaniesHandler"
+
 		page := r.URL.Query().Get("page")
 		if page == "" {
-			errorResponse(w, fmt.Errorf("empty page number").Error(), http.StatusBadRequest)
+			app.Logger.Infof("%s: пустой номер страницы", prompt)
+			errorResponse(w, fmt.Errorf("пустой номер страницы").Error(), http.StatusBadRequest)
 			return
 		}
 
 		pageInt, err := strconv.Atoi(page)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("converting page to int: %w", err).Error(), http.StatusBadRequest)
+			app.Logger.Infof("%s: преобразование к int: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("преобразование к int: %w", err).Error(), http.StatusBadRequest)
 			return
 		}
 
 		entId := r.URL.Query().Get("entrepreneur-id")
 		if page == "" {
-			errorResponse(w, fmt.Errorf("empty entrepreneur id").Error(), http.StatusBadRequest)
+			app.Logger.Infof("%s: пустой id предпринимателя", prompt)
+			errorResponse(w, fmt.Errorf("пустой id предпринимателя").Error(), http.StatusBadRequest)
 			return
 		}
 
 		entUuid, err := uuid.Parse(entId)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("converting entrepreneur id to uuid: %w", err).Error(), http.StatusInternalServerError)
+			app.Logger.Infof("%s: преобразование id предпринимателя к uuid: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("преобразование id предпринимателя к uuid: %w", err).Error(), http.StatusInternalServerError)
 			return
 		}
 
 		companies, numPages, err := app.CompSvc.GetByOwnerId(r.Context(), entUuid, pageInt, true)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("getting companies: %w", err).Error(), http.StatusInternalServerError)
+			app.Logger.Infof("%s: получение списка компаний: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("получение списка компаний: %w", err).Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -988,21 +1090,26 @@ func ListEntrepreneurCompanies(app *app.App) http.HandlerFunc {
 
 func CreateUserSkill(app *app.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		prompt := "CreateUserSkillHandler"
+
 		idStr, err := getStringClaimFromJWT(r.Context(), "sub")
 		if err != nil {
-			errorResponse(w, fmt.Errorf("getting claim from JWT: %w", err).Error(), http.StatusBadRequest)
+			app.Logger.Infof("%s: получение записей из JWT: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("получение записей из JWT: %w", err).Error(), http.StatusBadRequest)
 			return
 		}
 
 		idUuid, err := uuid.Parse(idStr)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("converting string to uuid: %w", err).Error(), http.StatusInternalServerError)
+			app.Logger.Infof("%s: преобразование строки к uuid: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("преобразование строки к uuid: %w", err).Error(), http.StatusInternalServerError)
 			return
 		}
 
 		var req UserSkill
 		err = json.NewDecoder(r.Body).Decode(&req)
 		if err != nil {
+			app.Logger.Infof("%s: %v", prompt, err)
 			errorResponse(w, err.Error(), http.StatusBadRequest)
 			return
 		}
@@ -1012,7 +1119,8 @@ func CreateUserSkill(app *app.App) http.HandlerFunc {
 
 		err = app.UserSkillSvc.Create(r.Context(), &userSkill)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("creating user-skill pair: %w", err).Error(), http.StatusBadRequest)
+			app.Logger.Infof("%s: создание пары навык-предприниматель: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("создание пары навык-предприниматель: %w", err).Error(), http.StatusBadRequest)
 			return
 		}
 
@@ -1022,33 +1130,40 @@ func CreateUserSkill(app *app.App) http.HandlerFunc {
 
 func DeleteUserSkill(app *app.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		prompt := "DeleteUserSkillHandler"
+
 		ownerIdStr, err := getStringClaimFromJWT(r.Context(), "sub")
 		if err != nil {
-			errorResponse(w, fmt.Errorf("getting claim from JWT: %w", err).Error(), http.StatusBadRequest)
+			app.Logger.Infof("%s: создание пары навык-предприниматель: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("получение записей из JWT: %w", err).Error(), http.StatusBadRequest)
 			return
 		}
 
 		ownerIdUuid, err := uuid.Parse(ownerIdStr)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("converting string to uuid: %w", err).Error(), http.StatusInternalServerError)
+			app.Logger.Infof("%s: преобразование строки к uuid: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("преобразование строки к uuid: %w", err).Error(), http.StatusInternalServerError)
 			return
 		}
 
 		id := chi.URLParam(r, "id")
 		if id == "" {
-			errorResponse(w, fmt.Errorf("empty id").Error(), http.StatusBadRequest)
+			app.Logger.Infof("%s: пустой id", prompt)
+			errorResponse(w, fmt.Errorf("пустой id").Error(), http.StatusBadRequest)
 			return
 		}
 
 		idUuid, err := uuid.Parse(id)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("converting id to uuid: %w", err).Error(), http.StatusBadRequest)
+			app.Logger.Infof("%s: преобразование id к uuid", prompt)
+			errorResponse(w, fmt.Errorf("преобразование id к uuid: %w", err).Error(), http.StatusBadRequest)
 			return
 		}
 
 		err = app.UserSkillSvc.Delete(r.Context(), &domain.UserSkill{UserId: ownerIdUuid, SkillId: idUuid})
 		if err != nil {
-			errorResponse(w, fmt.Errorf("deleting user-skill pair: %w", err).Error(), http.StatusInternalServerError)
+			app.Logger.Infof("%s: удаление пары навык-предприниматель: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("удаление пары навык-предприниматель: %w", err).Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -1058,33 +1173,40 @@ func DeleteUserSkill(app *app.App) http.HandlerFunc {
 
 func ListEntrepreneurSkills(app *app.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		prompt := "ListEntrepreneurSkillsHandler"
+
 		page := r.URL.Query().Get("page")
 		if page == "" {
-			errorResponse(w, fmt.Errorf("empty page number").Error(), http.StatusBadRequest)
+			app.Logger.Infof("%s: пустой номер страницы", prompt)
+			errorResponse(w, fmt.Errorf("пустой номер страницы").Error(), http.StatusBadRequest)
 			return
 		}
 
 		pageInt, err := strconv.Atoi(page)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("converting page to int: %w", err).Error(), http.StatusBadRequest)
+			app.Logger.Infof("%s: преобразование страницы к int: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("преобразование страницы к int: %w", err).Error(), http.StatusBadRequest)
 			return
 		}
 
 		entId := r.URL.Query().Get("entrepreneur-id")
 		if entId == "" {
-			errorResponse(w, fmt.Errorf("empty entrepreneur id").Error(), http.StatusBadRequest)
+			app.Logger.Infof("%s: пустой id предпринимателя", prompt)
+			errorResponse(w, fmt.Errorf("пустой id предпринимателя").Error(), http.StatusBadRequest)
 			return
 		}
 
 		entUuid, err := uuid.Parse(entId)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("converting entrepreneur id to uuid: %w", err).Error(), http.StatusInternalServerError)
+			app.Logger.Infof("%s: преобразование id предпринимателя к uuid: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("преобразование id предпринимателя к uuid: %w", err).Error(), http.StatusInternalServerError)
 			return
 		}
 
 		skills, numPages, err := app.UserSkillSvc.GetSkillsForUser(r.Context(), entUuid, pageInt, true)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("getting companies: %w", err).Error(), http.StatusInternalServerError)
+			app.Logger.Infof("%s: получение списка компаний: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("получение списка компаний: %w", err).Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -1099,44 +1221,53 @@ func ListEntrepreneurSkills(app *app.App) http.HandlerFunc {
 
 func CreateReport(app *app.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		prompt := "CreateReportHandler"
+
 		userIdStr, err := getStringClaimFromJWT(r.Context(), "sub")
 		if err != nil {
-			errorResponse(w, fmt.Errorf("getting claim from JWT: %w", err).Error(), http.StatusBadRequest)
+			app.Logger.Infof("%s: получение списка компаний: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("получение записей из JWT: %w", err).Error(), http.StatusBadRequest)
 			return
 		}
 
 		userIdUuid, err := uuid.Parse(userIdStr)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("converting string to uuid: %w", err).Error(), http.StatusInternalServerError)
+			app.Logger.Infof("%s: преобразование строки к uuid: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("преобразование строки к uuid: %w", err).Error(), http.StatusInternalServerError)
 			return
 		}
 
 		compIdStr := chi.URLParam(r, "id")
 		if compIdStr == "" {
-			errorResponse(w, fmt.Errorf("empty company id").Error(), http.StatusBadRequest)
+			app.Logger.Infof("%s: пустой id компании", prompt)
+			errorResponse(w, fmt.Errorf("пустой id компании").Error(), http.StatusBadRequest)
 			return
 		}
 
 		compIdUuid, err := uuid.Parse(compIdStr)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("converting string to uuid: %w", err).Error(), http.StatusInternalServerError)
+			app.Logger.Infof("%s: преобразование строки к uuid: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("преобразование строки к uuid: %w", err).Error(), http.StatusInternalServerError)
 			return
 		}
 
 		company, err := app.CompSvc.GetById(r.Context(), compIdUuid)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("creating fin report: %w", err).Error(), http.StatusInternalServerError)
+			app.Logger.Infof("%s: создание финансового отчета: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("создание финансового отчета: %w", err).Error(), http.StatusInternalServerError)
 			return
 		}
 
 		if company.OwnerID != userIdUuid {
-			errorResponse(w, fmt.Errorf("only company`s owner can create financial report").Error(), http.StatusInternalServerError)
+			app.Logger.Infof("%s: только владелец компании может добавлять финансовые отчеты", prompt)
+			errorResponse(w, fmt.Errorf("только владелец компании может добавлять финансовые отчеты").Error(), http.StatusInternalServerError)
 			return
 		}
 
 		var req FinancialReport
 		err = json.NewDecoder(r.Body).Decode(&req)
 		if err != nil {
+			app.Logger.Infof("%s: %м", prompt, err)
 			errorResponse(w, err.Error(), http.StatusBadRequest)
 			return
 		}
@@ -1146,7 +1277,8 @@ func CreateReport(app *app.App) http.HandlerFunc {
 
 		err = app.FinSvc.Create(r.Context(), &report)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("creating financial report: %w", err).Error(), http.StatusInternalServerError)
+			app.Logger.Infof("%s: создание финансового отчета: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("создание финансового отчета: %w", err).Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -1156,50 +1288,60 @@ func CreateReport(app *app.App) http.HandlerFunc {
 
 func DeleteFinReport(app *app.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		prompt := "DeleteFinReportHandler"
+
 		userIdStr, err := getStringClaimFromJWT(r.Context(), "sub")
 		if err != nil {
-			errorResponse(w, fmt.Errorf("getting claim from JWT: %w", err).Error(), http.StatusBadRequest)
+			app.Logger.Infof("%s: получение записей из JWT: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("получение записей из JWT: %w", err).Error(), http.StatusBadRequest)
 			return
 		}
 
 		userIdUuid, err := uuid.Parse(userIdStr)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("converting string to uuid: %w", err).Error(), http.StatusInternalServerError)
+			app.Logger.Infof("%s: преобразование строки к uuid: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("преобразование строки к uuid: %w", err).Error(), http.StatusInternalServerError)
 			return
 		}
 
 		reportIdStr := chi.URLParam(r, "id")
 		if reportIdStr == "" {
-			errorResponse(w, fmt.Errorf("empty report id").Error(), http.StatusBadRequest)
+			app.Logger.Infof("%s: пустой id отчета", prompt)
+			errorResponse(w, fmt.Errorf("пустой id отчета").Error(), http.StatusBadRequest)
 			return
 		}
 
 		reportIdUuid, err := uuid.Parse(reportIdStr)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("converting string to uuid: %w", err).Error(), http.StatusInternalServerError)
+			app.Logger.Infof("%s: преобразование строки к uuid: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("преобразование строки к uuid: %w", err).Error(), http.StatusInternalServerError)
 			return
 		}
 
 		report, err := app.FinSvc.GetById(r.Context(), reportIdUuid)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("getting financial report: %w", err).Error(), http.StatusInternalServerError)
+			app.Logger.Infof("%s: получение финансового отчета: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("получение финансового отчета: %w", err).Error(), http.StatusInternalServerError)
 			return
 		}
 
 		company, err := app.CompSvc.GetById(r.Context(), report.CompanyID)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("getting financial report: %w", err).Error(), http.StatusInternalServerError)
+			app.Logger.Infof("%s: получение компании: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("получение компании: %w", err).Error(), http.StatusInternalServerError)
 			return
 		}
 
 		if company.OwnerID != userIdUuid {
-			errorResponse(w, fmt.Errorf("only company`s owner can delete financial report").Error(), http.StatusInternalServerError)
+			app.Logger.Infof("%s: только владелец компании может удалять финансовые отчеты", prompt)
+			errorResponse(w, fmt.Errorf("только владелец компании может удалять финансовые отчеты").Error(), http.StatusInternalServerError)
 			return
 		}
 
 		err = app.FinSvc.DeleteById(r.Context(), reportIdUuid)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("deleting company by id: %w", err).Error(), http.StatusInternalServerError)
+			app.Logger.Infof("%s: только владелец компании может удалять финансовые отчеты", prompt)
+			errorResponse(w, fmt.Errorf("удаление финансового отчета по id: %w", err).Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -1209,44 +1351,53 @@ func DeleteFinReport(app *app.App) http.HandlerFunc {
 
 func UpdateFinReport(app *app.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		prompt := "UpdateFinReportHandler"
+
 		userIdStr, err := getStringClaimFromJWT(r.Context(), "sub")
 		if err != nil {
-			errorResponse(w, fmt.Errorf("getting claim from JWT: %w", err).Error(), http.StatusBadRequest)
+			app.Logger.Infof("%s: получение записей из JWT: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("получение записей из JWT: %w", err).Error(), http.StatusBadRequest)
 			return
 		}
 
 		userIdUuid, err := uuid.Parse(userIdStr)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("converting string to uuid: %w", err).Error(), http.StatusInternalServerError)
+			app.Logger.Infof("%s: преобразование строки к uuid: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("преобразование строки к uuid: %w", err).Error(), http.StatusInternalServerError)
 			return
 		}
 
 		reportIdStr := chi.URLParam(r, "id")
 		if reportIdStr == "" {
-			errorResponse(w, fmt.Errorf("empty report id").Error(), http.StatusBadRequest)
+			app.Logger.Infof("%s: пустой id отчета", prompt)
+			errorResponse(w, fmt.Errorf("пустой id отчета").Error(), http.StatusBadRequest)
 			return
 		}
 
 		reportIdUuid, err := uuid.Parse(reportIdStr)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("converting string to uuid: %w", err).Error(), http.StatusInternalServerError)
+			app.Logger.Infof("%s: преобразование строки к uuid: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("преобразование строки к uuid: %w", err).Error(), http.StatusInternalServerError)
 			return
 		}
 
 		reportDb, err := app.FinSvc.GetById(r.Context(), reportIdUuid)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("getting financial report: %w", err).Error(), http.StatusInternalServerError)
+			app.Logger.Infof("%s: получение финансового отчета: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("получение финансового отчета: %w", err).Error(), http.StatusInternalServerError)
 			return
 		}
 
 		company, err := app.CompSvc.GetById(r.Context(), reportDb.CompanyID)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("getting financial report: %w", err).Error(), http.StatusInternalServerError)
+			app.Logger.Infof("%s: получение компании: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("получение компании: %w", err).Error(), http.StatusInternalServerError)
 			return
 		}
 
 		if company.OwnerID != userIdUuid {
-			errorResponse(w, fmt.Errorf("only company`s owner can update financial report").Error(), http.StatusInternalServerError)
+			app.Logger.Infof("%s: только владелец компании может изменять финансовый отчет", prompt)
+			errorResponse(w, fmt.Errorf("только владелец компании может изменять финансовый отчет").Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -1254,6 +1405,7 @@ func UpdateFinReport(app *app.App) http.HandlerFunc {
 
 		err = json.NewDecoder(r.Body).Decode(&req)
 		if err != nil {
+			app.Logger.Infof("%s: %v", prompt, err)
 			errorResponse(w, err.Error(), http.StatusBadRequest)
 			return
 		}
@@ -1273,7 +1425,8 @@ func UpdateFinReport(app *app.App) http.HandlerFunc {
 
 		err = app.FinSvc.Update(r.Context(), reportDb)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("updating financial report info: %w", err).Error(), http.StatusInternalServerError)
+			app.Logger.Infof("%s: обновление информации о финансовом отчете: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("обновление информации о финансовом отчете: %w", err).Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -1283,21 +1436,26 @@ func UpdateFinReport(app *app.App) http.HandlerFunc {
 
 func GetFinReport(app *app.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		prompt := "GetFinReportHandler"
+
 		id := chi.URLParam(r, "id")
 		if id == "" {
-			errorResponse(w, fmt.Errorf("empty id").Error(), http.StatusBadRequest)
+			app.Logger.Infof("%s: пустой id", prompt)
+			errorResponse(w, fmt.Errorf("пустой id").Error(), http.StatusBadRequest)
 			return
 		}
 
 		idUuid, err := uuid.Parse(id)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("converting id to uuid: %w", err).Error(), http.StatusBadRequest)
+			app.Logger.Infof("%s: преобразование id к uuid: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("преобразование id к uuid: %w", err).Error(), http.StatusBadRequest)
 			return
 		}
 
 		report, err := app.FinSvc.GetById(r.Context(), idUuid)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("getting financial report by id: %w", err).Error(), http.StatusInternalServerError)
+			app.Logger.Infof("%s: получение финансового отчета по id: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("получение финансового отчета по id: %w", err).Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -1307,44 +1465,26 @@ func GetFinReport(app *app.App) http.HandlerFunc {
 
 func ListCompanyReports(app *app.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// 	page := r.URL.Query().Get("page")
-		// 	if page == "" {
-		// 		errorResponse(w, fmt.Errorf("empty page number").Error(), http.StatusBadRequest)
-		// 		return
-		// 	}
-
-		// 	pageInt, err := strconv.Atoi(page)
-		// 	if err != nil {
-		// 		errorResponse(w, fmt.Errorf("converting page to int: %w", err).Error(), http.StatusBadRequest)
-		// 		return
-		// 	}
+		prompt := "ListCompanyReportsHandler"
 
 		period, err := parsePeriodFromURL(r)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("parsing period from URL: %w", err).Error(), http.StatusBadRequest)
+			app.Logger.Infof("%s: парсинг периода из URL: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("парсинг периода из URL: %w", err).Error(), http.StatusBadRequest)
 			return
 		}
 
-		//compIdStr := chi.URLParam(r, "id")
-		//if compIdStr == "" {
-		//	errorResponse(w, fmt.Errorf("empty company id").Error(), http.StatusBadRequest)
-		//	return
-		//}
-		//
-		//compIdUuid, err := uuid.Parse(compIdStr)
-		//if err != nil {
-		//	errorResponse(w, fmt.Errorf("converting company id to uuid: %w", err).Error(), http.StatusInternalServerError)
-		//	return
-		//}
 		compIdUuid, err := parseUUIDFromURL(r, "id", "company")
 		if err != nil {
-			errorResponse(w, fmt.Errorf("parsing company id from url: %w", err).Error(), http.StatusBadRequest)
+			app.Logger.Infof("%s: парсинг id компании из URL: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("парсинг id компании из URL: %w", err).Error(), http.StatusBadRequest)
 			return
 		}
 
 		reports, err := app.FinSvc.GetByCompany(r.Context(), compIdUuid, period)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("getting companies: %w", err).Error(), http.StatusInternalServerError)
+			app.Logger.Infof("%s: получение отчетов компании: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("получение отчетов компании: %w", err).Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -1367,21 +1507,26 @@ func ListCompanyReports(app *app.App) http.HandlerFunc {
 
 func CalculateRating(app *app.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		prompt := "CalculateRatingHandler"
+
 		id := chi.URLParam(r, "id")
 		if id == "" {
-			errorResponse(w, fmt.Errorf("empty id").Error(), http.StatusBadRequest)
+			app.Logger.Infof("%s: пустой id", prompt)
+			errorResponse(w, fmt.Errorf("пустой id").Error(), http.StatusBadRequest)
 			return
 		}
 
 		idUuid, err := uuid.Parse(id)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("converting id to uuid: %w", err).Error(), http.StatusBadRequest)
+			app.Logger.Infof("%s: преобразование id к uuid: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("преобразование id к uuid: %w", err).Error(), http.StatusBadRequest)
 			return
 		}
 
 		rating, err := app.Interactor.CalculateUserRating(r.Context(), idUuid)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("calculating entrepreneur rating: %w", err).Error(), http.StatusInternalServerError)
+			app.Logger.Infof("%s: вычисление рейтинга предпринимателя: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("вычисление рейтинга предпринимателя: %w", err).Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -1391,15 +1536,19 @@ func CalculateRating(app *app.App) http.HandlerFunc {
 
 func GetEntrepreneurFinancials(app *app.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		prompt := "GetEntrepreneurFinancials"
+
 		id := r.URL.Query().Get("entrepreneur-id")
 		if id == "" {
-			errorResponse(w, fmt.Errorf("empty entrepreneur id").Error(), http.StatusBadRequest)
+			app.Logger.Infof("%s: пустой id предпринимателя", prompt)
+			errorResponse(w, fmt.Errorf("пустой id предпринимателя").Error(), http.StatusBadRequest)
 			return
 		}
 
 		idUuid, err := uuid.Parse(id)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("converting id to uuid: %w", err).Error(), http.StatusBadRequest)
+			app.Logger.Infof("%s: преобразование id к uuid: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("преобразование id к uuid: %w", err).Error(), http.StatusBadRequest)
 			return
 		}
 
@@ -1413,7 +1562,8 @@ func GetEntrepreneurFinancials(app *app.App) http.HandlerFunc {
 
 		rep, err := app.Interactor.GetUserFinancialReport(r.Context(), idUuid, period)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("getting entrepreneur financial report: %w", err).Error(), http.StatusInternalServerError)
+			app.Logger.Infof("%s: получение финансового отчета предпринимателя: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("получение финансового отчета предпринимателя: %w", err).Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -1429,33 +1579,40 @@ func GetEntrepreneurFinancials(app *app.App) http.HandlerFunc {
 
 func GetEntrepreneurReviews(app *app.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		prompt := "GetEntrepreneurReviewsHandler"
+
 		id := r.URL.Query().Get("entrepreneur-id")
 		if id == "" {
-			errorResponse(w, fmt.Errorf("empty entrepreneur id").Error(), http.StatusBadRequest)
+			app.Logger.Infof("%s: пустой id предпринимателя", prompt)
+			errorResponse(w, fmt.Errorf("пустой id предпринимателя").Error(), http.StatusBadRequest)
 			return
 		}
 
 		entUuid, err := uuid.Parse(id)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("converting id to uuid: %w", err).Error(), http.StatusBadRequest)
+			app.Logger.Infof("%s: преобразование id к uuid: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("преобразование id к uuid: %w", err).Error(), http.StatusBadRequest)
 			return
 		}
 
 		page := r.URL.Query().Get("page")
 		if page == "" {
-			errorResponse(w, fmt.Errorf("empty page number").Error(), http.StatusBadRequest)
+			app.Logger.Infof("%s: пустой номер страницы", prompt)
+			errorResponse(w, fmt.Errorf("пустой номер страницы").Error(), http.StatusBadRequest)
 			return
 		}
 
 		pageInt, err := strconv.Atoi(page)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("converting page to int: %w", err).Error(), http.StatusBadRequest)
+			app.Logger.Infof("%s: преобразование страницы к int: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("преобразование страницы к int: %w", err).Error(), http.StatusBadRequest)
 			return
 		}
 
 		revs, numPages, err := app.RevSvc.GetAllForTarget(r.Context(), entUuid, pageInt)
 		if err != nil {
-			errorResponse(w, fmt.Errorf("getting reviews: %w", err).Error(), http.StatusBadRequest)
+			app.Logger.Infof("%s: получение отзывов: %v", prompt, err)
+			errorResponse(w, fmt.Errorf("получение отзывов: %w", err).Error(), http.StatusBadRequest)
 			return
 		}
 
@@ -1470,28 +1627,32 @@ func GetEntrepreneurReviews(app *app.App) http.HandlerFunc {
 
 func GetAuthorReviews(app *app.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		prompt := "получение собственных отзывов"
+		prompt := "GetAuthorReviewsHandler"
 
 		idStr, err := getStringClaimFromJWT(r.Context(), "sub")
 		if err != nil {
+			app.Logger.Infof("%s: получение записей из JWT: %v", prompt, err)
 			errorResponse(w, fmt.Errorf("%s: получение записей из JWT: %w", prompt, err).Error(), http.StatusBadRequest)
 			return
 		}
 
 		entUuid, err := uuid.Parse(idStr)
 		if err != nil {
+			app.Logger.Infof("%s: преобразование id к uuid: %v", prompt, err)
 			errorResponse(w, fmt.Errorf("%s: преобразование id к uuid: %w", prompt, err).Error(), http.StatusInternalServerError)
 			return
 		}
 
 		page := r.URL.Query().Get("page")
 		if page == "" {
+			app.Logger.Infof("%s: пустой номер страницы", prompt)
 			errorResponse(w, fmt.Errorf("пустой номер страницы").Error(), http.StatusBadRequest)
 			return
 		}
 
 		pageInt, err := strconv.Atoi(page)
 		if err != nil {
+			app.Logger.Infof("%s: преобразование страницы к int: %v", prompt, err)
 			errorResponse(w, fmt.Errorf("преобразование страницы к int: %w", err).Error(), http.StatusBadRequest)
 			return
 		}
@@ -1509,16 +1670,18 @@ func GetAuthorReviews(app *app.App) http.HandlerFunc {
 
 func CreateReview(app *app.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		prompt := "создание отзыва"
+		prompt := "CreateReviewHandler"
 
 		idStr, err := getStringClaimFromJWT(r.Context(), "sub")
 		if err != nil {
+			app.Logger.Infof("%s: получение записей из JWT: %v", prompt, err)
 			errorResponse(w, fmt.Errorf("%s: получение записей из JWT: %w", prompt, err).Error(), http.StatusBadRequest)
 			return
 		}
 
 		idUuid, err := uuid.Parse(idStr)
 		if err != nil {
+			app.Logger.Infof("%s: преобразование id к uuid: %v", prompt, err)
 			errorResponse(w, fmt.Errorf("%s: преобразование id к uuid: %w", prompt, err).Error(), http.StatusInternalServerError)
 			return
 		}
@@ -1526,6 +1689,7 @@ func CreateReview(app *app.App) http.HandlerFunc {
 		var req Review
 		err = json.NewDecoder(r.Body).Decode(&req)
 		if err != nil {
+			app.Logger.Infof("%s: %v", prompt, err)
 			errorResponse(w, err.Error(), http.StatusBadRequest)
 			return
 		}
@@ -1535,6 +1699,7 @@ func CreateReview(app *app.App) http.HandlerFunc {
 
 		err = app.RevSvc.Create(r.Context(), &rev)
 		if err != nil {
+			app.Logger.Infof("%s: %v", prompt, err)
 			errorResponse(w, fmt.Errorf("%s: %w", prompt, err).Error(), http.StatusBadRequest)
 			return
 		}
@@ -1549,24 +1714,28 @@ func DeleteReview(app *app.App) http.HandlerFunc {
 
 		id := chi.URLParam(r, "id")
 		if id == "" {
+			app.Logger.Infof("%s: пустой id", prompt)
 			errorResponse(w, fmt.Errorf("%s: пустой id", prompt).Error(), http.StatusBadRequest)
 			return
 		}
 
 		idUuid, err := uuid.Parse(id)
 		if err != nil {
+			app.Logger.Infof("%s: преобразование id к uuid: %v", prompt, err)
 			errorResponse(w, fmt.Errorf("%s: преобразование id к uuid: %w", prompt, err).Error(), http.StatusBadRequest)
 			return
 		}
 
 		_, err = app.RevSvc.Get(r.Context(), idUuid)
 		if err != nil {
+			app.Logger.Infof("%s: %v", prompt, err)
 			errorResponse(w, fmt.Errorf("%s: %w", prompt, err).Error(), http.StatusBadRequest)
 			return
 		}
 
 		err = app.RevSvc.Delete(r.Context(), idUuid)
 		if err != nil {
+			app.Logger.Infof("%s: %v", prompt, err)
 			errorResponse(w, fmt.Errorf("%s: %w", prompt, err).Error(), http.StatusInternalServerError)
 			return
 		}

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"ppo/domain"
+	"ppo/pkg/logger"
 	"time"
 
 	"github.com/google/uuid"
@@ -21,6 +22,7 @@ type Interactor struct {
 	actFieldService domain.IActivityFieldService
 	compService     domain.ICompanyService
 	finService      domain.IFinancialReportService
+	logger          logger.ILogger
 }
 
 func NewInteractor(
@@ -28,12 +30,14 @@ func NewInteractor(
 	actFieldSvc domain.IActivityFieldService,
 	compSvc domain.ICompanyService,
 	finSvc domain.IFinancialReportService,
+	logger logger.ILogger,
 ) *Interactor {
 	return &Interactor{
 		userService:     userSvc,
 		actFieldService: actFieldSvc,
 		compService:     compSvc,
 		finService:      finSvc,
+		logger:          logger,
 	}
 }
 
@@ -138,8 +142,11 @@ func (i *Interactor) GetMostProfitableCompany(ctx context.Context, period *domai
 }
 
 func (i *Interactor) CalculateUserRating(ctx context.Context, id uuid.UUID) (rating float32, err error) {
+	prompt := "UserActivityFieldCalculateUserRating"
+
 	companies, _, err := i.compService.GetByOwnerId(ctx, id, 0, false)
 	if err != nil {
+		i.logger.Infof("%s: получение списка компаний: %v", prompt, err)
 		return 0, fmt.Errorf("получение списка компаний: %w", err)
 	}
 
@@ -153,11 +160,13 @@ func (i *Interactor) CalculateUserRating(ctx context.Context, id uuid.UUID) (rat
 
 	report, err := i.GetUserFinancialReport(ctx, id, period)
 	if err != nil {
+		i.logger.Infof("%s: получение финансового отчета пользователя: %v", prompt, err)
 		return 0, fmt.Errorf("получение финансового отчета пользователя: %w", err)
 	}
 
 	mostProfitableCompany, err := i.GetMostProfitableCompany(ctx, period, companies)
 	if err != nil {
+		i.logger.Infof("%s: поиск наиболее прибыльной компании: %v", prompt, err)
 		return 0, fmt.Errorf("поиск наиболее прибыльной компании: %w", err)
 	}
 	if mostProfitableCompany == nil {
@@ -166,11 +175,13 @@ func (i *Interactor) CalculateUserRating(ctx context.Context, id uuid.UUID) (rat
 
 	maxCost, err := i.actFieldService.GetMaxCost(ctx)
 	if err != nil {
+		i.logger.Infof("%s: поиск максимального веса: %v", prompt, err)
 		return 0, fmt.Errorf("поиск максимального веса: %w", err)
 	}
 
 	cost, err := i.actFieldService.GetCostByCompanyId(ctx, mostProfitableCompany.ID)
 	if err != nil {
+		i.logger.Infof("%s: получение веса сферы деятельности компании: %v", prompt, err)
 		return 0, fmt.Errorf("получение веса сферы деятельности компании: %w", err)
 	}
 
@@ -184,10 +195,12 @@ func (i *Interactor) CalculateUserRating(ctx context.Context, id uuid.UUID) (rat
 }
 
 func (i *Interactor) GetUserFinancialReport(ctx context.Context, id uuid.UUID, period *domain.Period) (report *domain.FinancialReportByPeriod, err error) {
+	prompt := "UserActivityFieldGetUserFinancialReport"
 	report = new(domain.FinancialReportByPeriod)
 
 	companies, _, err := i.compService.GetByOwnerId(ctx, id, 0, false)
 	if err != nil {
+		i.logger.Infof("%s: получение списка компаний: %v", prompt, err)
 		return nil, fmt.Errorf("получение списка компаний: %w", err)
 	}
 
@@ -196,6 +209,7 @@ func (i *Interactor) GetUserFinancialReport(ctx context.Context, id uuid.UUID, p
 	for _, comp := range companies {
 		rep, err := i.finService.GetByCompany(ctx, comp.ID, period)
 		if err != nil {
+			i.logger.Infof("%s: получение отчета компании: %v", prompt, err)
 			return nil, fmt.Errorf("получение отчета компании: %w", err)
 		}
 

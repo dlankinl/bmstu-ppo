@@ -15,11 +15,13 @@ import (
 	"ppo/internal/services/user_skill"
 	"ppo/internal/storage/postgres"
 	"ppo/pkg/base"
+	"ppo/pkg/logger"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type App struct {
+	Logger       logger.ILogger
 	AuthSvc      domain.IAuthService
 	UserSvc      domain.IUserService
 	FinSvc       domain.IFinancialReportService
@@ -33,7 +35,7 @@ type App struct {
 	Config       config.Config
 }
 
-func NewApp(db *pgxpool.Pool, cfg *config.Config) *App {
+func NewApp(db *pgxpool.Pool, cfg *config.Config, log logger.ILogger) *App {
 	authRepo := postgres.NewAuthRepository(db)
 	userRepo := postgres.NewUserRepository(db)
 	finRepo := postgres.NewFinReportRepository(db)
@@ -46,18 +48,19 @@ func NewApp(db *pgxpool.Pool, cfg *config.Config) *App {
 
 	crypto := base.NewHashCrypto()
 
-	authSvc := auth.NewService(authRepo, crypto, cfg.JwtKey)
-	userSvc := user.NewService(userRepo, compRepo, actFieldRepo)
-	finSvc := fin_report.NewService(finRepo)
-	conSvc := contact.NewService(conRepo)
-	skillSvc := skill.NewService(skillRepo)
-	userSkillSvc := user_skill.NewService(userSkillRepo, userRepo, skillRepo)
-	actFieldSvc := activity_field.NewService(actFieldRepo, compRepo)
-	compSvc := company.NewService(compRepo, actFieldRepo)
-	revSvc := review.NewService(revRepo)
-	interactor := user_activity_field.NewInteractor(userSvc, actFieldSvc, compSvc, finSvc)
+	authSvc := auth.NewService(authRepo, crypto, cfg.Server.JwtKey, log)
+	userSvc := user.NewService(userRepo, compRepo, actFieldRepo, log)
+	finSvc := fin_report.NewService(finRepo, log)
+	conSvc := contact.NewService(conRepo, log)
+	skillSvc := skill.NewService(skillRepo, log)
+	userSkillSvc := user_skill.NewService(userSkillRepo, userRepo, skillRepo, log)
+	actFieldSvc := activity_field.NewService(actFieldRepo, compRepo, log)
+	compSvc := company.NewService(compRepo, actFieldRepo, log)
+	revSvc := review.NewService(revRepo, log)
+	interactor := user_activity_field.NewInteractor(userSvc, actFieldSvc, compSvc, finSvc, log)
 
 	return &App{
+		Logger:       log,
 		AuthSvc:      authSvc,
 		UserSvc:      userSvc,
 		FinSvc:       finSvc,
