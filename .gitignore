@@ -3,3 +3,12 @@
 *.bkp
 *.drawio
 /.idea/
+/src/frontend/node_modules
+/src/frontend/dist
+/backend/logs
+/node_modules
+/postgres-db
+*.pdf
+*.zip
+*.npmrc
+*.py

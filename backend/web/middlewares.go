@@ -17,12 +17,12 @@ func ValidateAdminRoleJWT(next http.Handler) http.Handler {
 
 		role, ok := claims["role"]
 		if !ok {
-			errorResponse(w, fmt.Errorf("getting 'role' claim from JWT").Error(), http.StatusBadRequest)
+			errorResponse(w, fmt.Errorf("получение 'role' claim`а из JWT").Error(), http.StatusBadRequest)
 			return
 		}
 
 		if role != "admin" {
-			errorResponse(w, fmt.Errorf("only administrators can use this").Error(), http.StatusForbidden)
+			errorResponse(w, fmt.Errorf("только администраторы могут делать это").Error(), http.StatusForbidden)
 			return
 		}
 
@@ -40,12 +40,12 @@ func ValidateUserRoleJWT(next http.Handler) http.Handler {
 
 		role, ok := claims["role"]
 		if !ok {
-			errorResponse(w, fmt.Errorf("getting 'role' claim from JWT").Error(), http.StatusBadRequest)
+			errorResponse(w, fmt.Errorf("получение 'role' claim`а из JWT").Error(), http.StatusBadRequest)
 			return
 		}
 
 		if role != "user" && role != "admin" {
-			errorResponse(w, fmt.Errorf("you need to login to perform this action").Error(), http.StatusForbidden)
+			errorResponse(w, fmt.Errorf("вам нужно авторизоваться, прежде чем сделать это").Error(), http.StatusForbidden)
 			return
 		}
 

@@ -12,7 +12,11 @@ const (
 )
 
 type Server struct {
-	JwtKey string `yaml:"jwt_key"`
+	JwtKey      string `yaml:"jwt_key"`
+	ServerHost  string `yaml:"server_host"`
+	ServerPort  string `yaml:"server_port"`
+	MetricsHost string `yaml:"metrics_host"`
+	MetricsPort string `yaml:"metrics_port"`
 }
 
 type Database struct {
