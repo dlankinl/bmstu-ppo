@@ -2,10 +2,15 @@ package user
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"ppo/domain"
+	"ppo/internal/cache"
+	"ppo/internal/config"
 	"ppo/pkg/logger"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -14,6 +19,7 @@ type Service struct {
 	userRepo     domain.IUserRepository
 	companyRepo  domain.ICompanyRepository
 	actFieldRepo domain.IActivityFieldRepository
+	cache        cache.Cache
 	logger       logger.ILogger
 }
 
@@ -21,12 +27,14 @@ func NewService(
 	userRepo domain.IUserRepository,
 	companyRepo domain.ICompanyRepository,
 	actFieldRepo domain.IActivityFieldRepository,
+	cache cache.Cache,
 	logger logger.ILogger,
 ) domain.IUserService {
 	return &Service{
 		userRepo:     userRepo,
 		companyRepo:  companyRepo,
 		actFieldRepo: actFieldRepo,
+		cache:        cache,
 		logger:       logger,
 	}
 }
@@ -71,23 +79,72 @@ func (s *Service) Create(ctx context.Context, user *domain.User) (err error) {
 func (s *Service) GetByUsername(ctx context.Context, username string) (user *domain.User, err error) {
 	prompt := "UserGetByUsername"
 
-	user, err = s.userRepo.GetByUsername(ctx, username)
-	if err != nil {
-		s.logger.Infof("%s: получение пользователя по username: %v", prompt, err)
-		return nil, fmt.Errorf("получение пользователя по username: %w", err)
+	err = s.cache.Get(ctx, username, user)
+	if err != nil && !errors.Is(err, cache.ErrNotFound) {
+		s.logger.Infof("%s: %v", prompt, err)
+		return nil, fmt.Errorf("%s: %w", prompt, err)
+	}
+
+	if user == nil {
+		user, err = s.userRepo.GetByUsername(ctx, username)
+		if err != nil {
+			s.logger.Infof("%s: получение пользователя по username: %v", prompt, err)
+			return nil, fmt.Errorf("получение пользователя по username: %w", err)
+		}
+
+		err = s.cache.Set(ctx, username, user, config.ExpirationTime)
+		if err != nil {
+			s.logger.Infof("%s: %v", prompt, err)
+			return nil, fmt.Errorf("%s: %w", prompt, err)
+		}
 	}
 
 	return user, nil
 }
 
+type User struct {
+	ID       uuid.UUID
+	Username string
+	FullName string
+	Gender   string
+	Birthday time.Time
+	City     string
+	Role     string
+}
+
+func (u *User) MarshalBinary() ([]byte, error) {
+	return json.Marshal(u)
+}
+
+func (u *User) UnmarshalBinary(data []byte) error {
+	return json.Unmarshal(data, u)
+}
+
 func (s *Service) GetById(ctx context.Context, userId uuid.UUID) (user *domain.User, err error) {
 	prompt := "UserGetById"
 
-	user, err = s.userRepo.GetById(ctx, userId)
-	if err != nil {
-		s.logger.Infof("%s: получение пользователя по id: %v", prompt, err)
-		return nil, fmt.Errorf("получение пользователя по id: %w", err)
+	var tmp User
+	err = s.cache.Get(ctx, userId.String(), &tmp)
+	if err != nil && !errors.Is(err, cache.ErrNotFound) {
+		s.logger.Infof("%s: %v", prompt, err)
+		return nil, fmt.Errorf("%s: %w", prompt, err)
 	}
+	fmt.Println("THIS MODEL: ", tmp)
+
+	if user == nil {
+		user, err = s.userRepo.GetById(ctx, userId)
+		if err != nil {
+			s.logger.Infof("%s: получение пользователя по id: %v", prompt, err)
+			return nil, fmt.Errorf("получение пользователя по id: %w", err)
+		}
+
+		err = s.cache.Set(ctx, userId.String(), user, config.ExpirationTime)
+		if err != nil {
+			s.logger.Infof("%s: %v", prompt, err)
+			return nil, fmt.Errorf("%s: %w", prompt, err)
+		}
+	}
+	fmt.Println("AFTER REPO: ", user)
 
 	return user, nil
 }

@@ -2,6 +2,8 @@ package app
 
 import (
 	"ppo/domain"
+	"ppo/internal/cache"
+	"ppo/internal/cache/redis"
 	"ppo/internal/config"
 	"ppo/internal/interactors/user_activity_field"
 	"ppo/internal/services/activity_field"
@@ -32,10 +34,11 @@ type App struct {
 	CompSvc      domain.ICompanyService
 	RevSvc       domain.IReviewService
 	Interactor   domain.IInteractor
+	Cache        cache.Cache
 	Config       config.Config
 }
 
-func NewApp(db *pgxpool.Pool, cfg *config.Config, log logger.ILogger) *App {
+func NewApp(db *pgxpool.Pool, cache *redis.Cache, cfg *config.Config, log logger.ILogger) *App {
 	authRepo := postgres.NewAuthRepository(db)
 	userRepo := postgres.NewUserRepository(db)
 	finRepo := postgres.NewFinReportRepository(db)
@@ -49,7 +52,7 @@ func NewApp(db *pgxpool.Pool, cfg *config.Config, log logger.ILogger) *App {
 	crypto := base.NewHashCrypto()
 
 	authSvc := auth.NewService(authRepo, crypto, cfg.Server.JwtKey, log)
-	userSvc := user.NewService(userRepo, compRepo, actFieldRepo, log)
+	userSvc := user.NewService(userRepo, compRepo, actFieldRepo, cache, log)
 	finSvc := fin_report.NewService(finRepo, log)
 	conSvc := contact.NewService(conRepo, log)
 	skillSvc := skill.NewService(skillRepo, log)
@@ -71,6 +74,7 @@ func NewApp(db *pgxpool.Pool, cfg *config.Config, log logger.ILogger) *App {
 		CompSvc:      compSvc,
 		RevSvc:       revSvc,
 		Interactor:   interactor,
+		Cache:        cache,
 		Config:       *cfg,
 	}
 }

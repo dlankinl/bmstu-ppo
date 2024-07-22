@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"ppo/internal/app"
+	"ppo/internal/cache/redis"
 	"ppo/internal/config"
 	loggerPackage "ppo/pkg/logger"
 	"ppo/web"
@@ -67,10 +68,21 @@ func main() {
 
 	pool, err := newConn(context.Background(), &cfg.Database)
 	if err != nil {
+		fmt.Println(err)
 		logger.Fatalf(err.Error())
 	}
+	defer pool.Close()
 
-	a := app.NewApp(pool, cfg, logger)
+	redisCl, err := redis.NewClient(cfg.Redis)
+	if err != nil {
+		fmt.Println(err)
+		logger.Fatalf(err.Error())
+	}
+	defer redisCl.Close()
+
+	cache := redis.NewCache(redisCl)
+
+	a := app.NewApp(pool, cache, cfg, logger)
 
 	mux := chi.NewMux()
 
